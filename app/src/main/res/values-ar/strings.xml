@@ -1,0 +1,173 @@
+<resources>
+    <!-- 
+      Fichier des chaînes en Arabe (Qualificateur : values-ar)
+      EXIGENCE DU PROF : Prise en charge native RTL (Ch.3)
+      Parité 100% avec strings.xml et values-fr
+    -->
+    <string name="app_name">مصروف</string>
+
+    <!-- Écran de connexion (Login Screen - Figma 01 AR) -->
+    <string name="login_tagline">أموالك. توازنك.</string>
+    <string name="login_hero_title">أنفق بوعي وتخطيط.</string>
+    <string name="login_welcome_title">أهلاً بعودتك</string>
+    <string name="login_welcome_subtitle">رؤية أوضح لأموالك ومصاريفك اليومية.</string>
+    <string name="login_label_email">البريد الإلكتروني</string>
+    <string name="login_hint_email">name@gmail.com</string>
+    <string name="login_label_password">كلمة المرور</string>
+    <string name="login_btn_login">تسجيل الدخول</string>
+    <string name="login_btn_continue">متابعة</string>
+    <string name="login_btn_create_account">إنشاء حساب جديد</string>
+    <string name="login_forgot_password">نسيت كلمة المرور؟</string>
+    <string name="login_link_signup">سجّل الآن في تطبيق مصروف</string>
+
+    <!-- Sélecteur de langue -->
+    <string name="lang_en">EN</string>
+    <string name="lang_fr">FR</string>
+    <string name="lang_ar">العربية</string>
+
+    <!-- Messages et validations -->
+    <string name="error_empty_fields">يرجى إدخال البريد الإلكتروني وكلمة المرور.</string>
+    <string name="error_invalid_email_domain">يجب أن يكون البريد الإلكتروني تابعاً لـ gmail.com (مثل name@gmail.com).</string>
+    <string name="error_password_policy">يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير، ورقم، ورمز خاص.</string>
+    <string name="error_invalid_credentials">البريد الإلكتروني أو كلمة المرور غير صحيحة.</string>
+    <string name="error_account_suspended">هذا الحساب معلّق. يرجى الاتصال بمسؤول النظام.</string>
+    <string name="msg_login_success">تم تسجيل الدخول بنجاح.</string>
+
+    <!-- Écran d'accueil utilisateur standard (Home - Figma 07 AR) -->
+    <string name="home_title">مصروف — نظرة عامة</string>
+    <string name="home_greeting_format">صباح الخير، %1$s</string>
+    <string name="home_account_type">حساب شخصي</string>
+    <string name="home_available_to_spend">المبلغ المتاح للإنفاق</string>
+    <string name="home_spent_format">تم إنفاق %1$s</string>
+    <string name="home_used_pct_format">تم استهلاك %1$.1f%%</string>
+    <string name="home_budget_format">الميزانية : %1$s</string>
+    <string name="home_section_categories">الفئات</string>
+    <string name="home_section_recent_purchases">آخر المشتريات</string>
+    <string name="home_no_transactions">لم يتم تسجيل أي مشتريات حتى الآن.</string>
+    <string name="home_no_budget">لا توجد ميزانية نشطة. أنشئ ميزانية للبدء!</string>
+    <string name="home_demo_notice">أنت متصل بحساب مستخدم قياسي.</string>
+    <string name="btn_add_purchase">+ إضافة مشتريات</string>
+    <string name="btn_add_expense">+ مصاريف سريعة</string>
+    <string name="btn_logout">تسجيل الخروج</string>
+
+    <!-- Statuts budgétaires dynamiques -->
+    <string name="status_healthy_title">ميزانيتك في حالة جيدة وسليمة</string>
+    <string name="status_healthy_desc">متبقي %1$s لبقية هذه الفترة.</string>
+    <string name="status_warning_title">اقتراب من سقف الميزانية (80%)</string>
+    <string name="status_warning_desc">تنبيه! متبقي %1$s قبل بلوغ السقف المحدد.</string>
+    <string name="status_exceeded_title">تم تجاوز الميزانية المحددة!</string>
+    <string name="status_exceeded_desc">لقد تجاوزت خطتك بمقدار %1$s.</string>
+
+    <!-- Tiroir de Navigation latéral (Navigation Drawer - Figma 08 AR) -->
+    <string name="drawer_menu_title">مصروف</string>
+    <string name="drawer_role_user">حساب شخصي</string>
+    <string name="drawer_role_admin">مسؤول النظام</string>
+    <string name="drawer_nav_home">الرئيسية</string>
+    <string name="drawer_nav_products">المنتجات ومقارنة الأسعار</string>
+    <string name="drawer_nav_calendar">التقويم الشهري</string>
+    <string name="drawer_nav_analytics">الإحصائيات والتحليلات</string>
+    <string name="drawer_nav_budget">إدارة الميزانية</string>
+    <string name="drawer_nav_points">النقاط والمكافآت</string>
+    <string name="drawer_nav_manual">دليل المستخدم (PDF)</string>
+    <string name="drawer_nav_settings">الإعدادات والدعم</string>
+    <string name="drawer_nav_admin">لوحة تحكم المسؤول</string>
+    <string name="drawer_nav_logout">تسجيل الخروج</string>
+    <string name="drawer_version">مصروف v1.0.0 · مشروع جامعي</string>
+
+    <!-- Notifications système -->
+    <string name="notif_budget_warning_title">مصروف : تم بلوغ 80% من الميزانية</string>
+    <string name="notif_budget_warning_msg">انتباه! لقد استهلكت %1$.1f%% من الميزانية. المتبقي: %2$s</string>
+    <string name="notif_budget_exceeded_title">مصروف : تجاوز الميزانية!</string>
+    <string name="notif_budget_exceeded_msg">تنبيه! مصاريفك تجاوزت الميزانية المخصصة بمقدار %1$s.</string>
+    <string name="notif_purchase_added_title">تم تسجيل العملية</string>
+    <string name="notif_purchase_added_msg">خصم جديد بمقدار %1$s مقابل %2$s.</string>
+
+    <!-- Tableau de bord Administrateur (Admin Dashboard - Figma 35 AR) -->
+    <string name="admin_header_title">نظرة عامة للمسؤول</string>
+    <string name="admin_subtitle">المسؤول · إحصائيات عامة للنظام</string>
+    <string name="admin_stat_active_accounts">الحسابات النشطة</string>
+    <string name="admin_stat_accounts_summary">%1$d إجمالي · %2$d معلّق</string>
+    <string name="admin_privacy_title">إحصائيات مجهولة المصدر فقط</string>
+    <string name="admin_privacy_desc">لا يمكن الوصول إلى الميزانيات أو المعاملات الشخصية للمستخدمين.</string>
+    <string name="admin_product_categories">فئات المنتجات</string>
+    <string name="admin_expense_categories">فئات المصاريف</string>
+    <string name="admin_btn_manage_users">إدارة المستخدمين</string>
+    <string name="admin_btn_manage_categories">إدارة الفئات</string>
+    <string name="admin_btn_category_types">أنواع الفئات</string>
+    <string name="admin_btn_default_percentages">النسب الافتراضية</string>
+    <string name="admin_btn_points_rules">قواعد النقاط</string>
+    <string name="admin_btn_settings">إعدادات المسؤول</string>
+    <string name="admin_access_denied">تم رفض الوصول: مخصص للمسؤولين فقط.</string>
+
+    <!-- Gamification & Points (Figma 21 AR) -->
+    <string name="gamification_title">النقاط والمكافآت</string>
+    <string name="gamification_total_points">إجمالي النقاط</string>
+    <string name="gamification_level_format">المستوى : %1$s</string>
+    <string name="gamification_streak_format">توفير متواصل لمدة %1$d فترات !</string>
+    <string name="gamification_streak_bonus">مكافأة الاستمرار لـ 3 أشهر (+50 نقطة مفعلة)</string>
+    <string name="gamification_section_ledger">سجل النقاط</string>
+    <string name="gamification_section_badges">الأوسمة والإنجازات</string>
+    <string name="gamification_badge_unlocked">تم الفتح</string>
+    <string name="gamification_badge_locked">مغلق (مطلوب %1$d نقطة)</string>
+
+    <!-- Modifier Budget (Figma 11 AR) -->
+    <string name="modify_budget_title">تعديل الميزانية</string>
+    <string name="modify_budget_subtitle">ضبط المبلغ الإجمالي وتوزيع الفئات</string>
+    <string name="modify_budget_allocated_summary">المخصص : %1$s / %2$s</string>
+    <string name="modify_budget_unallocated_summary">غير مخصص : %1$s</string>
+    <string name="modify_budget_error_exceeded">مجموع الفئات يتجاوز الميزانية الكلية !</string>
+    <string name="modify_budget_save_btn">حفظ التغييرات</string>
+    <string name="modify_budget_success">تم تحديث الميزانية بنجاح.</string>
+
+    <!-- Dépenses fixes (Figma 17 & 25 AR) -->
+    <string name="add_expense_title">مصروف سريع جديد</string>
+    <string name="edit_expense_title">تعديل المصروف</string>
+    <string name="expense_field_title">العنوان / الوصف</string>
+    <string name="expense_field_amount">المبلغ (د.ت)</string>
+    <string name="expense_field_category">الفئة</string>
+    <string name="expense_field_date">التاريخ</string>
+    <string name="expense_field_recurring">فاتورة شهرية متكررة</string>
+    <string name="expense_field_note">ملاحظة اختيارية</string>
+    <string name="expense_saved_success">تم تسجيل المصروف بنجاح.</string>
+    <string name="expense_deleted_success">تم حذف المصروف.</string>
+
+    <!-- Détails Produit & Historique (Figma 13, 14, 15, 24, 26 AR) -->
+    <string name="product_details_title">تفاصيل المنتج</string>
+    <string name="product_add_title">إضافة منتج جديد</string>
+    <string name="product_edit_title">تعديل المنتج</string>
+    <string name="purchase_history_title">سجل المشتريات</string>
+    <string name="purchase_edit_title">تعديل عملية الشراء</string>
+    <string name="product_price_variation_down">انخفاض بنسبة %1$.1f%%</string>
+    <string name="product_price_variation_up">+%1$.1f%% زيادة في السعر</string>
+    <string name="product_price_stable">السعر مستقر</string>
+    <string name="product_last_price_label">آخر سعر فردي</string>
+    <string name="product_prev_price_label">السعر السابق</string>
+    <string name="product_store_label">المتجر / المساحة التجارية</string>
+    <string name="product_unit_label">الوحدة (لتر، كغ، عبوة، قطعة)</string>
+    <string name="product_brand_label">العلامة التجارية</string>
+    <string name="product_name_label">اسم المنتج</string>
+    <string name="product_photo_btn">إرفاق صورة للمنتج</string>
+    <string name="product_saved_success">تم حفظ المنتج بنجاح.</string>
+
+    <!-- Manuel Utilisateur (Figma & PDF AR) -->
+    <string name="manual_title">دليل وإرشادات المستخدم</string>
+    <string name="manual_btn_open_pdf">فتح دليل المستخدم بصيغة PDF</string>
+    <string name="manual_tab_philosophy">1. الفلسفة</string>
+    <string name="manual_tab_budget">2. الميزانيات</string>
+    <string name="manual_tab_prices">3. الأسعار</string>
+    <string name="manual_tab_gamification">4. المكافآت</string>
+
+    <!-- Écrans Admin (Figma 39, 40, 41, 42, 43 AR) -->
+    <string name="admin_categories_title">إدارة الفئات</string>
+    <string name="admin_category_types_title">أنواع الفئات</string>
+    <string name="admin_percentages_title">النسب الافتراضية</string>
+    <string name="admin_percentages_total_format">إجمالي التوزيع : %1$.1f%% (يجب أن يساوي 100%%)</string>
+    <string name="admin_percentages_valid">الإجمالي صحيح بنسبة 100%.</string>
+    <string name="admin_percentages_invalid">يجب أن يكون الإجمالي 100% تماماً.</string>
+    <string name="admin_points_rules_title">قواعد النقاط</string>
+    <string name="admin_settings_title">إعدادات النظام</string>
+    <string name="btn_save">حفظ</string>
+    <string name="btn_delete">حذف</string>
+    <string name="btn_cancel">إلغاء</string>
+    <string name="confirm_delete">هل أنت متأكد من الحذف؟</string>
+</resources>
