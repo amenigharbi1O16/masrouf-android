@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Layout XML : Écran d'administration des utilisateurs (Figma 36)
+  EXIGENCES DU PROF COUVERTES :
+    - Exigence n°1 : Gestion des 2 rôles (écran réservé ADMIN).
+    - Matrice §4 ligne 29 : ListView alimentée par SimpleCursorAdapter (Ch. 6 du cours).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/warm_bg"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- En-tête avec bouton retour -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="12dp">
+
+        <Button
+            android:id="@+id/btn_back_admin_users"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:text="←"
+            android:textColor="@color/deep_forest"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gestion des Utilisateurs"
+            android:textColor="@color/deep_forest"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Bandeau explicatif pédagogique -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_admin_notice_card"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ℹ SimpleCursorAdapter (Ch. 6 du cours)"
+            android:textColor="@color/primary_emerald"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Cette liste est alimentée directement depuis un Cursor SQLite brut sans transformation intermédiaire en objets Java."
+            android:textColor="@color/deep_forest"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- ListView alimentée par SimpleCursorAdapter -->
+    <ListView
+        android:id="@+id/lv_admin_users"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp" />
+
+    <!-- Vue vide alternative -->
+    <TextView
+        android:id="@+id/tv_empty_users"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="Aucun utilisateur trouvé en base de données."
+        android:textColor="#666666"
+        android:visibility="gone" />
+
+</LinearLayout>
