@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Bouton secondaire (Create an account / Créer un compte)
+  Couleur de base : mint (#D9F0E4), état pressé : mint_pressed
+  Coins arrondis à 20dp
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/mint_pressed" />
+            <corners android:radius="@dimen/radius_btn" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/mint" />
+            <corners android:radius="@dimen/radius_btn" />
+        </shape>
+    </item>
+</selector>

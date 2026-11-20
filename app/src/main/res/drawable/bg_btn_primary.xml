@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Bouton principal (Log in / Se connecter)
+  Couleur de base : forest (#102B27), état pressé : forest_pressed
+  Coins arrondis à 20dp
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/forest_pressed" />
+            <corners android:radius="@dimen/radius_btn" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/forest" />
+            <corners android:radius="@dimen/radius_btn" />
+        </shape>
+    </item>
+</selector>

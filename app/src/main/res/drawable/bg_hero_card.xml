@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Fond de la carte héro sombre "Spend with intention"
+  Couleur : forest (#102B27), coins arrondis à 24dp
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/forest" />
+    <corners android:radius="@dimen/radius_card_l" />
+</shape>

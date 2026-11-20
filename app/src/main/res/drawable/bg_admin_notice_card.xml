@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Fond de la carte d'information admin (Statistiques anonymes uniquement)
+  Couleur : mint (#D9F0E4), coins arrondis à 16dp
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/mint" />
+    <corners android:radius="@dimen/radius_card_s" />
+</shape>
