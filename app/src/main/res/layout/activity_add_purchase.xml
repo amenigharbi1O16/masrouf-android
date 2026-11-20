@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Layout XML d'enregistrement d'un achat de produit (Figma 16)
+  Conforme à la maquette : 16 · EN / FR / AR · Add purchase.png
+  EXIGENCES DU PROF COUVERTES :
+    - Exigence n°2 (Vues XML, Ch.4).
+    - Matrice §4 ligne 10 (Appel de SelectCategoryActivity via startActivityForResult).
+    - Matrice §4 ligne 27 (Utilisation de Spinner pour le choix de magasin et d'unité).
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/warm_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/spacing_m"
+        android:paddingTop="20dp"
+        android:paddingEnd="@dimen/spacing_m"
+        android:paddingBottom="@dimen/spacing_l">
+
+        <!-- En-tête -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/ivBackAddPurchase"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_menu" />
+
+            <TextView
+                android:id="@+id/tvAddPurchaseHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_m"
+                android:layout_weight="1"
+                android:text="Add purchase"
+                android:textColor="@color/forest"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Profile"
+                android:src="@drawable/ic_profile" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:letterSpacing="0.08"
+            android:text="RECORD A PRODUCT PURCHASE"
+            android:textColor="@color/muted"
+            android:textSize="@dimen/text_subhead"
+            android:textStyle="bold" />
+
+        <!-- 1. Champ Produit -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_m"
+            android:paddingTop="@dimen/spacing_s"
+            android:paddingEnd="@dimen/spacing_m"
+            android:paddingBottom="@dimen/spacing_s">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product name"
+                android:textColor="@color/muted"
+                android:textSize="@dimen/text_label" />
+
+            <EditText
+                android:id="@+id/etPurchaseProductName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@null"
+                android:hint="Ex: Olive oil"
+                android:inputType="textCapWords"
+                android:minHeight="36dp"
+                android:text="Olive oil"
+                android:textColor="@color/ink"
+                android:textSize="15sp"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <!-- 2. Bouton de sélection de catégorie (startActivityForResult) -->
+        <LinearLayout
+            android:id="@+id/layoutSelectCategoryBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Category (Tap to change)"
+                    android:textColor="@color/muted"
+                    android:textSize="@dimen/text_label" />
+
+                <TextView
+                    android:id="@+id/tvSelectedCategoryName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Food"
+                    android:textColor="@color/ink"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select >"
+                android:textColor="@color/forest"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 3. Champ Prix total · DT -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_m"
+            android:paddingTop="@dimen/spacing_s"
+            android:paddingEnd="@dimen/spacing_m"
+            android:paddingBottom="@dimen/spacing_s">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total price · DT"
+                android:textColor="@color/muted"
+                android:textSize="@dimen/text_label" />
+
+            <EditText
+                android:id="@+id/etPurchaseTotalPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@null"
+                android:hint="14.500"
+                android:inputType="numberDecimal"
+                android:minHeight="36dp"
+                android:text="14.500"
+                android:textColor="@color/ink"
+                android:textSize="15sp"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <!-- 4. Ligne Quantité et Unité (avec Spinner, Matrice §4 ligne 27) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_input_card"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/spacing_m"
+                android:paddingTop="@dimen/spacing_s"
+                android:paddingEnd="@dimen/spacing_m"
+                android:paddingBottom="@dimen/spacing_s">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quantity"
+                    android:textColor="@color/muted"
+                    android:textSize="@dimen/text_label" />
+
+                <EditText
+                    android:id="@+id/etPurchaseQuantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:background="@null"
+                    android:inputType="numberDecimal"
+                    android:minHeight="36dp"
+                    android:text="1"
+                    android:textColor="@color/ink"
+                    android:textSize="15sp"
+                    tools:ignore="Autofill" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_input_card"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/spacing_m"
+                android:paddingTop="@dimen/spacing_s"
+                android:paddingEnd="@dimen/spacing_m"
+                android:paddingBottom="@dimen/spacing_s">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Unit (Unité)"
+                    android:textColor="@color/muted"
+                    android:textSize="@dimen/text_label" />
+
+                <!-- EXIGENCE MATRICE §4 LIGNE 27 : Widget Spinner -->
+                <Spinner
+                    android:id="@+id/spnPurchaseUnit"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 5. Champ Magasin (Store avec Spinner ou saisie) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_m"
+            android:paddingTop="@dimen/spacing_s"
+            android:paddingEnd="@dimen/spacing_m"
+            android:paddingBottom="@dimen/spacing_s">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Store (Magasin)"
+                android:textColor="@color/muted"
+                android:textSize="@dimen/text_label" />
+
+            <Spinner
+                android:id="@+id/spnPurchaseStore"
+                android:layout_width="match_parent"
+                android:layout_height="36dp" />
+        </LinearLayout>
+
+        <!-- 6. Résumé calculé : Prix unitaire (Figma 16) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Calculated unit price"
+                android:textColor="@color/muted"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvCalculatedUnitPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="14.500 DT / L"
+                android:textColor="@color/ink"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Unit price = total price ÷ quantity. Compare with the previous purchase before saving."
+            android:textColor="@color/muted"
+            android:textSize="12sp" />
+
+        <!-- Bouton Comparer le prix (Primaire) -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnComparePrice"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/control_height"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_btn_primary"
+            android:text="Compare price"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Bouton Annuler -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnCancelPurchase"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/control_height"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_btn_secondary"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/forest"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>
