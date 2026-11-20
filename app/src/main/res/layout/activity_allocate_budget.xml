@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Layout XML d'allocation du budget par catégorie (Figma 10)
+  Conforme à la maquette : 10 · EN / FR / AR · Allocate budget.png
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/warm_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/spacing_m"
+        android:paddingTop="20dp"
+        android:paddingEnd="@dimen/spacing_m"
+        android:paddingBottom="@dimen/spacing_l">
+
+        <!-- En-tête -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/ivBackAllocate"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_menu" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_m"
+                android:layout_weight="1"
+                android:text="Allocate budget"
+                android:textColor="@color/forest"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Profile"
+                android:src="@drawable/ic_profile" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvAllocPeriod"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:letterSpacing="0.08"
+            android:text="01–30 NOV 2026 · 30 DAYS"
+            android:textColor="@color/muted"
+            android:textSize="@dimen/text_subhead"
+            android:textStyle="bold" />
+
+        <!-- Lignes de métriques du budget (Figma 10) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Total budget"
+                android:textColor="@color/muted"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvAllocTotalBudget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1,200.000 DT"
+                android:textColor="@color/ink"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Allocated"
+                android:textColor="@color/muted"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvAllocatedSum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1,100.000 DT"
+                android:textColor="@color/ink"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Unallocated"
+                android:textColor="@color/muted"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvUnallocatedSum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100.000 DT"
+                android:textColor="@color/ink"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 1. Enveloppe Food -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_m"
+            android:paddingTop="@dimen/spacing_s"
+            android:paddingEnd="@dimen/spacing_m"
+            android:paddingBottom="@dimen/spacing_s">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Food · DT"
+                android:textColor="@color/muted"
+                android:textSize="@dimen/text_label" />
+
+            <EditText
+                android:id="@+id/etAllocFood"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@null"
+                android:inputType="numberDecimal"
+                android:minHeight="36dp"
+                android:text="500.000"
+                android:textColor="@color/ink"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <!-- 2. Enveloppe Transport -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_m"
+            android:paddingTop="@dimen/spacing_s"
+            android:paddingEnd="@dimen/spacing_m"
+            android:paddingBottom="@dimen/spacing_s">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Transport · DT"
+                android:textColor="@color/muted"
+                android:textSize="@dimen/text_label" />
+
+            <EditText
+                android:id="@+id/etAllocTransport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@null"
+                android:inputType="numberDecimal"
+                android:minHeight="36dp"
+                android:text="150.000"
+                android:textColor="@color/ink"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <!-- 3. Enveloppe Bills -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_m"
+            android:paddingTop="@dimen/spacing_s"
+            android:paddingEnd="@dimen/spacing_m"
+            android:paddingBottom="@dimen/spacing_s">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bills · DT"
+                android:textColor="@color/muted"
+                android:textSize="@dimen/text_label" />
+
+            <EditText
+                android:id="@+id/etAllocBills"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@null"
+                android:inputType="numberDecimal"
+                android:minHeight="36dp"
+                android:text="250.000"
+                android:textColor="@color/ink"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <!-- 4. Enveloppe Entertainment -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_m"
+            android:paddingTop="@dimen/spacing_s"
+            android:paddingEnd="@dimen/spacing_m"
+            android:paddingBottom="@dimen/spacing_s">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Entertainment · DT"
+                android:textColor="@color/muted"
+                android:textSize="@dimen/text_label" />
+
+            <EditText
+                android:id="@+id/etAllocEntertainment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@null"
+                android:inputType="numberDecimal"
+                android:minHeight="36dp"
+                android:text="100.000"
+                android:textColor="@color/ink"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <!-- 5. Enveloppe Savings -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/spacing_m"
+            android:paddingTop="@dimen/spacing_s"
+            android:paddingEnd="@dimen/spacing_m"
+            android:paddingBottom="@dimen/spacing_s">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Savings · DT"
+                android:textColor="@color/muted"
+                android:textSize="@dimen/text_label" />
+
+            <EditText
+                android:id="@+id/etAllocSavings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@null"
+                android:inputType="numberDecimal"
+                android:minHeight="36dp"
+                android:text="100.000"
+                android:textColor="@color/ink"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <!-- Bannière d'état des montants non alloués (Figma 10) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_admin_notice_card"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="Check"
+                android:src="@drawable/ic_check" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvNoticeUnallocated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100.000 DT stays unallocated"
+                    android:textColor="@color/forest"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="You can assign it later. Total cannot exceed budget."
+                    android:textColor="@color/forest"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bouton Créer mon budget -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnCreateMyBudget"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/control_height"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_btn_primary"
+            android:text="Create my budget"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>
