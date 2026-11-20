@@ -1,0 +1,28 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- 
+      Thème principal de l'application Masrouf
+      Hérite de Theme.Material3.DayNight.NoActionBar pour un design épuré sans barre d'action par défaut
+      EXIGENCE DU PROF : Personnalisation du thème et liaison avec colors.xml (Ch.3)
+    -->
+    <style name="Base.Theme.Masrouf" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Couleurs de marque -->
+        <item name="colorPrimary">@color/forest</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/mint</item>
+        <item name="colorOnSecondary">@color/forest</item>
+
+        <!-- Fond général de la fenêtre conforme à la maquette Figma -->
+        <item name="android:windowBackground">@color/warm_bg</item>
+        <item name="android:colorBackground">@color/warm_bg</item>
+
+        <!-- Barre de statut claire avec icônes sombres -->
+        <item name="android:statusBarColor">@color/warm_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Barre de navigation système claire -->
+        <item name="android:navigationBarColor">@color/warm_bg</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+    </style>
+
+    <style name="Theme.Masrouf" parent="Base.Theme.Masrouf" />
+</resources>
