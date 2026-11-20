@@ -1,0 +1,173 @@
+<resources>
+    <!-- 
+      Fichier des chaînes par défaut (Langue : Anglais)
+      EXIGENCE DU PROF : Aucune chaîne en dur dans les layouts ou le Java (Ch.3)
+      100% Translation-key parity with values-fr and values-ar
+    -->
+    <string name="app_name">Masrouf</string>
+
+    <!-- Écran de connexion (Login Screen - Figma 01) -->
+    <string name="login_tagline">YOUR MONEY. YOUR BALANCE.</string>
+    <string name="login_hero_title">Spend with intention.</string>
+    <string name="login_welcome_title">Welcome back</string>
+    <string name="login_welcome_subtitle">A clearer view of your everyday money.</string>
+    <string name="login_label_email">Email address</string>
+    <string name="login_hint_email">name@gmail.com</string>
+    <string name="login_label_password">Password</string>
+    <string name="login_btn_login">Log in</string>
+    <string name="login_btn_continue">Continue</string>
+    <string name="login_btn_create_account">Create an account</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_link_signup">Sign up for Masrouf</string>
+
+    <!-- Sélecteur de langue -->
+    <string name="lang_en">EN</string>
+    <string name="lang_fr">FR</string>
+    <string name="lang_ar">العربية</string>
+
+    <!-- Messages et validations -->
+    <string name="error_empty_fields">Please enter both email and password.</string>
+    <string name="error_invalid_email_domain">Email must be a valid @gmail.com address (e.g. name@gmail.com).</string>
+    <string name="error_password_policy">Password must be at least 8 characters, contain an uppercase letter, a number, and a special character.</string>
+    <string name="error_invalid_credentials">Invalid email or password.</string>
+    <string name="error_account_suspended">Account suspended. Please contact an administrator.</string>
+    <string name="msg_login_success">Login successful.</string>
+
+    <!-- Écran d'accueil utilisateur standard (Home - Figma 07) -->
+    <string name="home_title">Masrouf — Overview</string>
+    <string name="home_greeting_format">Good morning, %1$s</string>
+    <string name="home_account_type">Personal account</string>
+    <string name="home_available_to_spend">AVAILABLE TO SPEND</string>
+    <string name="home_spent_format">Spent %1$s</string>
+    <string name="home_used_pct_format">%1$.1f%% used</string>
+    <string name="home_budget_format">Budget %1$s</string>
+    <string name="home_section_categories">CATEGORIES</string>
+    <string name="home_section_recent_purchases">RECENT PURCHASES</string>
+    <string name="home_no_transactions">No purchases recorded yet.</string>
+    <string name="home_no_budget">No active budget. Create one to get started!</string>
+    <string name="home_demo_notice">You are logged in as a standard user.</string>
+    <string name="btn_add_purchase">+ Add purchase</string>
+    <string name="btn_add_expense">+ Quick expense</string>
+    <string name="btn_logout">Log out</string>
+
+    <!-- Statuts budgétaires dynamiques -->
+    <string name="status_healthy_title">Your budget is looking healthy</string>
+    <string name="status_healthy_desc">%1$s left for the rest of this period.</string>
+    <string name="status_warning_title">Approaching budget limit (80%)</string>
+    <string name="status_warning_desc">Caution! %1$s left for the rest of this period.</string>
+    <string name="status_exceeded_title">Budget exceeded</string>
+    <string name="status_exceeded_desc">You have exceeded your plan by %1$s.</string>
+
+    <!-- Tiroir de Navigation latéral (Navigation Drawer - Figma 08) -->
+    <string name="drawer_menu_title">MASROUF</string>
+    <string name="drawer_role_user">PERSONAL ACCOUNT</string>
+    <string name="drawer_role_admin">SYSTEM ADMINISTRATOR</string>
+    <string name="drawer_nav_home">Home</string>
+    <string name="drawer_nav_products">Products &amp; Prices</string>
+    <string name="drawer_nav_calendar">Monthly Calendar</string>
+    <string name="drawer_nav_analytics">Analytics &amp; Statistics</string>
+    <string name="drawer_nav_budget">Manage Budget</string>
+    <string name="drawer_nav_points">Points &amp; Rewards</string>
+    <string name="drawer_nav_manual">User Manual (PDF)</string>
+    <string name="drawer_nav_settings">Settings &amp; Support</string>
+    <string name="drawer_nav_admin">Admin Supervision</string>
+    <string name="drawer_nav_logout">Log out</string>
+    <string name="drawer_version">Masrouf v1.0.0 · University Project</string>
+
+    <!-- Notifications système -->
+    <string name="notif_budget_warning_title">Masrouf: 80% Budget Reached</string>
+    <string name="notif_budget_warning_msg">Caution! You have used %1$.1f%% of your budget. Remaining: %2$s</string>
+    <string name="notif_budget_exceeded_title">Masrouf: Budget Exceeded!</string>
+    <string name="notif_budget_exceeded_msg">Alert! Your spending exceeds your budget by %1$s.</string>
+    <string name="notif_purchase_added_title">Purchase recorded</string>
+    <string name="notif_purchase_added_msg">New debit of %1$s for %2$s.</string>
+
+    <!-- Tableau de bord Administrateur (Admin Dashboard - Figma 35) -->
+    <string name="admin_header_title">Admin overview</string>
+    <string name="admin_subtitle">ADMINISTRATOR · GLOBAL STATISTICS</string>
+    <string name="admin_stat_active_accounts">ACTIVE ACCOUNTS</string>
+    <string name="admin_stat_accounts_summary">%1$d total · %2$d suspended</string>
+    <string name="admin_privacy_title">Anonymous statistics only</string>
+    <string name="admin_privacy_desc">No access to personal budgets or transactions.</string>
+    <string name="admin_product_categories">Product categories</string>
+    <string name="admin_expense_categories">Expense categories</string>
+    <string name="admin_btn_manage_users">Manage users</string>
+    <string name="admin_btn_manage_categories">Manage categories</string>
+    <string name="admin_btn_category_types">Category types</string>
+    <string name="admin_btn_default_percentages">Default percentages</string>
+    <string name="admin_btn_points_rules">Points rules</string>
+    <string name="admin_btn_settings">Admin settings</string>
+    <string name="admin_access_denied">Access denied: restricted to administrators.</string>
+
+    <!-- Gamification & Points (Figma 21) -->
+    <string name="gamification_title">Points &amp; Rewards</string>
+    <string name="gamification_total_points">TOTAL POINTS</string>
+    <string name="gamification_level_format">Level: %1$s</string>
+    <string name="gamification_streak_format">%1$d-period savings streak!</string>
+    <string name="gamification_streak_bonus">3-period streak bonus (+50 pts active)</string>
+    <string name="gamification_section_ledger">POINTS LEDGER</string>
+    <string name="gamification_section_badges">BADGES &amp; ACHIEVEMENTS</string>
+    <string name="gamification_badge_unlocked">Unlocked</string>
+    <string name="gamification_badge_locked">Locked (%1$d pts required)</string>
+
+    <!-- Modify Budget (Figma 11) -->
+    <string name="modify_budget_title">Modify Budget</string>
+    <string name="modify_budget_subtitle">Adjust monthly allowance &amp; category limits</string>
+    <string name="modify_budget_allocated_summary">Allocated: %1$s / %2$s</string>
+    <string name="modify_budget_unallocated_summary">Unallocated: %1$s</string>
+    <string name="modify_budget_error_exceeded">Category allocations exceed total budget!</string>
+    <string name="modify_budget_save_btn">Save Changes</string>
+    <string name="modify_budget_success">Budget updated successfully.</string>
+
+    <!-- Expenses (Figma 17 & 25) -->
+    <string name="add_expense_title">New Quick Expense</string>
+    <string name="edit_expense_title">Edit Expense</string>
+    <string name="expense_field_title">Title / Description</string>
+    <string name="expense_field_amount">Amount (DT)</string>
+    <string name="expense_field_category">Category</string>
+    <string name="expense_field_date">Date</string>
+    <string name="expense_field_recurring">Recurring monthly bill</string>
+    <string name="expense_field_note">Optional note</string>
+    <string name="expense_saved_success">Expense recorded successfully.</string>
+    <string name="expense_deleted_success">Expense deleted.</string>
+
+    <!-- Product Details & History (Figma 13, 14, 15, 24, 26) -->
+    <string name="product_details_title">Product Details</string>
+    <string name="product_add_title">Add New Product</string>
+    <string name="product_edit_title">Edit Product</string>
+    <string name="purchase_history_title">Purchase History</string>
+    <string name="purchase_edit_title">Edit Purchase</string>
+    <string name="product_price_variation_down">%1$.1f%% cheaper</string>
+    <string name="product_price_variation_up">+%1$.1f%% increase</string>
+    <string name="product_price_stable">Stable price</string>
+    <string name="product_last_price_label">Last unit price</string>
+    <string name="product_prev_price_label">Previous price</string>
+    <string name="product_store_label">Store / Market</string>
+    <string name="product_unit_label">Unit (L, kg, pack, unit)</string>
+    <string name="product_brand_label">Brand</string>
+    <string name="product_name_label">Product name</string>
+    <string name="product_photo_btn">Attach product photo</string>
+    <string name="product_saved_success">Product saved successfully.</string>
+
+    <!-- User Manual (Integrated Viewer & PDF) -->
+    <string name="manual_title">User Manual &amp; Guide</string>
+    <string name="manual_btn_open_pdf">Open Full PDF Manual</string>
+    <string name="manual_tab_philosophy">1. Philosophy</string>
+    <string name="manual_tab_budget">2. Budgets</string>
+    <string name="manual_tab_prices">3. Prices</string>
+    <string name="manual_tab_gamification">4. Rewards</string>
+
+    <!-- Admin Screens (Figma 39, 40, 41, 42, 43) -->
+    <string name="admin_categories_title">Category Management</string>
+    <string name="admin_category_types_title">Category Types</string>
+    <string name="admin_percentages_title">Default Allocations</string>
+    <string name="admin_percentages_total_format">Total allocation: %1$.1f%% (Must equal 100%%)</string>
+    <string name="admin_percentages_valid">Total is 100% valid.</string>
+    <string name="admin_percentages_invalid">Total must equal 100% exactly.</string>
+    <string name="admin_points_rules_title">Gamification Rules</string>
+    <string name="admin_settings_title">System Settings</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="confirm_delete">Are you sure you want to delete this?</string>
+</resources>
