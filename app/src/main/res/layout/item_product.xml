@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Layout de la cellule d'un produit (Figma 12)
+  Utilisé par l'Adapter personnalisé ProductAdapter héritant de BaseAdapter (Ch.6 du cours)
+  EXIGENCE DU PROF : Matrice §4 ligne 30 (Adapter personnalisé avec pattern ViewHolder)
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/bg_input_card"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <!-- Icône / Badge produit -->
+    <LinearLayout
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_admin_notice_card"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:contentDescription="Product"
+            android:src="@drawable/ic_leaf" />
+    </LinearLayout>
+
+    <!-- Détails du produit (Nom, marque, catégorie, magasin) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvProdItemName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Olive oil"
+            android:textColor="@color/ink"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvProdItemSub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Châal · Food · 1 L"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvProdItemStore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Monoprix · 12 Nov 2026"
+            android:textColor="@color/muted"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- Prix unitaire à droite -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvProdItemPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="14.500 DT"
+            android:textColor="@color/forest"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvProdItemUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="par Litre"
+            android:textColor="@color/muted"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+</LinearLayout>
