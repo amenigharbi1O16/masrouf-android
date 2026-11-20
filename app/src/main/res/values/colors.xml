@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Palette de couleurs officielle de l'application Masrouf
+  Extraite directement de la charte graphique Figma (Fichier de référence : MASROUF · Product and implementation guide.png)
+  EXIGENCE DU PROF : Centralisation des couleurs dans colors.xml (Ch.3)
+-->
+<resources>
+    <!-- Couleurs primaires d'identité -->
+    <color name="forest">#102B27</color>          <!-- Vert forêt sombre : boutons principaux, cartes d'accentuation -->
+    <color name="deep_forest">#102B27</color>     <!-- Alias officiel Figma pour vert forêt sombre -->
+    <color name="forest_pressed">#0A1D1A</color>  <!-- État pressé pour les boutons forest -->
+    <color name="deep_green">#1C5143</color>      <!-- Vert profond : drawer de navigation, en-têtes d'administration -->
+    <color name="primary_emerald">#1C5143</color> <!-- Alias officiel Figma pour vert émeraude -->
+    <color name="mint">#D9F0E4</color>            <!-- Vert menthe pastel : boutons secondaires, badges de statut -->
+    <color name="mint_pressed">#C2E5D4</color>    <!-- État pressé pour les boutons mint -->
+
+    <!-- Fond et surfaces -->
+    <color name="warm_bg">#F5F3ED</color>         <!-- Fond général beige chaleureux (windowBackground) -->
+    <color name="white">#FFFFFF</color>           <!-- Blanc pur : cartes blanches de saisie -->
+    <color name="card_white">#FFFFFF</color>      <!-- Surface des cartes de formulaire -->
+    <color name="border_subtle">#E5E2DA</color>   <!-- Bordure discrète des champs de saisie -->
+
+    <!-- Accents budgétaires et alertes -->
+    <color name="gold">#E9B66B</color>            <!-- Jaune doré : avertissement budget à 80% -->
+    <color name="coral">#DC7770</color>           <!-- Rouge corail : dépassement de budget (>100%), actions destructives -->
+    <color name="coral_light">#FBECEB</color>     <!-- Fond clair pour alertes rouges -->
+
+    <!-- Typographie et contrastes -->
+    <color name="ink">#111A16</color>             <!-- Texte noir d'encre principal à fort contraste -->
+    <color name="muted">#6B7C74</color>           <!-- Texte secondaire gris-vert atténué pour sous-titres et labels -->
+    <color name="muted_light">#A0ADA7</color>     <!-- Texte tertiaire très léger pour séparateurs et hints -->
+    <color name="black">#000000</color>
+</resources>
