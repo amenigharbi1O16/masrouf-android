@@ -1,0 +1,53 @@
+================================================================================
+                    MASROUF (مصروف) - GUIDE UTILISATEUR OFFICIEL
+                Application de Gestion de Budget Étudiant en Tunisie
+================================================================================
+
+BIENVENUE DANS MASROUF !
+Masrouf est une application mobile Android conçue pour aider les étudiants
+et jeunes actifs à maîtriser leur budget en Dinars Tunisiens (DT).
+
+--------------------------------------------------------------------------------
+1. COMPTES ET SÉCURITÉ
+--------------------------------------------------------------------------------
+• Inscription :
+  - L'adresse email doit obligatoirement être du domaine @gmail.com
+    (ex: nom.prenom@gmail.com).
+  - Le mot de passe doit comporter au moins 8 caractères et inclure au minimum :
+    * Une lettre majuscule (A-Z)
+    * Un chiffre (0-9)
+    * Un caractère spécial (!@#$%^&*...)
+  - Tous les mots de passe sont hachés de manière irréversible via l'algorithme
+    cryptographique standard SHA-256 avant stockage local dans SQLite.
+
+• Rôles système :
+  - ADMIN (admin@gmail.com) : Accès exclusif au tableau de bord d'administration,
+    gestion des utilisateurs (activation/suspension), réinitialisation de mots de passe.
+  - USER : Accès au suivi financier personnel, création de budgets, gestion des achats.
+
+--------------------------------------------------------------------------------
+2. GESTION DES BUDGETS ET DÉPENSES
+--------------------------------------------------------------------------------
+• Création de budget :
+  - Définissez votre enveloppe mensuelle globale (ex: 450 DT).
+  - Répartissez les pourcentages par catégorie (Alimentation, Transport, Factures...).
+
+• Suivi et Alertes :
+  - Vert (Sain) : Dépenses < 80% du budget alloué.
+  - Ambre (Attention) : Dépenses atteignant ou dépassant 80% du budget.
+  - Rouge (Dépassé) : Dépenses excédant 100% de l'enveloppe allouée.
+
+• Comparateur de prix unitaires :
+  - Enregistrez vos achats avec marque, prix, quantité et unité (L, kg...).
+  - Masrouf calcule automatiquement le prix au litre ou au kilo pour vous aider
+    à choisir l'enseigne la plus économique (ex: Monoprix, Carrefour, MG).
+
+--------------------------------------------------------------------------------
+3. ASSISTANCE ET SUPPORT
+--------------------------------------------------------------------------------
+• Support téléphonique : Composez le 71 000 000 directement depuis l'application.
+• Envoi de SMS : Contactez l'assistance technique par SMS pré-rempli.
+• Partage de bilan : Exportez un rapport synthétique vers vos proches.
+
+Développé dans le cadre du mini-projet universitaire Android 2026.
+Tous droits réservés.
