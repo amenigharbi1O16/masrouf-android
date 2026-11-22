@@ -30,8 +30,12 @@
     <string name="error_invalid_email_domain">L\'adresse email doit être valide et se terminer par @gmail.com.</string>
     <string name="error_password_policy">Le mot de passe doit comporter au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.</string>
     <string name="error_invalid_credentials">Adresse e-mail ou mot de passe incorrect.</string>
+    <string name="error_passwords_mismatch">Les mots de passe ne correspondent pas.</string>
+    <string name="error_email_already_exists">Un compte avec cette adresse email existe déjà.</string>
     <string name="error_account_suspended">Ce compte est suspendu. Veuillez contacter un administrateur.</string>
     <string name="msg_login_success">Connexion réussie.</string>
+    <string name="msg_register_success">Compte créé avec succès.</string>
+    <string name="error_generic_database">Une erreur est survenue lors de l\'enregistrement. Veuillez réessayer.</string>
 
     <!-- Écran d'accueil utilisateur standard (Home - Figma 07 FR) -->
     <string name="home_title">Masrouf — Aperçu</string>
@@ -170,4 +174,77 @@
     <string name="btn_delete">Supprimer</string>
     <string name="btn_cancel">Annuler</string>
     <string name="confirm_delete">Voulez-vous vraiment supprimer cet élément ?</string>
+
+    <!-- Ajout de catégorie sur l\'écran d\'accueil -->
+    <string name="btn_add_category">Ajouter une catégorie +</string>
+    <string name="dialog_add_category_title">Ajouter une catégorie</string>
+    <string name="hint_category_name">Nom de la catégorie</string>
+    <string name="label_category_type">Type de catégorie</string>
+    <string name="type_product">Produit / Achat</string>
+    <string name="type_expense">Dépense / Facture</string>
+    <string name="btn_confirm_add">Ajouter</string>
+    <string name="msg_category_added">Catégorie ajoutée avec succès !</string>
+
+    <!-- Onboarding & Welcome Flow FR -->
+    <string name="welcome_welcome_to">Bienvenue sur</string>
+    <string name="welcome_app_title">Masrouf</string>
+    <string name="welcome_btn_start">Commencer</string>
+    <string name="welcome_already_have_account">Vous avez déjà un compte ? Se connecter</string>
+    <string name="welcome_skip">Passer</string>
+    <string name="welcome_btn_continue">Continuer</string>
+    <string name="welcome_btn_choose_account">Choisissez votre type de compte</string>
+
+    <!-- Slide 1 FR -->
+    <string name="welcome_slide1_title">Gérez vos finances personnelles</string>
+    <string name="welcome_slide1_desc">Suivez vos dépenses quotidiennes, vos achats au millime près et gardez le contrôle total de votre budget.</string>
+    <string name="welcome_slide1_check1">Suivi des achats d’épicerie et prix unitaires</string>
+    <string name="welcome_slide1_check2">Gestion des dépenses fixes et abonnements</string>
+
+    <!-- Slide 2 FR -->
+    <string name="welcome_slide2_title">Organisez achats, dépenses et budgets</string>
+    <string name="welcome_slide2_desc">Classez vos postes de dépenses par catégories, suivez l\'évolution des prix unitaires et atteignez vos objectifs.</string>
+    <string name="welcome_slide2_check1">Enveloppes budgétaires mensuelles</string>
+    <string name="welcome_slide2_check2">Alertes visuelles de dépassement et économies</string>
+
+    <!-- Slide 3 FR -->
+    <string name="welcome_slide3_title">Gérez les finances familiales &amp; vos enfants</string>
+    <string name="welcome_slide3_desc">Allouez de l\'argent de poche, validez les demandes en temps réel et transmettez de bonnes habitudes financières.</string>
+    <string name="welcome_slide3_check1">Création de comptes enfants avec accès sécurisé</string>
+    <string name="welcome_slide3_check2">Réserve familiale, argent de poche &amp; demandes d’argent</string>
+
+    <!-- Choice Screen FR -->
+    <string name="welcome_choice_subtitle">MASROUF · CHOIX DU COMPTE</string>
+    <string name="welcome_choice_title">Choisissez votre type de compte</string>
+    <string name="welcome_choice_desc">Sélectionnez le mode adapté à votre utilisation. Vous pourrez toujours faire évoluer votre espace plus tard.</string>
+    <string name="welcome_card_personal_title">Compte Personnel</string>
+    <string name="welcome_card_personal_badge">Individuel</string>
+    <string name="welcome_card_personal_desc">Gestion financière individuelle, achats, dépenses quotidiennes et budgets personnels.</string>
+    <string name="welcome_card_personal_check1">✓ Gestion financière individuelle et autonome</string>
+    <string name="welcome_card_personal_check2">✓ Achats, dépenses quotidiennes et enveloppes budgétaires</string>
+    <string name="welcome_card_personal_check3">✓ Suivi des prix unitaires et économies</string>
+    <string name="welcome_card_personal_action">Choisir le Compte Personnel ›</string>
+
+    <string name="welcome_card_family_title">Compte Famille</string>
+    <string name="welcome_card_family_badge">Parent / Tuteur</string>
+    <string name="welcome_card_family_desc">Espace Personnel + Espace Familial, gestion des enfants, réserve financière, allocations et demandes d\'argent.</string>
+    <string name="welcome_card_family_check1">✓ Espace Personnel + Espace Familial</string>
+    <string name="welcome_card_family_check2">✓ Création de comptes enfants avec accès sécurisé</string>
+    <string name="welcome_card_family_check3">✓ Réserve familiale, argent de poche &amp; validation des demandes</string>
+    <string name="welcome_card_family_check4">✓ Budgets et rapports analytiques consolidés de la famille</string>
+    <string name="welcome_card_family_action">Choisir le Compte Famille ›</string>
+
+    <!-- Registration Screen FR -->
+    <string name="reg_screen_title">Créer un compte</string>
+    <string name="reg_subtitle">SUIVI DE BUDGET FAMILIAL</string>
+    <string name="reg_toggle_personal">👤 Compte Personnel</string>
+    <string name="reg_toggle_family">👥 Compte Famille</string>
+    <string name="reg_info_personal">👤 Compte Personnel : Gestion individuelle autonome de vos achats et budgets</string>
+    <string name="reg_info_family">ℹ️ Compte Parent : Accès complet à l’Espace Personnel et à l’Espace Familial</string>
+    <string name="reg_local_storage_notice">Vos budgets, achats et dépenses restent stockés localement sur cet appareil.</string>
+    <string name="reg_label_fullname">Nom complet</string>
+    <string name="reg_hint_fullname">Entrez votre nom</string>
+    <string name="reg_label_confirm_password">Confirmer le mot de passe</string>
+    <string name="reg_hint_confirm_password">Confirmer votre mot de passe</string>
+    <string name="reg_btn_do_register">Créer un compte</string>
+    <string name="reg_btn_go_login">Se connecter</string>
 </resources>

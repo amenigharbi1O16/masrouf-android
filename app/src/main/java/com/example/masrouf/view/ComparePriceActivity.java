@@ -1,8 +1,10 @@
 package com.example.masrouf.view;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
@@ -129,15 +132,34 @@ public class ComparePriceActivity extends AppCompatActivity {
         double diff = unitPrice - previousPrice;
         double pct = (diff / previousPrice) * 100.0;
 
+        View layoutBadge = findViewById(R.id.layoutPriceChangeBadge);
+
         if (diff < 0) {
+            if (layoutBadge != null) layoutBadge.setBackgroundResource(R.drawable.bg_admin_notice_card);
             tvPriceChangeStatus.setText("↓ Price decrease (Baisse de prix)");
+            tvPriceChangeStatus.setTextColor(ContextCompat.getColor(this, R.color.forest));
             tvPriceDifferenceValue.setText(String.format(Locale.US, "–%.3f DT / –%.1f%%", Math.abs(diff), Math.abs(pct)));
+            tvPriceDifferenceValue.setTextColor(ContextCompat.getColor(this, R.color.forest));
         } else if (diff > 0) {
-            tvPriceChangeStatus.setText("↑ Price increase (Hausse de prix)");
-            tvPriceDifferenceValue.setText(String.format(Locale.US, "+%.3f DT / +%.1f%%", diff, pct));
+            if (pct > 10.0) {
+                if (layoutBadge != null) layoutBadge.setBackgroundResource(R.drawable.bg_btn_danger);
+                tvPriceChangeStatus.setText("⚠️ ALERTE INFLATION (> 10%)");
+                tvPriceChangeStatus.setTextColor(Color.WHITE);
+                tvPriceDifferenceValue.setText(String.format(Locale.US, "+%.3f DT / +%.1f%%", diff, pct));
+                tvPriceDifferenceValue.setTextColor(Color.WHITE);
+            } else {
+                if (layoutBadge != null) layoutBadge.setBackgroundResource(R.drawable.bg_input_card);
+                tvPriceChangeStatus.setText("↑ Price increase (Hausse de prix)");
+                tvPriceChangeStatus.setTextColor(ContextCompat.getColor(this, R.color.coral));
+                tvPriceDifferenceValue.setText(String.format(Locale.US, "+%.3f DT / +%.1f%%", diff, pct));
+                tvPriceDifferenceValue.setTextColor(ContextCompat.getColor(this, R.color.coral));
+            }
         } else {
+            if (layoutBadge != null) layoutBadge.setBackgroundResource(R.drawable.bg_input_card);
             tvPriceChangeStatus.setText("= Identical price (Prix identique)");
+            tvPriceChangeStatus.setTextColor(ContextCompat.getColor(this, R.color.muted));
             tvPriceDifferenceValue.setText("0.000 DT / 0.0%");
+            tvPriceDifferenceValue.setTextColor(ContextCompat.getColor(this, R.color.muted));
         }
     }
 

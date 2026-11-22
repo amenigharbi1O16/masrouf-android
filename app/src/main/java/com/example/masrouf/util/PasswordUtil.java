@@ -20,6 +20,17 @@ public final class PasswordUtil {
     private PasswordUtil() {
     }
 
+    public static String generateSalt() {
+        return "";
+    }
+
+    public static String hashPassword(String plainPassword, String salt) {
+        if (salt != null && !salt.isEmpty()) {
+            return hashPassword(plainPassword + salt);
+        }
+        return hashPassword(plainPassword);
+    }
+
     /**
      * Calcule l'empreinte cryptographique SHA-256 d'un mot de passe en clair.
      *

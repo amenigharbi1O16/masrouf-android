@@ -19,502 +19,452 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
 import com.example.masrouf.controller.SessionManager;
 import com.example.masrouf.dao.BudgetDao;
 import com.example.masrouf.dao.TransactionDao;
 import com.example.masrouf.model.Budget;
-import com.example.masrouf.model.Transaction;
+import com.example.masrouf.util.MillimesUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
- * RÔLE : Vue calendrier mensuel et annuel des budgets et dépenses (Figma 19).
- * COUCHE MVC : Vue (View).
+ * RÔLE : Calendrier annuel et gestion des périodes budgétaires (Figma / Image 11).
  * EXIGENCES DU PROF COUVERTES :
- *   - Exigence n°3 & Matrice §4 ligne 3 : VUE CONSTRUITE 100% EN CODE JAVA PUR SANS FICHIER XML (Deuxième vue Java requise).
- *   - Matrice §4 ligne 8 : Listener explicite avec syntaxe Lambda moderne (Java 8+ / 11).
- *   - Matrice §4 ligne 24 : Gestion du cycle de vie Android (onResume recharge les totaux).
- *   - Matrice §4 ligne 32 & 33 : Requêtes paramétrées SQLite via les DAO (BudgetDao, TransactionDao).
- *
- * PARTICULARITÉ PÉDAGOGIQUE POUR LE PROFESSEUR :
- * Tout comme AdminDashboardActivity, cette vue n'utilise aucun layout XML (pas de R.layout.activity_calendar).
- * Chaque conteneur (ScrollView, LinearLayout), texte, carte stylisée et barre de progression
- * est créé dynamiquement en Java avec "new", configuré par programmation, puis affiché via setContentView(root).
+ *   - VUE 100% EN CODE JAVA PUR SANS LAYOUT XML (Exigence n°3 & Matrice §4 ligne 3).
+ *   - Gestion des périodes : Interdiction des mois passés, confirmation pour mois futurs (Exigence n°3).
+ *   - Initialisation automatique des dates (1er au dernier jour du mois).
+ *   - Synchronisation immédiate avec l'Accueil, Analyses et Produits via SessionManager.
+ * COUCHE MVC : Vue (View).
  */
 public class CalendarActivity extends AppCompatActivity {
 
     private static final String TAG = "CalendarActivity";
 
-    // Palette officielle du design Figma Masrouf
-    private static final int COLOR_DEEP_FOREST = Color.parseColor("#102B27");
-    private static final int COLOR_PRIMARY_EMERALD = Color.parseColor("#1C5143");
-    private static final int COLOR_LIGHT_MINT = Color.parseColor("#D9F0E4");
-    private static final int COLOR_WARM_BG = Color.parseColor("#F5F3ED");
-    private static final int COLOR_CARD_WHITE = Color.WHITE;
-    private static final int COLOR_MUTED_GREY = Color.parseColor("#666666");
-    private static final int COLOR_WARNING_AMBER = Color.parseColor("#E9B66B");
-    private static final int COLOR_DANGER_CORAL = Color.parseColor("#DC7770");
-
-    // DAO et session utilisateur
     private SessionManager sessionManager;
     private BudgetDao budgetDao;
     private TransactionDao transactionDao;
 
-    // Conteneur dynamique des mois (pour le rafraîchissement dans onResume)
-    private LinearLayout monthsContainer;
-    private TextView tvYearSummaryBudget;
-    private TextView tvYearSummarySpent;
-    private TextView tvYearSummaryBalance;
+    private int selectedYear;
+    private int selectedMonthIndex; // 1-12
+    private String selectedMonthKey;
 
-    private int currentYear;
+    private TextView tvYearDisplay;
+    private LinearLayout gridContainer;
+    private LinearLayout bottomDetailCard;
+    private TextView tvBottomPeriodTitle;
+    private TextView tvBottomDateRange;
+    private TextView tvBottomBudgetInfo;
+    private TextView tvBottomBadge;
+    private Button btnBottomModify;
+
+    private final String[] monthNames = new String[]{
+            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+            "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: Initialisation de CalendarActivity (Vue 100% Java)");
 
-        // 1. Initialisation des composants MVC (DAO et Session)
         sessionManager = new SessionManager(this);
         budgetDao = new BudgetDao(this);
         transactionDao = new TransactionDao(this);
 
-        // Récupération de l'année en cours
         Calendar cal = Calendar.getInstance();
-        currentYear = cal.get(Calendar.YEAR);
+        selectedYear = cal.get(Calendar.YEAR);
+        selectedMonthIndex = cal.get(Calendar.MONTH) + 1; // 1 à 12
+        selectedMonthKey = String.format(Locale.US, "%04d-%02d", selectedYear, selectedMonthIndex);
 
-        // 2. Construction de l'arborescence graphique par code Java pur
-        View rootView = buildCalendarLayout();
+        // Si une période est déjà enregistrée dans la session, l'utiliser
+        String savedKey = sessionManager.getSelectedMonthKey();
+        if (savedKey != null && savedKey.contains("-")) {
+            try {
+                String[] parts = savedKey.split("-");
+                selectedYear = Integer.parseInt(parts[0]);
+                selectedMonthIndex = Integer.parseInt(parts[1]);
+                selectedMonthKey = savedKey;
+            } catch (Exception ignored) {}
+        }
 
-        // 3. Injection de la vue racine dans l'activité (remplace setContentView(R.layout.xxx))
+        View rootView = buildCalendarUI();
         setContentView(rootView);
+
+        refreshCalendar();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: Rafraîchissement des données financières du calendrier");
-        loadCalendarData();
+        refreshCalendar();
     }
 
-    /**
-     * Construit l'intégralité de la mise en page sans aucun XML.
-     * Hiérarchie :
-     * ScrollView
-     *   └── LinearLayout (vertical)
-     *         ├── Barre d'en-tête (Bouton retour + Titre + Année)
-     *         ├── Carte Récapitulative Annuelle (Hero Card)
-     *         ├── Conteneur vertical des 12 cartes mensuelles (Janvier à Décembre)
-     *         └── Bouton de retour vers l'accueil
-     */
-    private View buildCalendarLayout() {
-        // ScrollView parent pour permettre le défilement fluide
-        ScrollView scrollView = new ScrollScrollViewBuilder(this);
-        scrollView.setLayoutParams(new ScrollView.LayoutParams(
-                ScrollView.LayoutParams.MATCH_PARENT,
-                ScrollView.LayoutParams.MATCH_PARENT
-        ));
-        scrollView.setBackgroundColor(COLOR_WARM_BG);
+    private View buildCalendarUI() {
+        ScrollView scroll = new ScrollView(this);
+        scroll.setFillViewport(true);
+        scroll.setBackgroundColor(Color.parseColor("#FBF8F2"));
 
-        // LinearLayout vertical principal
-        LinearLayout mainLayout = new LinearLayout(this);
-        mainLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(24));
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(24));
 
-        // 1. En-tête avec bouton retour
-        mainLayout.addView(buildHeaderBar());
+        // 1. Barre supérieure : Menu, Titre, Bell, Profile
+        LinearLayout topBar = new LinearLayout(this);
+        topBar.setOrientation(LinearLayout.HORIZONTAL);
+        topBar.setGravity(Gravity.CENTER_VERTICAL);
+        topBar.setPadding(0, 0, 0, dpToPx(16));
 
-        // 2. Carte récapitulative de l'année
-        mainLayout.addView(buildAnnualHeroCard());
-
-        // 3. Titre de section "Mois de l'année"
-        TextView tvSectionTitle = new TextView(this);
-        tvSectionTitle.setText("Aperçu des 12 mois (" + currentYear + ")");
-        tvSectionTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        tvSectionTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        tvSectionTitle.setTextColor(COLOR_DEEP_FOREST);
-        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        titleParams.setMargins(0, dpToPx(16), 0, dpToPx(8));
-        tvSectionTitle.setLayoutParams(titleParams);
-        mainLayout.addView(tvSectionTitle);
-
-        // 4. Conteneur dynamique où seront insérées les 12 cartes mensuelles
-        monthsContainer = new LinearLayout(this);
-        monthsContainer.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        monthsContainer.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.addView(monthsContainer);
-
-        // 5. Bouton de retour en bas de page
-        Button btnBackHome = new Button(this);
-        btnBackHome.setText("← Revenir au Tableau de Bord");
-        btnBackHome.setTextColor(COLOR_DEEP_FOREST);
-        btnBackHome.setTypeface(Typeface.DEFAULT_BOLD);
-        btnBackHome.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        btnBackHome.setBackground(createRoundedBackground(COLOR_LIGHT_MINT, dpToPx(12), COLOR_PRIMARY_EMERALD, dpToPx(1)));
-        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(50)
-        );
-        btnParams.setMargins(0, dpToPx(16), 0, dpToPx(8));
-        btnBackHome.setLayoutParams(btnParams);
-        btnBackHome.setOnClickListener(v -> finish());
-        mainLayout.addView(btnBackHome);
-
-        scrollView.addView(mainLayout);
-        return scrollView;
-    }
-
-    /**
-     * En-tête avec navigation
-     */
-    private View buildHeaderBar() {
-        LinearLayout header = new LinearLayout(this);
-        header.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        header.setOrientation(LinearLayout.HORIZONTAL);
-        header.setGravity(Gravity.CENTER_VERTICAL);
-        header.setPadding(0, 0, 0, dpToPx(12));
-
-        Button btnBack = new Button(this);
-        btnBack.setText("←");
-        btnBack.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        btnBack.setTypeface(Typeface.DEFAULT_BOLD);
-        btnBack.setTextColor(COLOR_DEEP_FOREST);
-        btnBack.setBackgroundColor(Color.TRANSPARENT);
-        btnBack.setOnClickListener(v -> finish());
-        LinearLayout.LayoutParams backParams = new LinearLayout.LayoutParams(dpToPx(48), dpToPx(48));
-        btnBack.setLayoutParams(backParams);
-        header.addView(btnBack);
+        ImageView ivMenu = new ImageView(this);
+        ivMenu.setImageResource(R.drawable.ic_arrow_back);
+        ivMenu.setColorFilter(Color.parseColor("#102B27"));
+        ivMenu.setLayoutParams(new LinearLayout.LayoutParams(dpToPx(24), dpToPx(24)));
+        ivMenu.setOnClickListener(v -> finish());
+        topBar.addView(ivMenu);
 
         TextView tvTitle = new TextView(this);
-        tvTitle.setText("Calendrier Budgétaire");
-        tvTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        tvTitle.setText("Calendrier");
+        tvTitle.setTextColor(Color.parseColor("#102B27"));
+        tvTitle.setTextSize(18);
         tvTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        tvTitle.setTextColor(COLOR_DEEP_FOREST);
-        tvTitle.setLayoutParams(new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1.0f
-        ));
-        header.addView(tvTitle);
+        LinearLayout.LayoutParams lpTitle = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        lpTitle.setMarginStart(dpToPx(12));
+        tvTitle.setLayoutParams(lpTitle);
+        topBar.addView(tvTitle);
 
-        return header;
+        ImageView ivBell = new ImageView(this);
+        ivBell.setImageResource(R.drawable.ic_bell);
+        ivBell.setColorFilter(Color.parseColor("#102B27"));
+        LinearLayout.LayoutParams lpBell = new LinearLayout.LayoutParams(dpToPx(24), dpToPx(24));
+        lpBell.setMarginEnd(dpToPx(12));
+        ivBell.setLayoutParams(lpBell);
+        topBar.addView(ivBell);
+
+        ImageView ivProfile = new ImageView(this);
+        ivProfile.setImageResource(R.drawable.ic_profile);
+        ivProfile.setColorFilter(Color.parseColor("#102B27"));
+        ivProfile.setLayoutParams(new LinearLayout.LayoutParams(dpToPx(28), dpToPx(28)));
+        ivProfile.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
+        topBar.addView(ivProfile);
+
+        root.addView(topBar);
+
+        // 2. Sous-titre : VOTRE ANNÉE FINANCIÈRE
+        TextView tvSubtitle = new TextView(this);
+        tvSubtitle.setText("VOTRE ANNÉE FINANCIÈRE");
+        tvSubtitle.setTextColor(Color.parseColor("#6B7C74"));
+        tvSubtitle.setTextSize(11);
+        tvSubtitle.setTypeface(Typeface.DEFAULT_BOLD);
+        tvSubtitle.setLetterSpacing(0.06f);
+        root.addView(tvSubtitle);
+
+        // 3. Sélecteur d'année : < 2026 >
+        LinearLayout yearSelector = new LinearLayout(this);
+        yearSelector.setOrientation(LinearLayout.HORIZONTAL);
+        yearSelector.setGravity(Gravity.CENTER_VERTICAL);
+        yearSelector.setPadding(0, dpToPx(12), 0, dpToPx(8));
+
+        TextView btnPrevYear = new TextView(this);
+        btnPrevYear.setText("‹");
+        btnPrevYear.setTextSize(26);
+        btnPrevYear.setTextColor(Color.parseColor("#102B27"));
+        btnPrevYear.setPadding(dpToPx(8), 0, dpToPx(8), 0);
+        btnPrevYear.setOnClickListener(v -> {
+            selectedYear--;
+            tvYearDisplay.setText(String.valueOf(selectedYear));
+            refreshCalendar();
+        });
+        yearSelector.addView(btnPrevYear);
+
+        tvYearDisplay = new TextView(this);
+        tvYearDisplay.setText(String.valueOf(selectedYear));
+        tvYearDisplay.setTextColor(Color.parseColor("#102B27"));
+        tvYearDisplay.setTextSize(22);
+        tvYearDisplay.setTypeface(Typeface.DEFAULT_BOLD);
+        tvYearDisplay.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams lpYear = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        tvYearDisplay.setLayoutParams(lpYear);
+        yearSelector.addView(tvYearDisplay);
+
+        TextView btnNextYear = new TextView(this);
+        btnNextYear.setText("›");
+        btnNextYear.setTextSize(26);
+        btnNextYear.setTextColor(Color.parseColor("#102B27"));
+        btnNextYear.setPadding(dpToPx(8), 0, dpToPx(8), 0);
+        btnNextYear.setOnClickListener(v -> {
+            selectedYear++;
+            tvYearDisplay.setText(String.valueOf(selectedYear));
+            refreshCalendar();
+        });
+        yearSelector.addView(btnNextYear);
+
+        root.addView(yearSelector);
+
+        // 4. Instructions
+        TextView tvInstruct = new TextView(this);
+        tvInstruct.setText("Choisissez un mois pour explorer ses périodes de budget.");
+        tvInstruct.setTextColor(Color.parseColor("#6B7C74"));
+        tvInstruct.setTextSize(12);
+        tvInstruct.setPadding(0, 0, 0, dpToPx(14));
+        root.addView(tvInstruct);
+
+        // 5. Grille des 12 mois (6 rangées de 2 colonnes)
+        gridContainer = new LinearLayout(this);
+        gridContainer.setOrientation(LinearLayout.VERTICAL);
+        root.addView(gridContainer);
+
+        // 6. Section de détail en bas de page
+        tvBottomPeriodTitle = new TextView(this);
+        tvBottomPeriodTitle.setTextColor(Color.parseColor("#102B27"));
+        tvBottomPeriodTitle.setTextSize(16);
+        tvBottomPeriodTitle.setTypeface(Typeface.DEFAULT_BOLD);
+        tvBottomPeriodTitle.setPadding(0, dpToPx(20), 0, dpToPx(10));
+        root.addView(tvBottomPeriodTitle);
+
+        bottomDetailCard = new LinearLayout(this);
+        bottomDetailCard.setOrientation(LinearLayout.VERTICAL);
+        bottomDetailCard.setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14));
+        GradientDrawable cardBg = new GradientDrawable();
+        cardBg.setColor(Color.WHITE);
+        cardBg.setCornerRadius(dpToPx(14));
+        cardBg.setStroke(dpToPx(1.5f), Color.parseColor("#1C5143"));
+        bottomDetailCard.setBackground(cardBg);
+
+        LinearLayout row1 = new LinearLayout(this);
+        row1.setOrientation(LinearLayout.HORIZONTAL);
+        row1.setGravity(Gravity.CENTER_VERTICAL);
+
+        LinearLayout leftText = new LinearLayout(this);
+        leftText.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams lpLeft = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        leftText.setLayoutParams(lpLeft);
+
+        tvBottomDateRange = new TextView(this);
+        tvBottomDateRange.setTextColor(Color.parseColor("#102B27"));
+        tvBottomDateRange.setTextSize(15);
+        tvBottomDateRange.setTypeface(Typeface.DEFAULT_BOLD);
+        leftText.addView(tvBottomDateRange);
+
+        tvBottomBudgetInfo = new TextView(this);
+        tvBottomBudgetInfo.setTextColor(Color.parseColor("#6B7C74"));
+        tvBottomBudgetInfo.setTextSize(12);
+        tvBottomBudgetInfo.setPadding(0, dpToPx(2), 0, 0);
+        leftText.addView(tvBottomBudgetInfo);
+
+        row1.addView(leftText);
+
+        tvBottomBadge = new TextView(this);
+        tvBottomBadge.setText("✓ Active");
+        tvBottomBadge.setTextColor(Color.parseColor("#102B27"));
+        tvBottomBadge.setTextSize(11);
+        tvBottomBadge.setTypeface(Typeface.DEFAULT_BOLD);
+        GradientDrawable badgeBg = new GradientDrawable();
+        badgeBg.setColor(Color.parseColor("#D9F0E4"));
+        badgeBg.setCornerRadius(dpToPx(10));
+        tvBottomBadge.setBackground(badgeBg);
+        tvBottomBadge.setPadding(dpToPx(10), dpToPx(4), dpToPx(10), dpToPx(4));
+        row1.addView(tvBottomBadge);
+
+        bottomDetailCard.addView(row1);
+
+        // Bouton modifier
+        btnBottomModify = new Button(this);
+        btnBottomModify.setText("modifier");
+        btnBottomModify.setTextColor(Color.parseColor("#102B27"));
+        btnBottomModify.setTextSize(13);
+        btnBottomModify.setAllCaps(false);
+        GradientDrawable modBg = new GradientDrawable();
+        modBg.setColor(Color.parseColor("#EAEFEA"));
+        modBg.setCornerRadius(dpToPx(8));
+        btnBottomModify.setBackground(modBg);
+        LinearLayout.LayoutParams lpMod = new LinearLayout.LayoutParams(dpToPx(90), dpToPx(36));
+        lpMod.setMargins(0, dpToPx(12), 0, 0);
+        btnBottomModify.setLayoutParams(lpMod);
+        bottomDetailCard.addView(btnBottomModify);
+
+        root.addView(bottomDetailCard);
+
+        scroll.addView(root);
+        return scroll;
     }
 
-    /**
-     * Hero Card récapitulative annuelle
-     */
-    private View buildAnnualHeroCard() {
-        LinearLayout card = new LinearLayout(this);
-        card.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dpToPx(18), dpToPx(18), dpToPx(18), dpToPx(18));
-        card.setBackground(createRoundedBackground(COLOR_PRIMARY_EMERALD, dpToPx(16), 0, 0));
-
-        TextView tvHeroSubtitle = new TextView(this);
-        tvHeroSubtitle.setText("TOTAL ANNUEL " + currentYear);
-        tvHeroSubtitle.setTextColor(COLOR_LIGHT_MINT);
-        tvHeroSubtitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        tvHeroSubtitle.setTypeface(Typeface.DEFAULT_BOLD);
-        card.addView(tvHeroSubtitle);
-
-        LinearLayout valuesRow = new LinearLayout(this);
-        valuesRow.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        valuesRow.setOrientation(LinearLayout.HORIZONTAL);
-        valuesRow.setPadding(0, dpToPx(12), 0, 0);
-
-        // Colonne Budget
-        LinearLayout colBudget = buildSummaryColumn("Budget Alloué", "0.000 DT");
-        tvYearSummaryBudget = (TextView) colBudget.getChildAt(1);
-        valuesRow.addView(colBudget);
-
-        // Colonne Dépenses
-        LinearLayout colSpent = buildSummaryColumn("Total Dépensé", "0.000 DT");
-        tvYearSummarySpent = (TextView) colSpent.getChildAt(1);
-        valuesRow.addView(colSpent);
-
-        // Colonne Solde
-        LinearLayout colBalance = buildSummaryColumn("Solde Restant", "0.000 DT");
-        tvYearSummaryBalance = (TextView) colBalance.getChildAt(1);
-        valuesRow.addView(colBalance);
-
-        card.addView(valuesRow);
-        return card;
-    }
-
-    private LinearLayout buildSummaryColumn(String title, String initialValue) {
-        LinearLayout col = new LinearLayout(this);
-        col.setLayoutParams(new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1.0f
-        ));
-        col.setOrientation(LinearLayout.VERTICAL);
-
-        TextView tvLabel = new TextView(this);
-        tvLabel.setText(title);
-        tvLabel.setTextColor(Color.parseColor("#B2DFDB"));
-        tvLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        col.addView(tvLabel);
-
-        TextView tvVal = new TextView(this);
-        tvVal.setText(initialValue);
-        tvVal.setTextColor(Color.WHITE);
-        tvVal.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        tvVal.setTypeface(Typeface.DEFAULT_BOLD);
-        col.addView(tvVal);
-
-        return col;
-    }
-
-    /**
-     * Charge et génère dynamiquement les 12 cartes des mois pour l'année en cours
-     */
-    private void loadCalendarData() {
-        monthsContainer.removeAllViews();
-
+    private void refreshCalendar() {
+        gridContainer.removeAllViews();
         long userId = sessionManager.getUserId();
-        String[] monthNames = new String[]{
-                "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-        };
 
-        double yearTotalBudget = 0.0;
-        double yearTotalSpent = 0.0;
+        Calendar currentCal = Calendar.getInstance();
+        int realCurrentYear = currentCal.get(Calendar.YEAR);
+        int realCurrentMonth = currentCal.get(Calendar.MONTH) + 1;
 
-        for (int i = 0; i < 12; i++) {
-            int monthIndex = i + 1; // 1 à 12
-            String monthName = monthNames[i];
+        // Construction des 6 rangées de 2 cartes
+        for (int row = 0; row < 6; row++) {
+            LinearLayout rowLayout = new LinearLayout(this);
+            rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+            rowLayout.setPadding(0, 0, 0, dpToPx(10));
 
-            // Format du mois en base : "2026-01", "2026-02", etc.
-            String monthFormatted = String.format(Locale.US, "%04d-%02d", currentYear, monthIndex);
+            for (int col = 0; col < 2; col++) {
+                int monthIndex = (row * 2) + col + 1; // 1 à 12
+                String monthName = monthNames[monthIndex - 1];
+                String monthKey = String.format(Locale.US, "%04d-%02d", selectedYear, monthIndex);
 
-            // 1. Récupération du budget pour ce mois
-            Budget budget = budgetDao.getBudgetForMonth(userId, monthFormatted);
-            double allocatedAmount = (budget != null) ? budget.getMontantTotal() : 0.0;
+                boolean isSelected = monthKey.equals(selectedMonthKey);
+                boolean isPast = (selectedYear < realCurrentYear) || (selectedYear == realCurrentYear && monthIndex < realCurrentMonth);
 
-            // 2. Récupération des dépenses réelles pour ce mois
-            double spentAmount = transactionDao.getTotalExpensesForMonth(userId, monthFormatted);
+                Budget budget = budgetDao.getBudgetForMonth(userId, monthKey);
+                double spent = transactionDao.getTotalExpensesForMonth(userId, monthKey);
 
-            yearTotalBudget += allocatedAmount;
-            yearTotalSpent += spentAmount;
-
-            // Création de la carte graphique du mois
-            View monthCard = buildMonthCard(monthName, monthFormatted, allocatedAmount, spentAmount);
-            monthsContainer.addView(monthCard);
-        }
-
-        // Mise à jour de la carte récapitulative
-        double yearBalance = yearTotalBudget - yearTotalSpent;
-        tvYearSummaryBudget.setText(String.format(Locale.US, "%.3f DT", yearTotalBudget));
-        tvYearSummarySpent.setText(String.format(Locale.US, "%.3f DT", yearTotalSpent));
-        tvYearSummaryBalance.setText(String.format(Locale.US, "%.3f DT", yearBalance));
-        if (yearBalance < 0) {
-            tvYearSummaryBalance.setTextColor(COLOR_DANGER_CORAL);
-        } else {
-            tvYearSummaryBalance.setTextColor(COLOR_LIGHT_MINT);
-        }
-    }
-
-    /**
-     * Construit une carte stylisée pour un mois donné
-     */
-    private View buildMonthCard(String monthName, String monthKey, double budget, double spent) {
-        LinearLayout card = new LinearLayout(this);
-        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        cardParams.setMargins(0, 0, 0, dpToPx(12));
-        card.setLayoutParams(cardParams);
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14));
-        card.setBackground(createRoundedBackground(COLOR_CARD_WHITE, dpToPx(12), Color.parseColor("#E0DDD5"), dpToPx(1)));
-
-        // 1. Ligne Titre du Mois + Badge Statut
-        LinearLayout headerRow = new LinearLayout(this);
-        headerRow.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        headerRow.setOrientation(LinearLayout.HORIZONTAL);
-        headerRow.setGravity(Gravity.CENTER_VERTICAL);
-
-        TextView tvMonth = new TextView(this);
-        tvMonth.setText(monthName + " " + currentYear);
-        tvMonth.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        tvMonth.setTypeface(Typeface.DEFAULT_BOLD);
-        tvMonth.setTextColor(COLOR_DEEP_FOREST);
-        tvMonth.setLayoutParams(new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1.0f
-        ));
-        headerRow.addView(tvMonth);
-
-        // Détermination du statut (Sain, Alerte 80%, Dépassé 100%)
-        String statusText;
-        int statusColor;
-        int statusBg;
-
-        if (budget <= 0.0) {
-            statusText = "Aucun budget";
-            statusColor = COLOR_MUTED_GREY;
-            statusBg = Color.parseColor("#EEEEEE");
-        } else if (spent > budget) {
-            statusText = "DÉPASSÉ";
-            statusColor = COLOR_DANGER_CORAL;
-            statusBg = Color.parseColor("#FFEBEE");
-        } else if (spent >= budget * 0.8) {
-            statusText = "ATTENTION";
-            statusColor = COLOR_WARNING_AMBER;
-            statusBg = Color.parseColor("#FFF8E1");
-        } else {
-            statusText = "SAIN";
-            statusColor = COLOR_PRIMARY_EMERALD;
-            statusBg = COLOR_LIGHT_MINT;
-        }
-
-        TextView tvBadge = new TextView(this);
-        tvBadge.setText(statusText);
-        tvBadge.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        tvBadge.setTypeface(Typeface.DEFAULT_BOLD);
-        tvBadge.setTextColor(statusColor);
-        tvBadge.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
-        tvBadge.setBackground(createRoundedBackground(statusBg, dpToPx(6), statusColor, dpToPx(1)));
-        headerRow.addView(tvBadge);
-
-        card.addView(headerRow);
-
-        // 2. Ligne Chiffres : Dépensé / Budget
-        LinearLayout detailsRow = new LinearLayout(this);
-        detailsRow.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        detailsRow.setOrientation(LinearLayout.HORIZONTAL);
-        detailsRow.setPadding(0, dpToPx(10), 0, dpToPx(8));
-
-        TextView tvSpent = new TextView(this);
-        tvSpent.setText(String.format(Locale.US, "Dépensé : %.3f DT", spent));
-        tvSpent.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        tvSpent.setTextColor(COLOR_DEEP_FOREST);
-        tvSpent.setTypeface(Typeface.DEFAULT_BOLD);
-        tvSpent.setLayoutParams(new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1.0f
-        ));
-        detailsRow.addView(tvSpent);
-
-        TextView tvBudget = new TextView(this);
-        tvBudget.setText(String.format(Locale.US, "Budget : %.3f DT", budget));
-        tvBudget.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        tvBudget.setTextColor(COLOR_MUTED_GREY);
-        tvBudget.setGravity(Gravity.END);
-        detailsRow.addView(tvBudget);
-
-        card.addView(detailsRow);
-
-        // 3. Barre de progression dynamique
-        ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-        progressBar.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dpToPx(8)
-        ));
-        progressBar.setMax(100);
-        int percent = (budget > 0) ? (int) Math.min(100, Math.round((spent / budget) * 100)) : 0;
-        progressBar.setProgress(percent);
-        card.addView(progressBar);
-
-        // 4. Clic sur la carte : dialogue affichant les transactions de ce mois
-        card.setOnClickListener(v -> showMonthDetailsDialog(monthName, monthKey, budget, spent));
-
-        return card;
-    }
-
-    /**
-     * Affiche une boîte de dialogue AlertDialog détaillée avec les dépenses du mois
-     */
-    private void showMonthDetailsDialog(String monthName, String monthKey, double budget, double spent) {
-        long userId = sessionManager.getUserId();
-        List<Transaction> transactions = transactionDao.getTransactionsForMonth(userId, monthKey);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format(Locale.US, "Budget alloué : %.3f DT\n", budget));
-        sb.append(String.format(Locale.US, "Total dépensé : %.3f DT\n", spent));
-        sb.append(String.format(Locale.US, "Solde : %.3f DT\n\n", budget - spent));
-        sb.append("--- DÉPENSES EFFECTUÉES ---\n");
-
-        if (transactions.isEmpty()) {
-            sb.append("Aucune dépense enregistrée pour ce mois.");
-        } else {
-            for (Transaction t : transactions) {
-                sb.append(String.format(Locale.US, "• %s : %.3f DT (%s)\n",
-                        t.getTitle(), t.getAmount(), t.getDate()));
+                View card = createMonthCard(monthName, monthKey, monthIndex, budget, spent, isSelected, isPast);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                if (col == 0) {
+                    lp.setMarginEnd(dpToPx(10));
+                }
+                card.setLayoutParams(lp);
+                rowLayout.addView(card);
             }
+            gridContainer.addView(rowLayout);
         }
 
-        new AlertDialog.Builder(this)
-                .setTitle("Détail - " + monthName + " " + currentYear)
-                .setMessage(sb.toString())
-                .setPositiveButton("Fermer", (dialog, which) -> dialog.dismiss())
-                .show();
+        // Mise à jour de la carte de détail inférieure
+        updateBottomDetail(userId);
     }
 
-    /**
-     * Utilitaire pour générer des fonds aux coins arrondis (GradientDrawable)
-     */
-    private GradientDrawable createRoundedBackground(int fillColor, int cornerRadiusPx, int strokeColor, int strokeWidthPx) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setShape(GradientDrawable.RECTANGLE);
-        drawable.setColor(fillColor);
-        drawable.setCornerRadius(cornerRadiusPx);
-        if (strokeWidthPx > 0) {
-            drawable.setStroke(strokeWidthPx, strokeColor);
+    private View createMonthCard(String name, String monthKey, int monthIndex, Budget budget, double spent, boolean isSelected, boolean isPast) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dpToPx(14), dpToPx(12), dpToPx(14), dpToPx(12));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dpToPx(14));
+
+        TextView tvName = new TextView(this);
+        tvName.setText(name);
+        tvName.setTextSize(14);
+        tvName.setTypeface(Typeface.DEFAULT_BOLD);
+
+        TextView tvAmount = new TextView(this);
+        tvAmount.setTextSize(11);
+        tvAmount.setPadding(0, dpToPx(2), 0, dpToPx(6));
+
+        ProgressBar pb = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        LinearLayout.LayoutParams lpPb = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(4));
+        pb.setLayoutParams(lpPb);
+        pb.setMax(100);
+
+        if (isSelected) {
+            bg.setColor(Color.parseColor("#102B27"));
+            tvName.setTextColor(Color.WHITE);
+            tvAmount.setTextColor(Color.parseColor("#D9F0E4"));
+            tvAmount.setText(spent > 0 ? (int) spent + " DT" : "0 DT");
+            pb.setProgress(budget != null && budget.getMontantTotal() > 0 ? (int) ((spent / budget.getMontantTotal()) * 100) : 10);
+            pb.setProgressTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#D9F0E4")));
+        } else {
+            bg.setColor(Color.WHITE);
+            tvName.setTextColor(Color.parseColor("#102B27"));
+            tvAmount.setTextColor(Color.parseColor("#6B7C74"));
+            tvAmount.setText(spent > 0 ? (int) spent + " DT" : "0 DT");
+            pb.setProgress(0);
+            pb.setProgressTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#EAEFEA")));
         }
-        return drawable;
-    }
 
-    private int dpToPx(int dp) {
-        return (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                dp,
-                getResources().getDisplayMetrics()
-        );
-    }
-
-    /**
-     * Classe interne personnalisée pour assurer un ScrollView propre en Java
-     */
-    private static class ScrollScrollViewBuilder extends ScrollView {
-        public ScrollScrollViewBuilder(android.content.Context context) {
-            super(context);
+        if (isPast) {
+            card.setAlpha(0.6f);
         }
+
+        card.setBackground(bg);
+        card.addView(tvName);
+        card.addView(tvAmount);
+        card.addView(pb);
+
+        card.setOnClickListener(v -> handleMonthClick(name, monthKey, monthIndex, isPast, budget));
+
+        return card;
+    }
+
+    private void handleMonthClick(String name, String monthKey, int monthIndex, boolean isPast, Budget budget) {
+        if (isPast) {
+            Toast.makeText(this, "Impossible de gérer un mois passé. Seuls le mois courant et les mois futurs sont autorisés.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (budget != null) {
+            // Mois avec budget existant -> Activer la période
+            selectedMonthKey = monthKey;
+            selectedMonthIndex = monthIndex;
+            sessionManager.setSelectedMonthKey(monthKey);
+            refreshCalendar();
+        } else {
+            // Mois futur sans budget -> Demander confirmation pour gérer cette période (Exigence n°3)
+            new AlertDialog.Builder(this)
+                    .setTitle("Gérer cette période ?")
+                    .setMessage("Voulez-vous définir et allouer un budget pour " + name + " " + selectedYear + " ?")
+                    .setPositiveButton("Confirmer", (dialog, which) -> {
+                        selectedMonthKey = monthKey;
+                        selectedMonthIndex = monthIndex;
+                        sessionManager.setSelectedMonthKey(monthKey);
+
+                        Calendar c = Calendar.getInstance();
+                        c.set(Calendar.YEAR, selectedYear);
+                        c.set(Calendar.MONTH, monthIndex - 1);
+                        int maxDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+                        String startDate = String.format(Locale.US, "%04d-%02d-01", selectedYear, monthIndex);
+                        String endDate = String.format(Locale.US, "%04d-%02d-%02d", selectedYear, monthIndex, maxDay);
+
+                        Intent intent = new Intent(this, CreateBudgetActivity.class);
+                        intent.putExtra("EXTRA_START_DATE", startDate);
+                        intent.putExtra("EXTRA_END_DATE", endDate);
+                        intent.putExtra("EXTRA_MONTH_KEY", monthKey);
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("Annuler", null)
+                    .show();
+        }
+    }
+
+    private void updateBottomDetail(long userId) {
+        String monthName = monthNames[selectedMonthIndex - 1];
+        tvBottomPeriodTitle.setText(monthName + " " + selectedYear);
+
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, selectedYear);
+        c.set(Calendar.MONTH, selectedMonthIndex - 1);
+        int maxDay = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+        String rangeStr = "01–" + maxDay + " " + monthName.substring(0, Math.min(3, monthName.length())).toUpperCase() + ". " + selectedYear;
+        tvBottomDateRange.setText(rangeStr);
+
+        Budget budget = budgetDao.getBudgetForMonth(userId, selectedMonthKey);
+        double spent = transactionDao.getTotalExpensesForMonth(userId, selectedMonthKey);
+
+        if (budget != null) {
+            tvBottomBudgetInfo.setText((int) spent + " DT / " + (int) budget.getMontantTotal() + " DT");
+            tvBottomBadge.setVisibility(View.VISIBLE);
+            btnBottomModify.setText("modifier");
+            btnBottomModify.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ModifyBudgetActivity.class);
+                intent.putExtra("EXTRA_BUDGET_ID", budget.getId());
+                startActivity(intent);
+            });
+        } else {
+            tvBottomBudgetInfo.setText("Aucun budget alloué pour ce mois");
+            tvBottomBadge.setVisibility(View.GONE);
+            btnBottomModify.setText("Créer");
+            btnBottomModify.setOnClickListener(v -> {
+                String startDate = String.format(Locale.US, "%04d-%02d-01", selectedYear, selectedMonthIndex);
+                String endDate = String.format(Locale.US, "%04d-%02d-%02d", selectedYear, selectedMonthIndex, maxDay);
+                Intent intent = new Intent(this, CreateBudgetActivity.class);
+                intent.putExtra("EXTRA_START_DATE", startDate);
+                intent.putExtra("EXTRA_END_DATE", endDate);
+                intent.putExtra("EXTRA_MONTH_KEY", selectedMonthKey);
+                startActivity(intent);
+            });
+        }
+    }
+
+    private int dpToPx(float dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 }

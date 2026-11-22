@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.masrouf.model.PriceHistory;
 import com.example.masrouf.model.Product;
 import com.example.masrouf.util.MillimesUtil;
 
@@ -73,6 +74,46 @@ public class ProductDao {
         return list;
     }
 
+    public List<Product> getProductsByUser(long userId) {
+        List<Product> list = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String sql = "SELECT p." + DatabaseHelper.COLUMN_PROD_ID + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_NAME + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_CAT_ID + ", " +
+                "c." + DatabaseHelper.COLUMN_CAT_NAME_EN + " AS cat_name, " +
+                "p." + DatabaseHelper.COLUMN_PROD_BRAND + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_UNIT + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_LAST_PRICE + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_PREV_PRICE + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_STORE + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_LAST_DATE + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_LAST_PRICE_MILLIMES + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_PREV_PRICE_MILLIMES + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_PHOTO_URI + " " +
+                "FROM " + DatabaseHelper.TABLE_PRODUCTS + " p " +
+                "LEFT JOIN " + DatabaseHelper.TABLE_CATEGORIES + " c " +
+                "ON p." + DatabaseHelper.COLUMN_PROD_CAT_ID + " = c." + DatabaseHelper.COLUMN_CAT_ID + " " +
+                "WHERE p." + DatabaseHelper.COLUMN_PROD_USER_ID + " = ? OR p." + DatabaseHelper.COLUMN_PROD_USER_ID + " = 0 " +
+                "ORDER BY p." + DatabaseHelper.COLUMN_PROD_NAME + " ASC";
+
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery(sql, new String[]{ String.valueOf(userId) });
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    list.add(cursorToProduct(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur getProductsByUser : " + e.getMessage(), e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+
+        return list;
+    }
+
     public Product getProductById(long id) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Product prod = null;
@@ -131,7 +172,7 @@ public class ProductDao {
             p.setId(id);
             // Journaliser dans price_history
             PriceHistoryDao phDao = new PriceHistoryDao(dbHelper);
-            phDao.insertPriceHistory(new com.example.masrouf.model.PriceHistory(id, p.getLastUnitPrice(), p.getStore(), p.getLastPurchaseDate()));
+            phDao.insertPriceHistory(new PriceHistory(id, p.getLastUnitPrice(), p.getStore(), p.getLastPurchaseDate()));
         }
         return id;
     }

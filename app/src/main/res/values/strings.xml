@@ -30,8 +30,12 @@
     <string name="error_invalid_email_domain">Email must be a valid @gmail.com address (e.g. name@gmail.com).</string>
     <string name="error_password_policy">Password must be at least 8 characters, contain an uppercase letter, a number, and a special character.</string>
     <string name="error_invalid_credentials">Invalid email or password.</string>
+    <string name="error_passwords_mismatch">Passwords do not match.</string>
+    <string name="error_email_already_exists">An account with this email already exists.</string>
     <string name="error_account_suspended">Account suspended. Please contact an administrator.</string>
     <string name="msg_login_success">Login successful.</string>
+    <string name="msg_register_success">Account created successfully.</string>
+    <string name="error_generic_database">A database error occurred. Please try again.</string>
 
     <!-- Écran d'accueil utilisateur standard (Home - Figma 07) -->
     <string name="home_title">Masrouf — Overview</string>
@@ -170,4 +174,77 @@
     <string name="btn_delete">Delete</string>
     <string name="btn_cancel">Cancel</string>
     <string name="confirm_delete">Are you sure you want to delete this?</string>
+
+    <!-- Category Addition on Home Screen -->
+    <string name="btn_add_category">+ Add category</string>
+    <string name="dialog_add_category_title">Add a category</string>
+    <string name="hint_category_name">Category name</string>
+    <string name="label_category_type">Category type</string>
+    <string name="type_product">Product / Purchase</string>
+    <string name="type_expense">Expense / Bill</string>
+    <string name="btn_confirm_add">Add</string>
+    <string name="msg_category_added">Category added successfully!</string>
+
+    <!-- Onboarding & Welcome Flow -->
+    <string name="welcome_welcome_to">Welcome to</string>
+    <string name="welcome_app_title">Masrouf</string>
+    <string name="welcome_btn_start">Get Started</string>
+    <string name="welcome_already_have_account">Already have an account? Log in</string>
+    <string name="welcome_skip">Skip</string>
+    <string name="welcome_btn_continue">Continue</string>
+    <string name="welcome_btn_choose_account">Choose your account type</string>
+
+    <!-- Slide 1 -->
+    <string name="welcome_slide1_title">Manage your personal finances</string>
+    <string name="welcome_slide1_desc">Track your daily expenses, purchases down to the millime, and keep total control of your budget.</string>
+    <string name="welcome_slide1_check1">Grocery purchase tracking and unit prices</string>
+    <string name="welcome_slide1_check2">Fixed expenses and subscriptions management</string>
+
+    <!-- Slide 2 -->
+    <string name="welcome_slide2_title">Organize purchases, expenses and budgets</string>
+    <string name="welcome_slide2_desc">Classify your spending by category, track unit price evolution, and achieve your financial goals.</string>
+    <string name="welcome_slide2_check1">Monthly budget envelopes</string>
+    <string name="welcome_slide2_check2">Visual budget alert thresholds and savings</string>
+
+    <!-- Slide 3 -->
+    <string name="welcome_slide3_title">Manage family finances &amp; your children</string>
+    <string name="welcome_slide3_desc">Allocate pocket money, approve requests in real time, and pass on good financial habits.</string>
+    <string name="welcome_slide3_check1">Child account creation with secure access</string>
+    <string name="welcome_slide3_check2">Family reserve, pocket money &amp; money requests</string>
+
+    <!-- Choice Screen -->
+    <string name="welcome_choice_subtitle">MASROUF · ACCOUNT SELECTION</string>
+    <string name="welcome_choice_title">Choose your account type</string>
+    <string name="welcome_choice_desc">Select the mode suitable for your use. You can always upgrade your space later.</string>
+    <string name="welcome_card_personal_title">Personal Account</string>
+    <string name="welcome_card_personal_badge">Individual</string>
+    <string name="welcome_card_personal_desc">Individual financial management, purchases, daily expenses and budgets.</string>
+    <string name="welcome_card_personal_check1">✓ Autonomous individual financial management</string>
+    <string name="welcome_card_personal_check2">✓ Purchases, daily expenses and budget envelopes</string>
+    <string name="welcome_card_personal_check3">✓ Unit price tracking and savings</string>
+    <string name="welcome_card_personal_action">Choose Personal Account ›</string>
+
+    <string name="welcome_card_family_title">Family Account</string>
+    <string name="welcome_card_family_badge">Parent / Guardian</string>
+    <string name="welcome_card_family_desc">Personal Space + Family Space, children management, family reserve, allocations &amp; money requests.</string>
+    <string name="welcome_card_family_check1">✓ Personal Space + Family Space</string>
+    <string name="welcome_card_family_check2">✓ Child account creation with secure access</string>
+    <string name="welcome_card_family_check3">✓ Family reserve, pocket money &amp; request approval</string>
+    <string name="welcome_card_family_check4">✓ Consolidated family budgets and analytics reports</string>
+    <string name="welcome_card_family_action">Choose Family Account ›</string>
+
+    <!-- Registration Screen -->
+    <string name="reg_screen_title">Create an account</string>
+    <string name="reg_subtitle">FAMILY BUDGET TRACKER</string>
+    <string name="reg_toggle_personal">👤 Personal Account</string>
+    <string name="reg_toggle_family">👥 Family Account</string>
+    <string name="reg_info_personal">👤 Personal Account: Autonomous individual management of your purchases and budgets</string>
+    <string name="reg_info_family">ℹ️ Parent Account: Full access to Personal Space and Family Space</string>
+    <string name="reg_local_storage_notice">Your budgets, purchases and expenses remain stored locally on this device.</string>
+    <string name="reg_label_fullname">Full name</string>
+    <string name="reg_hint_fullname">Enter your name</string>
+    <string name="reg_label_confirm_password">Confirm password</string>
+    <string name="reg_hint_confirm_password">Confirm your password</string>
+    <string name="reg_btn_do_register">Create an account</string>
+    <string name="reg_btn_go_login">Log in</string>
 </resources>

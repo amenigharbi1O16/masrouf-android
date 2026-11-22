@@ -29,12 +29,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Masrouf">
 
-        <!-- ================================================================= -->
-        <!-- POINT D'ENTRÉE DE L'APPLICATION (Écran de connexion - Figma 01)   -->
-        <!-- Seule activité avec android:exported="true" car appelée par l'OS  -->
-        <!-- ================================================================= -->
+        <!-- POINT D'ENTRÉE PRINCIPAL DE L'APPLICATION (Welcome / Splash - /welcome) -->
         <activity
-            android:name=".view.LoginActivity"
+            android:name=".view.OnboardingWelcomeActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -43,12 +40,29 @@
             </intent-filter>
         </activity>
 
-        <!-- ================================================================= -->
-        <!-- MODULE AUTHENTIFICATION & SÉCURITÉ COMPTES                        -->
-        <!-- ================================================================= -->
-        <!-- Inscription d'un nouvel utilisateur (Figma 02) -->
+        <!-- MODULE AUTHENTIFICATION & SÉCURITÉ COMPTES -->
+        <activity
+            android:name=".view.LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".view.RegisterActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.OnboardingStep1Activity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.OnboardingCategoriesActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.OnboardingConfirmActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
@@ -220,11 +234,70 @@
             android:exported="false" />
 
         <!-- ================================================================= -->
+        <!-- ESPACE FAMILIAL (COMPTE PARENT) & ESPACE ARGENT DE POCHE (ENFANT) -->
+        <!-- ================================================================= -->
+        <activity
+            android:name=".view.family.FamilyDashboardActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.family.FamilyChildrenActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.family.ChildProfileActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.family.FamilyFinancesActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.family.FamilyRequestsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.family.FamilyAnalyticsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.family.FamilyHistoryActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.family.FamilyPrivacyActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".view.child.ChildMainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- ================================================================= -->
         <!-- SERVICE D'ARRIÈRE-PLAN (Started Service, Matrice §4 ligne 36)     -->
         <!-- ================================================================= -->
         <service
             android:name=".service.ReminderService"
             android:exported="false" />
+
+        <!-- FileProvider pour le partage et l'ouverture native du manuel utilisateur PDF -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.masrouf.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

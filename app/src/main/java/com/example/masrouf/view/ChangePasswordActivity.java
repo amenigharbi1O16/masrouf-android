@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.masrouf.MainActivity;
@@ -19,6 +20,7 @@ import com.example.masrouf.dao.DatabaseHelper;
 import com.example.masrouf.dao.UserDao;
 import com.example.masrouf.model.User;
 import com.example.masrouf.util.PasswordUtil;
+import com.example.masrouf.view.child.ChildMainActivity;
 
 /**
  * RÔLE : Activité imposant le changement de mot de passe lors de la première connexion (Figma 03).
@@ -42,6 +44,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private long userId;
     private String userEmail;
 
+    private boolean isForcedPasswordChange = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +60,23 @@ public class ChangePasswordActivity extends AppCompatActivity {
         if (userEmail == null || userEmail.isEmpty()) {
             userEmail = sessionManager.getUserEmail();
         }
+
+        User user = userDao.getUserById(userId);
+        if (user != null && user.isTemporaryPassword()) {
+            isForcedPasswordChange = true;
+        }
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (isForcedPasswordChange) {
+                    Toast.makeText(ChangePasswordActivity.this, "Changement de mot de passe obligatoire. Impossible de revenir en arrière.", Toast.LENGTH_SHORT).show();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
 
         initViews();
         setupListeners();
@@ -92,9 +113,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
             return;
         }
 
-        // 3. Vérification de la politique de mot de passe (8 car., 1 maj., 1 chiffre, 1 symbole)
-        if (!AuthController.isValidPasswordPolicy(newPass)) {
-            Toast.makeText(this, R.string.error_password_policy, Toast.LENGTH_LONG).show();
+        // 3. Vérification de la politique de mot de passe (au moins 8 caractères et au moins un chiffre)
+        boolean hasDigit = newPass.matches(".*\\d.*");
+        if (newPass.length() < 8 || !hasDigit) {
+            Toast.makeText(this, "Le nouveau mot de passe doit contenir au moins 8 caractères et au moins 1 chiffre.", Toast.LENGTH_LONG).show();
             etNewPassword.requestFocus();
             return;
         }
@@ -133,8 +155,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
             currentUser.setTemporaryPassword(false);
             sessionManager.saveSession(currentUser);
 
-            // Redirection vers l'accueil utilisateur
-            Intent intent = new Intent(this, MainActivity.class);
+            // Redirection vers l'accueil utilisateur dédié selon son rôle
+            Intent intent;
+            if (currentUser.isChild()) {
+                intent = new Intent(this, ChildMainActivity.class);
+            } else {
+                intent = new Intent(this, MainActivity.class);
+            }
             startActivity(intent);
             finish();
         } else {

@@ -6,10 +6,16 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.masrouf.MainActivity;
+import com.example.masrouf.dao.CategoryDao;
 import com.example.masrouf.dao.UserDao;
 import com.example.masrouf.model.User;
 import com.example.masrouf.util.PasswordUtil;
+import com.example.masrouf.view.ChangePasswordActivity;
+import com.example.masrouf.view.OnboardingStep1Activity;
+import com.example.masrouf.view.OnboardingWelcomeActivity;
 import com.example.masrouf.view.admin.AdminDashboardActivity;
+import com.example.masrouf.view.child.ChildMainActivity;
+import com.example.masrouf.view.family.FamilyDashboardActivity;
 
 import java.util.regex.Pattern;
 
@@ -174,20 +180,24 @@ public class AuthController {
 
         // 6. Si aucun utilisateur ne correspond à cette combinaison email/hash
         if (user == null) {
+            // Journalise l'échec de la tentative avec identifiants incorrects
             Log.w(TAG, "Échec d'authentification : identifiants incorrects pour " + cleanedEmail);
+            // Renvoie le statut d'identifiants incorrects sans bloquer le compte
             return new LoginResult(AuthStatus.INVALID_CREDENTIALS, null);
         }
 
-        // 7. Vérification de l'état d'activation du compte (actif vs suspendu)
+        // 6.b Vérification du statut de suspension du compte (compte suspendu par le parent / admin)
         if (!user.isActive()) {
-            Log.w(TAG, "Compte suspendu pour l'utilisateur : " + cleanedEmail);
+            Log.w(TAG, "Compte suspendu pour : " + cleanedEmail);
             return new LoginResult(AuthStatus.ACCOUNT_SUSPENDED, user);
         }
 
-        // 8. Succès : enregistrement de la session dans les SharedPreferences
+        // 7. Succès : enregistrement de la session dans les SharedPreferences (aucun compte n'est jamais bloqué)
         sessionManager.saveSession(user);
+        // Journalise le succès de la connexion
         Log.d(TAG, "Connexion validée pour : " + user.getEmail() + " [Rôle : " + user.getRole() + "]");
 
+        // Renvoie le résultat de connexion réussie
         return new LoginResult(AuthStatus.SUCCESS, user);
     }
 
@@ -201,17 +211,22 @@ public class AuthController {
     public void redirectUserByRole(Activity currentActivity, User user) {
         Intent destinationIntent;
 
+        // 1. Mot de passe temporaire imposé à changer d'abord
         if (user.isTemporaryPassword()) {
-            // Mot de passe temporaire : redirection obligatoire vers l'écran de changement de mot de passe (Figma 03)
             Log.d(TAG, "Mot de passe temporaire : redirection vers ChangePasswordActivity");
-            destinationIntent = new Intent(currentActivity, com.example.masrouf.view.ChangePasswordActivity.class);
-        } else if (user.isAdmin()) {
-            // Aiguillage RÔLE ADMIN -> Écran d'administration (Vue construite en Java pur)
-            Log.d(TAG, "Redirection vers le tableau de bord Administrateur");
-            destinationIntent = new Intent(currentActivity, AdminDashboardActivity.class);
+            destinationIntent = new Intent(currentActivity, ChangePasswordActivity.class);
+        } else if (!sessionManager.isOnboardingCompleted(user.getId())) {
+            // 2. Parcours d'onboarding des catégories (obligatoire pour les 3 types : Parent, Enfant, Personnel)
+            Log.d(TAG, "Redirection vers le parcours de sélection des catégories (OnboardingStep1Activity)");
+            destinationIntent = new Intent(currentActivity, OnboardingStep1Activity.class);
+        } else if (user.isChild()) {
+            Log.d(TAG, "Redirection vers l'accueil dédié au Compte Enfant (ChildMainActivity)");
+            destinationIntent = new Intent(currentActivity, ChildMainActivity.class);
+        } else if (user.isParent()) {
+            Log.d(TAG, "Redirection vers l'accueil pour le profil Parent (FamilyDashboardActivity)");
+            destinationIntent = new Intent(currentActivity, FamilyDashboardActivity.class);
         } else {
-            // Aiguillage RÔLE USER -> Écran d'accueil utilisateur standard (Vue XML)
-            Log.d(TAG, "Redirection vers l'accueil utilisateur standard");
+            Log.d(TAG, "Redirection vers l'accueil utilisateur standard (MainActivity)");
             destinationIntent = new Intent(currentActivity, MainActivity.class);
         }
 

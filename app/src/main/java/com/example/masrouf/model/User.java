@@ -11,9 +11,11 @@ package com.example.masrouf.model;
  */
 public class User {
 
-    // Constantes définissant les deux rôles possibles dans l'application
-    public static final String ROLE_ADMIN = "ADMIN";
-    public static final String ROLE_USER = "USER";
+    // Constantes définissant les rôles dans l'application
+    public static final String ROLE_ADMIN = "ADMIN";     // Rétrocompatibilité : migré automatiquement vers PARENT
+    public static final String ROLE_PARENT = "PARENT";   // Administrateur familial (Compte Familial)
+    public static final String ROLE_CHILD = "CHILD";     // Compte Enfant supervisé
+    public static final String ROLE_USER = "USER";       // Utilisateur individuel (Compte Personnel)
 
     // Constantes de niveaux de gamification (Figma 21)
     public static final String LEVEL_BEGINNER = "Beginner"; // 0 - 299 points
@@ -28,6 +30,11 @@ public class User {
     private boolean isActive;
     private boolean isTemporaryPassword;
     private String createdAt;
+
+    // Champs spécifiques au compte familial
+    private long familyId;
+    private long parentId;
+    private long balanceMillimes; // Solde courant pour compte Enfant
 
     // Gamification
     private int points;
@@ -80,6 +87,10 @@ public class User {
         this.points = 0;
         this.streakCount = 0;
         this.level = LEVEL_BEGINNER;
+    }
+
+    public User(String fullName, String email, String passwordHash, String salt, String role) {
+        this(email, passwordHash, fullName, role);
     }
 
     public long getId() {
@@ -182,7 +193,47 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return ROLE_ADMIN.equalsIgnoreCase(this.role);
+        return ROLE_ADMIN.equalsIgnoreCase(this.role) || ROLE_PARENT.equalsIgnoreCase(this.role);
+    }
+
+    public boolean isParent() {
+        return ROLE_PARENT.equalsIgnoreCase(this.role) || ROLE_ADMIN.equalsIgnoreCase(this.role);
+    }
+
+    public boolean isChild() {
+        return ROLE_CHILD.equalsIgnoreCase(this.role);
+    }
+
+    public boolean isIndividualUser() {
+        return ROLE_USER.equalsIgnoreCase(this.role);
+    }
+
+    public long getFamilyId() {
+        return familyId;
+    }
+
+    public void setFamilyId(long familyId) {
+        this.familyId = familyId;
+    }
+
+    public long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(long parentId) {
+        this.parentId = parentId;
+    }
+
+    public long getBalanceMillimes() {
+        return balanceMillimes;
+    }
+
+    public void setBalanceMillimes(long balanceMillimes) {
+        this.balanceMillimes = balanceMillimes;
+    }
+
+    public double getBalance() {
+        return balanceMillimes / 1000.0;
     }
 
     @Override

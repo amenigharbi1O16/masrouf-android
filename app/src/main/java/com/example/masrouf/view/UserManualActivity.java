@@ -1,25 +1,30 @@
 package com.example.masrouf.view;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.masrouf.R;
 import com.example.masrouf.controller.SessionManager;
+import com.example.masrouf.util.PdfHelper;
+
+import java.io.File;
 
 /**
- * RÔLE : Guide et Manuel utilisateur intégré (4 volets) avec ouverture native du PDF.
+ * RÔLE : Guide et Manuel utilisateur intégré (8 chapitres offline) avec ouverture native du PDF.
  * COUCHE MVC : Vue (View).
- * EXIGENCES DU PROF COUVERTES :
- *   - Documentation intégrée dans l'application.
- *   - Intent implicite vers lecteur PDF natif (ACTION_VIEW avec application/pdf).
- *   - Multilingue dynamique (EN/FR/AR).
+ * Les 8 chapitres documentés :
+ * 1. Getting Started (Prise en main)
+ * 2. Budgets
+ * 3. Categories (Catégories)
+ * 4. Shopping (Achats & Produits)
+ * 5. Family Space (Espace Familial)
+ * 6. Children (Compte Enfant)
+ * 7. Price Comparison (Comparateur de prix)
+ * 8. Backups (Sauvegardes & Sécurité)
  */
 public class UserManualActivity extends AppCompatActivity {
 
@@ -30,9 +35,10 @@ public class UserManualActivity extends AppCompatActivity {
     private Button btnTabPrices;
     private Button btnTabGamification;
     private Button btnOpenPdfNative;
+    private Button btnDownloadPdfNative;
 
     private SessionManager sessionManager;
-    private int currentPage = 1;
+    private int currentChapter = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,110 +63,147 @@ public class UserManualActivity extends AppCompatActivity {
         btnTabPrices = findViewById(R.id.btnTabPrices);
         btnTabGamification = findViewById(R.id.btnTabGamification);
         btnOpenPdfNative = findViewById(R.id.btnOpenPdfNative);
+        btnDownloadPdfNative = findViewById(R.id.btnDownloadPdfNative);
 
-        btnTabPhilosophy.setOnClickListener(v -> showPage(1));
-        btnTabBudget.setOnClickListener(v -> showPage(2));
+        btnTabPhilosophy.setOnClickListener(v -> showNextChapter());
+        btnTabBudget.setOnClickListener(v -> showPage(1));
         btnTabPrices.setOnClickListener(v -> showPage(3));
-        btnTabGamification.setOnClickListener(v -> showPage(4));
+        btnTabGamification.setOnClickListener(v -> showPage(5));
 
-        btnOpenPdfNative.setOnClickListener(v -> openPdfExternally());
+        btnOpenPdfNative.setOnClickListener(v -> {
+            String lang = sessionManager.getLanguage();
+            File pdf = PdfHelper.generatePdf(this, lang);
+            PdfHelper.openPdf(this, pdf);
+        });
+
+        btnDownloadPdfNative.setOnClickListener(v -> {
+            String lang = sessionManager.getLanguage();
+            File pdf = PdfHelper.generatePdf(this, lang);
+            PdfHelper.downloadPdf(this, pdf);
+        });
+    }
+
+    private void showNextChapter() {
+        currentChapter = (currentChapter % 8) + 1;
+        showPage(currentChapter);
     }
 
     private void showPage(int page) {
-        currentPage = page;
+        currentChapter = page;
         resetTabButtons();
 
         String lang = sessionManager.getLanguage();
+        boolean isAr = "ar".equalsIgnoreCase(lang);
 
-        if (page == 1) {
-            btnTabPhilosophy.setBackgroundResource(R.drawable.bg_btn_primary);
-            btnTabPhilosophy.setTextColor(getResources().getColor(R.color.white));
+        switch (page) {
+            case 1:
+                btnTabBudget.setBackgroundResource(R.drawable.bg_btn_primary);
+                btnTabBudget.setTextColor(getResources().getColor(R.color.white));
+                tvManualPageTitle.setText(isAr ? "1. Prise en main (Getting Started)" : "1. Getting Started · Prise en main");
+                tvManualPageContent.setText(isAr ?
+                        "مرحباً بك في تطبيق مصروف! أداة الإدارة المالية التونسية المحلية.\n\n" +
+                        "• التسجيل وربط الحسابات: حساب فردي، حساب عائلي للأب، أو حساب محمي للأبناء.\n" +
+                        "• الدقة الماليّة: الحسابات بالمليم التونسي دون أخطاء الفاصلة العائمة (1 د.ت = 1000 مليم).\n" +
+                        "• الأمان: حفظ محلي كامل على جهازك بدون الحاجة إلى الإنترنت." :
+                        "Bienvenue dans Masrouf, l'application de gestion financière locale et proactive.\n\n" +
+                        "• Prise en main : Choisissez entre Compte Personnel (gestion autonome) ou Compte Famille (Parent & Enfants).\n" +
+                        "• Intégrité financière : Tous les calculs sont effectués en millimes tunisiens (1 DT = 1 000 millimes) sans erreur d'arrondi.\n" +
+                        "• Sécurité : Données sauvegardées à 100% sur votre appareil localement.");
+                break;
 
-            if ("ar".equalsIgnoreCase(lang)) {
-                tvManualPageTitle.setText("1. فلسفة تطبيق مصروف");
-                tvManualPageContent.setText("مصروف ليس مجرد مسجل مصاريف عابر، بل هو أداة متطورة لإدارة الميزانية بوعي.\n\n" +
-                        "المبادئ الأساسية:\n" +
-                        "• الإنفاق الواعي والمخطط بدلاً من التتبع العشوائي.\n" +
-                        "• الحفاظ على التوازن المالي وتجنب الديون غير الضرورية.\n" +
-                        "• الدقة المطلقة في الحسابات المالية باعتماد المليم التونسي لمنع أي أخطاء حسابية.");
-            } else if ("fr".equalsIgnoreCase(lang)) {
-                tvManualPageTitle.setText("1. Philosophie Masrouf");
-                tvManualPageContent.setText("Masrouf n\'est pas un simple carnet de dépenses, mais un assistant financier proactif.\n\n" +
-                        "Piliers fondateurs :\n" +
-                        "• Dépenser en conscience plutôt que subir ses fins de mois.\n" +
-                        "• Équilibre budgétaire durable et prévoyance.\n" +
-                        "• Précision financière intégrale : calculs exacts au millime tunisien (DT) pour une intégrité parfaite des comptes.");
-            } else {
-                tvManualPageTitle.setText("1. Masrouf Philosophy");
-                tvManualPageContent.setText("Masrouf is not just an expense tracker; it is an intentional budgeting companion.\n\n" +
-                        "Core Pillars:\n" +
-                        "• Spend with intention and awareness.\n" +
-                        "• Healthy financial habits through proactive allocations.\n" +
-                        "• Exact millimes integer math ensuring zero floating-point rounding errors.");
-            }
-        } else if (page == 2) {
-            btnTabBudget.setBackgroundResource(R.drawable.bg_btn_primary);
-            btnTabBudget.setTextColor(getResources().getColor(R.color.white));
+            case 2:
+                btnTabBudget.setBackgroundResource(R.drawable.bg_btn_primary);
+                btnTabBudget.setTextColor(getResources().getColor(R.color.white));
+                tvManualPageTitle.setText(isAr ? "2. Budgets (إدارة الميزانية)" : "2. Budgets · Gestion du budget mensuel");
+                tvManualPageContent.setText(isAr ?
+                        "• تحديد الميزانية الشاملة وتاريخ البداية والنهاية الشهرية.\n" +
+                        "• توزيع الفئات: لا يمكن لتكلفة الفئات أن تتجاوز ميزانية الشهر.\n" +
+                        "• احتياطي الطوارئ: إمكانية الاحتفاظ بمبالغ غير مخصصة.\n" +
+                        "• تنبيهات تلقائية عند استهلاك 80% وتجاوز 100% من الميزانية." :
+                        "• Définition de l'enveloppe mensuelle avec dates d'effet.\n" +
+                        "• Allocation par catégories : La somme des allocations doit être <= au budget total.\n" +
+                        "• Fonds de réserve : Conservez une marge non allouée pour les imprévus.\n" +
+                        "• Alertes intelligentes dès 80% de consommation et en cas de dépassement.");
+                break;
 
-            if ("ar".equalsIgnoreCase(lang)) {
-                tvManualPageTitle.setText("2. إدارة الميزانيات المخصصة");
-                tvManualPageContent.setText("• حرية اختيار تواريخ البداية والنهاية لكل فترة ميزانية.\n" +
-                        "• توزيع الفئات: يجب ألا يتجاوز مجموع مخصصات الفئات المبلغ الإجمالي للميزانية.\n" +
-                        "• السماح بوجود مبالغ غير مخصصة لتكون بمثابة احتياطي طوارئ مرن.\n" +
-                        "• تنبيهات ذكية فورية عند الوصول إلى 80% وتجاوز 100%.");
-            } else if ("fr".equalsIgnoreCase(lang)) {
-                tvManualPageTitle.setText("2. Gestion des Budgets");
-                tvManualPageContent.setText("• Périodes personnalisées : définissez librement vos dates de début et de fin de budget.\n" +
-                        "• Règle d'or : La somme allouée aux catégories doit être <= au budget total.\n" +
-                        "• Les fonds non alloués sont autorisés et constituent une réserve de sécurité.\n" +
-                        "• Alertes proactives dès 80% de consommation et en cas de dépassement.");
-            } else {
-                tvManualPageTitle.setText("2. Budget Management");
-                tvManualPageContent.setText("• Flexible periods: customize your start and end dates freely.\n" +
-                        "• Allocation rule: Sum of category limits must be <= total budget.\n" +
-                        "• Unallocated buffer funds are permitted as an emergency reserve.\n" +
-                        "• Proactive notifications triggered at 80% and 100% budget thresholds.");
-            }
-        } else if (page == 3) {
-            btnTabPrices.setBackgroundResource(R.drawable.bg_btn_primary);
-            btnTabPrices.setTextColor(getResources().getColor(R.color.white));
+            case 3:
+                btnTabPrices.setBackgroundResource(R.drawable.bg_btn_primary);
+                btnTabPrices.setTextColor(getResources().getColor(R.color.white));
+                tvManualPageTitle.setText(isAr ? "3. Categories (إدارة الفئات)" : "3. Categories · Catégories & Personnalisation");
+                tvManualPageContent.setText(isAr ?
+                        "• الفصل التام بين مشتريات المواد الاستهلاكية والمصاريف الثابتة.\n" +
+                        "• تخصيص الفئات: إمكانية إضافة فئات جديدة وتحديد الأيقونات والألوان.\n" +
+                        "• نسب التوزيع: إمكانية ضبط النسب المئوية الافتراضية للفئات." :
+                        "• Classification rigoureuse : Séparation entre achats de produits et dépenses fixes.\n" +
+                        "• Catégories sur-mesure : Ajoutez vos propres catégories avec icônes et couleurs.\n" +
+                        "• Répartition par défaut : Définissez les pourcentages attribués à chaque poste.");
+                break;
 
-            if ("ar".equalsIgnoreCase(lang)) {
-                tvManualPageTitle.setText("3. شفافية وتتبع الأسعار");
-                tvManualPageContent.setText("• مقارنة الأسعار الفردية للتر والكيلوغرام عبر المتاجر المختلفة.\n" +
-                        "• كشف التضخم: مؤشرات خضراء وحمراء لبيان نسبة الزيادة أو الانخفاض مقارنة بآخر شراء.\n" +
-                        "• الفصل التام بين مشتريات المنتجات الاستهلاكية والمصاريف الثابتة كالفواتير والإيجار.");
-            } else if ("fr".equalsIgnoreCase(lang)) {
-                tvManualPageTitle.setText("3. Intégrité des Prix");
-                tvManualPageContent.setText("• Comparateur d'unités réelles : comparez les prix au litre ou au kilo entre différentes enseignes.\n" +
-                        "• Détection des hausses : badges dynamiques indiquant la variation en % par rapport au dernier achat.\n" +
-                        "• Distinction claire entre achats de produits et charges fixes récurrentes.");
-            } else {
-                tvManualPageTitle.setText("3. Price Transparency");
-                tvManualPageContent.setText("• Unit-price comparison: compare true price per liter or per kg across stores.\n" +
-                        "• Inflation detection: automatic badges showing percentage increase or savings.\n" +
-                        "• Strict separation between grocery products and fixed bills/expenses.");
-            }
-        } else if (page == 4) {
-            btnTabGamification.setBackgroundResource(R.drawable.bg_btn_primary);
-            btnTabGamification.setTextColor(getResources().getColor(R.color.white));
+            case 4:
+                btnTabPrices.setBackgroundResource(R.drawable.bg_btn_primary);
+                btnTabPrices.setTextColor(getResources().getColor(R.color.white));
+                tvManualPageTitle.setText(isAr ? "4. Shopping (تسجيل المشتريات والمنتجات)" : "4. Shopping · Achats & Catalogue Produits");
+                tvManualPageContent.setText(isAr ?
+                        "• إضافة شراء جديد: كمية وسعر إجمالي، مع حساب السعر الفردي تلقائياً.\n" +
+                        "• اقتراح المتاجر: كارفور، المونوبري، المغازة العامة، عزيزة، والسوق.\n" +
+                        "• إضافة صورة الإيصال: التقاط عبر الكاميرا أو الاختيار من المعرض." :
+                        "• Saisie guidée : Quantité et prix total avec calcul instantané du prix unitaire.\n" +
+                        "• Enseignes proposées : Carrefour, Monoprix, MG, Aziza et Marché.\n" +
+                        "• Reçu d'achat : Capture photo via l'appareil ou sélection dans la galerie.");
+                break;
 
-            if ("ar".equalsIgnoreCase(lang)) {
-                tvManualPageTitle.setText("4. نظام النقاط والمكافآت");
-                tvManualPageContent.setText("• 100 نقطة عند احترام ميزانية الفترة المحددة (تمنح مرة واحدة فقط بدون تكرار).\n" +
-                        "• مكافأة الاستمرار: 50 نقطة إضافية عند توفير 3 فترات متتالية.\n" +
-                        "• المستويات: مبتدئ (0-299)، مقتصد (300-999)، خبير (1000+).");
-            } else if ("fr".equalsIgnoreCase(lang)) {
-                tvManualPageTitle.setText("4. Gamification & Récompenses");
-                tvManualPageContent.setText("• 100 points attribués à la fin d'une période réussie dans le budget (anti-doublon strict).\n" +
-                        "• Bonus de régularité (streak) : +50 points pour 3 périodes consécutives d'économie.\n" +
-                        "• Niveaux d'avancement : Débutant (0-299), Économe (300-999), Expert (1 000+).");
-            } else {
-                tvManualPageTitle.setText("4. Gamification & Rewards");
-                tvManualPageContent.setText("• 100 points rewarded once per successful period under budget (anti-duplicate ledger).\n" +
-                        "• Streak bonus: +50 extra points for a 3-period savings streak.\n" +
-                        "• Player Levels: Beginner (0-299), Saver (300-999), Expert (1,000+).");
-            }
+            case 5:
+                btnTabGamification.setBackgroundResource(R.drawable.bg_btn_primary);
+                btnTabGamification.setTextColor(getResources().getColor(R.color.white));
+                tvManualPageTitle.setText(isAr ? "5. Family Space (الفضاء العائلي)" : "5. Family Space · Espace Familial Parent");
+                tvManualPageContent.setText(isAr ?
+                        "• الخزينة العائلية: متابعة الرصيد الإجمالي، المتاح، والمخصص للأبناء.\n" +
+                        "• تحويل الأموال للأبناء: تخصيص مصاريف الجيب وتحديد السقف اليومي.\n" +
+                        "• معالجة الطلبات: قبول أو رفض طلبات الأموال المقدمة من الأبناء." :
+                        "• Trésorerie familiale : Suivi global des fonds disponibles et alloués.\n" +
+                        "• Allocations aux enfants : Distribution de l'argent de poche et plafonds.\n" +
+                        "• Traitement des demandes : Validation ou refus des demandes avec motif.");
+                break;
+
+            case 6:
+                btnTabGamification.setBackgroundResource(R.drawable.bg_btn_primary);
+                btnTabGamification.setTextColor(getResources().getColor(R.color.white));
+                tvManualPageTitle.setText(isAr ? "6. Children (حساب الطفل وطلب الأموال)" : "6. Children · Compte Enfant & Argent de poche");
+                tvManualPageContent.setText(isAr ?
+                        "• دخول الأبناء: كلمة سر مؤقتة وتغيير إجباري عند أول تسجيل دخول.\n" +
+                        "• طلب الأموال: إرسال طلب بمبلغ ومبرر ينتظر موافقة الأب.\n" +
+                        "• استقلالية ومصداقية: سجل مشتريات الطفل خاص به ولا يكشف تفاصيله الدقيقة." :
+                        "• Accès sécurisé : Mot de passe temporaire avec changement obligatoire.\n" +
+                        "• Demandes d'argent : Soumission d'une demande avec montant et motif au parent.\n" +
+                        "• Espace protégé : Le détail précis des achats de l'enfant reste privé.");
+                break;
+
+            case 7:
+                btnTabPrices.setBackgroundResource(R.drawable.bg_btn_primary);
+                btnTabPrices.setTextColor(getResources().getColor(R.color.white));
+                tvManualPageTitle.setText(isAr ? "7. Price Comparison (مقارنة الأسعار والتضخم)" : "7. Price Comparison · Comparateur & Inflation");
+                tvManualPageContent.setText(isAr ?
+                        "• مقارنة الأسعار بالحجم والوزن (كغ، لتر، قطعة، علبة).\n" +
+                        "• كشف ارتفاع الأسعار والتضخم مقارنة بأحدث عمليات الشراء.\n" +
+                        "• تتبع تطور سعر المنتج عبر المتاجر المختلفة." :
+                        "• Comparateur d'unités réelles : Comparaison au litre, kilo ou pièce.\n" +
+                        "• Détection d'inflation : Indicateurs visuels de variation du prix du produit.\n" +
+                        "• Historique des prix par magasin pour optimiser son panier de courses.");
+                break;
+
+            case 8:
+            default:
+                btnTabGamification.setBackgroundResource(R.drawable.bg_btn_primary);
+                btnTabGamification.setTextColor(getResources().getColor(R.color.white));
+                tvManualPageTitle.setText(isAr ? "8. Backups (النسخ الاحتياطي والأمان)" : "8. Backups · Sauvegardes & Sécurité");
+                tvManualPageContent.setText(isAr ?
+                        "• حفظ محلي 100% بدون أي خادم خارجي لضمان الخصوصية.\n" +
+                        "• تشفير كلمة السر بتقنية SHA-256 لحماية الحسابات.\n" +
+                        "• إمكانية تصدير وفتح الدليل الفني بملف PDF كامل." :
+                        "• Persistance SQLite 100% locale sans aucune dépendance cloud.\n" +
+                        "• Hachage sécurisé des mots de passe en SHA-256.\n" +
+                        "• Génération et ouverture du manuel complet en format PDF nativement.");
+                break;
         }
     }
 
@@ -176,16 +219,5 @@ public class UserManualActivity extends AppCompatActivity {
 
         btnTabGamification.setBackgroundResource(R.drawable.bg_btn_secondary);
         btnTabGamification.setTextColor(getResources().getColor(R.color.forest));
-    }
-
-    private void openPdfExternally() {
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.parse("https://github.com/masrouf/masrouf-guide/raw/main/masrouf-manual.pdf"), "application/pdf");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(intent);
-        } catch (Exception e) {
-            Toast.makeText(this, "Aucune application de lecture PDF trouvée", Toast.LENGTH_SHORT).show();
-        }
     }
 }

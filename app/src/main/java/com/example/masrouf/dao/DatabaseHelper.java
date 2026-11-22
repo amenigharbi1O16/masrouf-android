@@ -29,7 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     public static final String DATABASE_NAME = "masrouf.db";
-    public static final int DATABASE_VERSION = 4; // Version 4 avec 12 tables, WAL, clés étrangères et millimes
+    public static final int DATABASE_VERSION = 6; // Version 6 avec modules Compte Familial (Parent) & Compte Enfant
 
     // 1. TABLE USERS
     public static final String TABLE_USERS = "users";
@@ -44,6 +44,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USER_STREAK = "streak_count";
     public static final String COLUMN_USER_LEVEL = "level";
     public static final String COLUMN_USER_CREATED_AT = "created_at";
+    public static final String COLUMN_USER_FAMILY_ID = "family_id";
+    public static final String COLUMN_USER_PARENT_ID = "parent_id";
+    public static final String COLUMN_USER_BALANCE_MILLIMES = "balance_millimes";
 
     // 2. TABLE CATEGORIES
     public static final String TABLE_CATEGORIES = "categories";
@@ -178,6 +181,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_UA_ACH_ID = "achievement_id";
     public static final String COLUMN_UA_UNLOCKED_AT = "unlocked_at";
 
+    // 13. TABLE USER_CATEGORIES (Sélection personnalisée des catégories par utilisateur)
+    public static final String TABLE_USER_CATEGORIES = "user_categories";
+    public static final String COLUMN_UC_USER_ID = "user_id";
+    public static final String COLUMN_UC_CAT_ID = "category_id";
+    public static final String COLUMN_UC_IS_SELECTED = "is_selected";
+
+    // 14. TABLE FAMILY_FUNDS (Fonds globaux de la famille)
+    public static final String TABLE_FAMILY_FUNDS = "family_funds";
+    public static final String COLUMN_FF_ID = "family_id";
+    public static final String COLUMN_FF_PARENT_ID = "parent_id";
+    public static final String COLUMN_FF_FAMILY_NAME = "family_name";
+    public static final String COLUMN_FF_TOTAL_MILLIMES = "total_funds_millimes";
+    public static final String COLUMN_FF_AVAILABLE_MILLIMES = "available_funds_millimes";
+    public static final String COLUMN_FF_ALLOCATED_MILLIMES = "allocated_funds_millimes";
+    public static final String COLUMN_FF_CREATED_AT = "created_at";
+
+    // 15. TABLE FAMILY_ALLOCATIONS (Historique des allocations d'argent parent -> enfant)
+    public static final String TABLE_FAMILY_ALLOCATIONS = "family_allocations";
+    public static final String COLUMN_FA_ID = "id";
+    public static final String COLUMN_FA_FAMILY_ID = "family_id";
+    public static final String COLUMN_FA_PARENT_ID = "parent_id";
+    public static final String COLUMN_FA_CHILD_ID = "child_id";
+    public static final String COLUMN_FA_CHILD_NAME = "child_name";
+    public static final String COLUMN_FA_AMOUNT_MILLIMES = "amount_millimes";
+    public static final String COLUMN_FA_DESCRIPTION = "description";
+    public static final String COLUMN_FA_DATE = "date";
+    public static final String COLUMN_FA_CREATED_AT = "created_at";
+
+    // 16. TABLE MONEY_REQUESTS (Demandes de fonds formulées par les enfants)
+    public static final String TABLE_MONEY_REQUESTS = "money_requests";
+    public static final String COLUMN_MR_ID = "id";
+    public static final String COLUMN_MR_FAMILY_ID = "family_id";
+    public static final String COLUMN_MR_CHILD_ID = "child_id";
+    public static final String COLUMN_MR_CHILD_NAME = "child_name";
+    public static final String COLUMN_MR_PARENT_ID = "parent_id";
+    public static final String COLUMN_MR_AMOUNT_MILLIMES = "amount_millimes";
+    public static final String COLUMN_MR_REASON = "reason";
+    public static final String COLUMN_MR_STATUS = "status"; // PENDING, APPROVED, REJECTED
+    public static final String COLUMN_MR_DECISION_NOTE = "decision_note";
+    public static final String COLUMN_MR_REQUEST_DATE = "request_date";
+    public static final String COLUMN_MR_DECISION_DATE = "decision_date";
+
+    // 17. TABLE CHILD_PERMISSIONS (Permissions & plafonds parentaux par enfant)
+    public static final String TABLE_CHILD_PERMISSIONS = "child_permissions";
+    public static final String COLUMN_CP_CHILD_ID = "child_id";
+    public static final String COLUMN_CP_CAN_VIEW_BUDGET = "can_view_family_budget";
+    public static final String COLUMN_CP_APPROVAL_ABOVE_MILLIMES = "requires_approval_above_millimes";
+    public static final String COLUMN_CP_DAILY_LIMIT_MILLIMES = "daily_spending_limit_millimes";
+    public static final String COLUMN_CP_IS_ACTIVE = "is_account_active";
+
     private static DatabaseHelper instance;
 
     public static synchronized DatabaseHelper getInstance(Context context) {
@@ -216,6 +269,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_USER_POINTS + " INTEGER NOT NULL DEFAULT 0, " +
                 COLUMN_USER_STREAK + " INTEGER NOT NULL DEFAULT 0, " +
                 COLUMN_USER_LEVEL + " TEXT NOT NULL DEFAULT '" + User.LEVEL_BEGINNER + "', " +
+                COLUMN_USER_FAMILY_ID + " INTEGER DEFAULT 0, " +
+                COLUMN_USER_PARENT_ID + " INTEGER DEFAULT 0, " +
+                COLUMN_USER_BALANCE_MILLIMES + " INTEGER DEFAULT 0, " +
                 COLUMN_USER_CREATED_AT + " TEXT NOT NULL);");
 
         // 2. Table categories
@@ -363,6 +419,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY (" + COLUMN_UA_ACH_ID + ") REFERENCES " + TABLE_ACHIEVEMENTS + "(" + COLUMN_ACH_ID + ") ON DELETE CASCADE, " +
                 "UNIQUE(" + COLUMN_UA_USER_ID + ", " + COLUMN_UA_ACH_ID + "));");
 
+        // 13. Table user_categories (sélection onboarding des catégories par utilisateur)
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_USER_CATEGORIES + " (" +
+                COLUMN_UC_USER_ID + " INTEGER NOT NULL, " +
+                COLUMN_UC_CAT_ID + " INTEGER NOT NULL, " +
+                COLUMN_UC_IS_SELECTED + " INTEGER NOT NULL DEFAULT 1, " +
+                "PRIMARY KEY (" + COLUMN_UC_USER_ID + ", " + COLUMN_UC_CAT_ID + "), " +
+                "FOREIGN KEY (" + COLUMN_UC_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE, " +
+                "FOREIGN KEY (" + COLUMN_UC_CAT_ID + ") REFERENCES " + TABLE_CATEGORIES + "(" + COLUMN_CAT_ID + ") ON DELETE CASCADE);");
+
+        // 14. Table family_funds
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FAMILY_FUNDS + " (" +
+                COLUMN_FF_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_FF_PARENT_ID + " INTEGER NOT NULL, " +
+                COLUMN_FF_FAMILY_NAME + " TEXT NOT NULL, " +
+                COLUMN_FF_TOTAL_MILLIMES + " INTEGER NOT NULL DEFAULT 0, " +
+                COLUMN_FF_AVAILABLE_MILLIMES + " INTEGER NOT NULL DEFAULT 0, " +
+                COLUMN_FF_ALLOCATED_MILLIMES + " INTEGER NOT NULL DEFAULT 0, " +
+                COLUMN_FF_CREATED_AT + " TEXT NOT NULL, " +
+                "FOREIGN KEY (" + COLUMN_FF_PARENT_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE);");
+
+        // 15. Table family_allocations
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FAMILY_ALLOCATIONS + " (" +
+                COLUMN_FA_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_FA_FAMILY_ID + " INTEGER NOT NULL, " +
+                COLUMN_FA_PARENT_ID + " INTEGER NOT NULL, " +
+                COLUMN_FA_CHILD_ID + " INTEGER NOT NULL, " +
+                COLUMN_FA_CHILD_NAME + " TEXT NOT NULL, " +
+                COLUMN_FA_AMOUNT_MILLIMES + " INTEGER NOT NULL DEFAULT 0, " +
+                COLUMN_FA_DESCRIPTION + " TEXT, " +
+                COLUMN_FA_DATE + " TEXT NOT NULL, " +
+                COLUMN_FA_CREATED_AT + " TEXT NOT NULL, " +
+                "FOREIGN KEY (" + COLUMN_FA_FAMILY_ID + ") REFERENCES " + TABLE_FAMILY_FUNDS + "(" + COLUMN_FF_ID + ") ON DELETE CASCADE, " +
+                "FOREIGN KEY (" + COLUMN_FA_PARENT_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE, " +
+                "FOREIGN KEY (" + COLUMN_FA_CHILD_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE);");
+
+        // 16. Table money_requests
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_MONEY_REQUESTS + " (" +
+                COLUMN_MR_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_MR_FAMILY_ID + " INTEGER NOT NULL, " +
+                COLUMN_MR_CHILD_ID + " INTEGER NOT NULL, " +
+                COLUMN_MR_CHILD_NAME + " TEXT NOT NULL, " +
+                COLUMN_MR_PARENT_ID + " INTEGER NOT NULL, " +
+                COLUMN_MR_AMOUNT_MILLIMES + " INTEGER NOT NULL DEFAULT 0, " +
+                COLUMN_MR_REASON + " TEXT NOT NULL, " +
+                COLUMN_MR_STATUS + " TEXT NOT NULL DEFAULT '" + com.example.masrouf.model.MoneyRequest.STATUS_PENDING + "', " +
+                COLUMN_MR_DECISION_NOTE + " TEXT, " +
+                COLUMN_MR_REQUEST_DATE + " TEXT NOT NULL, " +
+                COLUMN_MR_DECISION_DATE + " TEXT, " +
+                "FOREIGN KEY (" + COLUMN_MR_FAMILY_ID + ") REFERENCES " + TABLE_FAMILY_FUNDS + "(" + COLUMN_FF_ID + ") ON DELETE CASCADE, " +
+                "FOREIGN KEY (" + COLUMN_MR_CHILD_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE, " +
+                "FOREIGN KEY (" + COLUMN_MR_PARENT_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE);");
+
+        // 17. Table child_permissions
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_CHILD_PERMISSIONS + " (" +
+                COLUMN_CP_CHILD_ID + " INTEGER PRIMARY KEY, " +
+                COLUMN_CP_CAN_VIEW_BUDGET + " INTEGER NOT NULL DEFAULT 0, " +
+                COLUMN_CP_APPROVAL_ABOVE_MILLIMES + " INTEGER NOT NULL DEFAULT 20000, " +
+                COLUMN_CP_DAILY_LIMIT_MILLIMES + " INTEGER NOT NULL DEFAULT 50000, " +
+                COLUMN_CP_IS_ACTIVE + " INTEGER NOT NULL DEFAULT 1, " +
+                "FOREIGN KEY (" + COLUMN_CP_CHILD_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE);");
+
         // Création des INDEX pour optimiser les performances des requêtes
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_budgets_user ON " + TABLE_BUDGETS + "(" + COLUMN_BUDGET_USER_ID + ");");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_alloc_budget ON " + TABLE_BUDGET_ALLOCATIONS + "(" + COLUMN_ALLOC_BUDGET_ID + ");");
@@ -370,6 +487,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_expenses_user ON " + TABLE_EXPENSES + "(" + COLUMN_EXPENSE_USER_ID + ");");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_price_history_prod ON " + TABLE_PRICE_HISTORY + "(" + COLUMN_PH_PROD_ID + ");");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_user_points_user ON " + TABLE_USER_POINTS + "(" + COLUMN_UP_USER_ID + ");");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_alloc_child ON " + TABLE_FAMILY_ALLOCATIONS + "(" + COLUMN_FA_CHILD_ID + ");");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_requests_family ON " + TABLE_MONEY_REQUESTS + "(" + COLUMN_MR_FAMILY_ID + ");");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_requests_child ON " + TABLE_MONEY_REQUESTS + "(" + COLUMN_MR_CHILD_ID + ");");
 
         // Insertion du jeu de données complet de démonstration
         seedAllData(db);
@@ -378,6 +498,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Exécution de onUpgrade() : migration sécurisée vers version " + newVersion);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHILD_PERMISSIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MONEY_REQUESTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAMILY_ALLOCATIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAMILY_FUNDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_CATEGORIES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_ACHIEVEMENTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACHIEVEMENTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_POINTS);
@@ -394,25 +519,154 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Insère le jeu complet de données de démonstration pour les 12 tables SQLite.
+     * Insère le jeu complet de données de démonstration pour les 13 tables SQLite.
      */
     private void seedAllData(SQLiteDatabase db) {
         String now = String.valueOf(System.currentTimeMillis());
 
         // 1. UTILISATEURS
-        // Compte Administrateur
+        // Compte Administrateur / Parent principal
         ContentValues admin = new ContentValues();
         admin.put(COLUMN_USER_EMAIL, "admin@gmail.com");
         admin.put(COLUMN_USER_PASSWORD_HASH, PasswordUtil.hashPassword("Admin123!"));
         admin.put(COLUMN_USER_FULL_NAME, "Administrateur Masrouf");
-        admin.put(COLUMN_USER_ROLE, User.ROLE_ADMIN);
+        admin.put(COLUMN_USER_ROLE, User.ROLE_PARENT);
         admin.put(COLUMN_USER_IS_ACTIVE, 1);
         admin.put(COLUMN_USER_IS_TEMP_PASSWORD, 0);
         admin.put(COLUMN_USER_POINTS, 0);
         admin.put(COLUMN_USER_STREAK, 0);
         admin.put(COLUMN_USER_LEVEL, User.LEVEL_EXPERT);
+        admin.put(COLUMN_USER_FAMILY_ID, 1);
+        admin.put(COLUMN_USER_PARENT_ID, 0);
+        admin.put(COLUMN_USER_BALANCE_MILLIMES, 0);
         admin.put(COLUMN_USER_CREATED_AT, now);
-        db.insert(TABLE_USERS, null, admin);
+        long parentAdminId = db.insert(TABLE_USERS, null, admin);
+
+        // Compte Parent Démo (Sami Ben Ali)
+        ContentValues parent = new ContentValues();
+        parent.put(COLUMN_USER_EMAIL, "parent@gmail.com");
+        parent.put(COLUMN_USER_PASSWORD_HASH, PasswordUtil.hashPassword("Parent123!"));
+        parent.put(COLUMN_USER_FULL_NAME, "Sami Ben Ali");
+        parent.put(COLUMN_USER_ROLE, User.ROLE_PARENT);
+        parent.put(COLUMN_USER_IS_ACTIVE, 1);
+        parent.put(COLUMN_USER_IS_TEMP_PASSWORD, 0);
+        parent.put(COLUMN_USER_POINTS, 500);
+        parent.put(COLUMN_USER_STREAK, 4);
+        parent.put(COLUMN_USER_LEVEL, User.LEVEL_EXPERT);
+        parent.put(COLUMN_USER_FAMILY_ID, 1);
+        parent.put(COLUMN_USER_PARENT_ID, 0);
+        parent.put(COLUMN_USER_BALANCE_MILLIMES, 0);
+        parent.put(COLUMN_USER_CREATED_AT, now);
+        long parentId = db.insert(TABLE_USERS, null, parent);
+
+        // Compte Enfant 1 : Youssef Ben Ali (Solde 45 DT = 45000 millimes)
+        ContentValues childYoussef = new ContentValues();
+        childYoussef.put(COLUMN_USER_EMAIL, "youssef.benali@gmail.com");
+        childYoussef.put(COLUMN_USER_PASSWORD_HASH, PasswordUtil.hashPassword("User123!"));
+        childYoussef.put(COLUMN_USER_FULL_NAME, "Youssef Ben Ali");
+        childYoussef.put(COLUMN_USER_ROLE, User.ROLE_CHILD);
+        childYoussef.put(COLUMN_USER_IS_ACTIVE, 1);
+        childYoussef.put(COLUMN_USER_IS_TEMP_PASSWORD, 0);
+        childYoussef.put(COLUMN_USER_POINTS, 120);
+        childYoussef.put(COLUMN_USER_STREAK, 2);
+        childYoussef.put(COLUMN_USER_LEVEL, User.LEVEL_BEGINNER);
+        childYoussef.put(COLUMN_USER_FAMILY_ID, 1);
+        childYoussef.put(COLUMN_USER_PARENT_ID, parentId);
+        childYoussef.put(COLUMN_USER_BALANCE_MILLIMES, 45000);
+        childYoussef.put(COLUMN_USER_CREATED_AT, now);
+        long youssefId = db.insert(TABLE_USERS, null, childYoussef);
+
+        // Compte Enfant 2 : Salma Ben Ali (Solde 25 DT = 25000 millimes)
+        ContentValues childSalma = new ContentValues();
+        childSalma.put(COLUMN_USER_EMAIL, "salma.benali@gmail.com");
+        childSalma.put(COLUMN_USER_PASSWORD_HASH, PasswordUtil.hashPassword("User123!"));
+        childSalma.put(COLUMN_USER_FULL_NAME, "Salma Ben Ali");
+        childSalma.put(COLUMN_USER_ROLE, User.ROLE_CHILD);
+        childSalma.put(COLUMN_USER_IS_ACTIVE, 1);
+        childSalma.put(COLUMN_USER_IS_TEMP_PASSWORD, 0);
+        childSalma.put(COLUMN_USER_POINTS, 80);
+        childSalma.put(COLUMN_USER_STREAK, 1);
+        childSalma.put(COLUMN_USER_LEVEL, User.LEVEL_BEGINNER);
+        childSalma.put(COLUMN_USER_FAMILY_ID, 1);
+        childSalma.put(COLUMN_USER_PARENT_ID, parentId);
+        childSalma.put(COLUMN_USER_BALANCE_MILLIMES, 25000);
+        childSalma.put(COLUMN_USER_CREATED_AT, now);
+        long salmaId = db.insert(TABLE_USERS, null, childSalma);
+
+        // Table family_funds : 500 DT au total, 350 DT disponibles, 150 DT alloués
+        ContentValues ff = new ContentValues();
+        ff.put(COLUMN_FF_PARENT_ID, parentId);
+        ff.put(COLUMN_FF_FAMILY_NAME, "Famille Ben Ali");
+        ff.put(COLUMN_FF_TOTAL_MILLIMES, 500000);
+        ff.put(COLUMN_FF_AVAILABLE_MILLIMES, 350000);
+        ff.put(COLUMN_FF_ALLOCATED_MILLIMES, 150000);
+        ff.put(COLUMN_FF_CREATED_AT, now);
+        long familyId = db.insert(TABLE_FAMILY_FUNDS, null, ff);
+
+        // Table family_allocations : 100 DT à Youssef, 50 DT à Salma
+        ContentValues fa1 = new ContentValues();
+        fa1.put(COLUMN_FA_FAMILY_ID, familyId);
+        fa1.put(COLUMN_FA_PARENT_ID, parentId);
+        fa1.put(COLUMN_FA_CHILD_ID, youssefId);
+        fa1.put(COLUMN_FA_CHILD_NAME, "Youssef Ben Ali");
+        fa1.put(COLUMN_FA_AMOUNT_MILLIMES, 100000);
+        fa1.put(COLUMN_FA_DESCRIPTION, "Argent de poche Novembre 2026");
+        fa1.put(COLUMN_FA_DATE, "2026-11-01");
+        fa1.put(COLUMN_FA_CREATED_AT, now);
+        db.insert(TABLE_FAMILY_ALLOCATIONS, null, fa1);
+
+        ContentValues fa2 = new ContentValues();
+        fa2.put(COLUMN_FA_FAMILY_ID, familyId);
+        fa2.put(COLUMN_FA_PARENT_ID, parentId);
+        fa2.put(COLUMN_FA_CHILD_ID, salmaId);
+        fa2.put(COLUMN_FA_CHILD_NAME, "Salma Ben Ali");
+        fa2.put(COLUMN_FA_AMOUNT_MILLIMES, 50000);
+        fa2.put(COLUMN_FA_DESCRIPTION, "Argent de poche Novembre 2026");
+        fa2.put(COLUMN_FA_DATE, "2026-11-01");
+        fa2.put(COLUMN_FA_CREATED_AT, now);
+        db.insert(TABLE_FAMILY_ALLOCATIONS, null, fa2);
+
+        // Table money_requests : 1 en attente pour Youssef (20 DT), 1 approuvée pour Salma (15 DT)
+        ContentValues mr1 = new ContentValues();
+        mr1.put(COLUMN_MR_FAMILY_ID, familyId);
+        mr1.put(COLUMN_MR_CHILD_ID, youssefId);
+        mr1.put(COLUMN_MR_CHILD_NAME, "Youssef Ben Ali");
+        mr1.put(COLUMN_MR_PARENT_ID, parentId);
+        mr1.put(COLUMN_MR_AMOUNT_MILLIMES, 20000);
+        mr1.put(COLUMN_MR_REASON, "Livre scolaire de mathématiques");
+        mr1.put(COLUMN_MR_STATUS, com.example.masrouf.model.MoneyRequest.STATUS_PENDING);
+        mr1.put(COLUMN_MR_REQUEST_DATE, "2026-11-18");
+        db.insert(TABLE_MONEY_REQUESTS, null, mr1);
+
+        ContentValues mr2 = new ContentValues();
+        mr2.put(COLUMN_MR_FAMILY_ID, familyId);
+        mr2.put(COLUMN_MR_CHILD_ID, salmaId);
+        mr2.put(COLUMN_MR_CHILD_NAME, "Salma Ben Ali");
+        mr2.put(COLUMN_MR_PARENT_ID, parentId);
+        mr2.put(COLUMN_MR_AMOUNT_MILLIMES, 15000);
+        mr2.put(COLUMN_MR_REASON, "Sortie scolaire musée");
+        mr2.put(COLUMN_MR_STATUS, com.example.masrouf.model.MoneyRequest.STATUS_APPROVED);
+        mr2.put(COLUMN_MR_DECISION_NOTE, "Bonne visite !");
+        mr2.put(COLUMN_MR_REQUEST_DATE, "2026-11-10");
+        mr2.put(COLUMN_MR_DECISION_DATE, "2026-11-11");
+        db.insert(TABLE_MONEY_REQUESTS, null, mr2);
+
+        // Table child_permissions
+        ContentValues cp1 = new ContentValues();
+        cp1.put(COLUMN_CP_CHILD_ID, youssefId);
+        cp1.put(COLUMN_CP_CAN_VIEW_BUDGET, 1);
+        cp1.put(COLUMN_CP_APPROVAL_ABOVE_MILLIMES, 20000);
+        cp1.put(COLUMN_CP_DAILY_LIMIT_MILLIMES, 50000);
+        cp1.put(COLUMN_CP_IS_ACTIVE, 1);
+        db.insert(TABLE_CHILD_PERMISSIONS, null, cp1);
+
+        ContentValues cp2 = new ContentValues();
+        cp2.put(COLUMN_CP_CHILD_ID, salmaId);
+        cp2.put(COLUMN_CP_CAN_VIEW_BUDGET, 0);
+        cp2.put(COLUMN_CP_APPROVAL_ABOVE_MILLIMES, 15000);
+        cp2.put(COLUMN_CP_DAILY_LIMIT_MILLIMES, 30000);
+        cp2.put(COLUMN_CP_IS_ACTIVE, 1);
+        db.insert(TABLE_CHILD_PERMISSIONS, null, cp2);
 
         // Utilisateur standard démo (Ines Ben Ali, niveau Saver avec 350 points et 3 mois de streak)
         ContentValues user = new ContentValues();
@@ -440,28 +694,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         tempUser.put(COLUMN_USER_STREAK, 0);
         tempUser.put(COLUMN_USER_LEVEL, User.LEVEL_BEGINNER);
         tempUser.put(COLUMN_USER_CREATED_AT, now);
+        // Insère l'utilisateur temporaire en base
         db.insert(TABLE_USERS, null, tempUser);
 
-        // Compte suspendu de test
-        ContentValues suspended = new ContentValues();
-        suspended.put(COLUMN_USER_EMAIL, "suspendu@gmail.com");
-        suspended.put(COLUMN_USER_PASSWORD_HASH, PasswordUtil.hashPassword("Suspendu123!"));
-        suspended.put(COLUMN_USER_FULL_NAME, "Utilisateur Suspendu");
-        suspended.put(COLUMN_USER_ROLE, User.ROLE_USER);
-        suspended.put(COLUMN_USER_IS_ACTIVE, 0);
-        suspended.put(COLUMN_USER_IS_TEMP_PASSWORD, 0);
-        suspended.put(COLUMN_USER_POINTS, 0);
-        suspended.put(COLUMN_USER_STREAK, 0);
-        suspended.put(COLUMN_USER_LEVEL, User.LEVEL_BEGINNER);
-        suspended.put(COLUMN_USER_CREATED_AT, now);
-        db.insert(TABLE_USERS, null, suspended);
+        // 2. CATÉGORIES (16 catégories conformes aux maquettes Figma / Image 04)
+        // Produits
+        long catFood = insertCategory(db, "Food", "Alimentation", "الأغذية", Category.TYPE_PRODUCT, "#102B27", "ic_cutlery", 40.0, false, 0);
+        long catClothes = insertCategory(db, "Clothes & Shoes", "Vêtements et chaussures", "الملابس والأحذية", Category.TYPE_PRODUCT, "#1C5143", "ic_tshirt", 10.0, false, 0);
+        long catHygiene = insertCategory(db, "Hygiene & Personal Care", "Hygiène et soins personnels", "النظافة والعناية الشخصية", Category.TYPE_PRODUCT, "#2D7D68", "ic_sparkle", 8.0, false, 0);
+        long catHome = insertCategory(db, "Home & Appliances", "Maison et équipement", "المنزل والتجهيزات", Category.TYPE_PRODUCT, "#3A5C52", "ic_home", 10.0, false, 0);
+        long catIT = insertCategory(db, "IT & Electronics", "Matériel informatique", "المعدات الإعلامية", Category.TYPE_PRODUCT, "#4E6B60", "ic_laptop", 12.0, false, 0);
+        long catHealth = insertCategory(db, "Health", "Santé", "الصحة", Category.TYPE_PRODUCT, "#608075", "ic_firstaid", 10.0, false, 0);
 
-        // 2. CATÉGORIES (Figma 10 & 40)
-        long catFood = insertCategory(db, "Food", "Alimentation", "الأغذية", Category.TYPE_PRODUCT, "#102B27", "ic_leaf", 41.6, false, 0);
-        long catTransport = insertCategory(db, "Transport", "Transport", "النقل", Category.TYPE_EXPENSE, "#1C5143", "ic_menu", 12.5, false, 0);
-        long catBills = insertCategory(db, "Bills", "Factures", "الفواتير", Category.TYPE_EXPENSE, "#6B7C74", "ic_profile", 20.8, false, 0);
-        long catEntertainment = insertCategory(db, "Entertainment", "Loisirs", "الترفيه", Category.TYPE_EXPENSE, "#E9B66B", "ic_profile", 8.3, false, 0);
-        long catSavings = insertCategory(db, "Savings", "Épargne", "الادخار", Category.TYPE_EXPENSE, "#D9F0E4", "ic_check", 8.3, false, 0);
+        // Dépenses
+        long catTransport = insertCategory(db, "Transport", "Transport", "النقل", Category.TYPE_EXPENSE, "#1C5143", "ic_car", 12.0, false, 0);
+        long catBills = insertCategory(db, "Bills", "Factures", "الفواتير", Category.TYPE_EXPENSE, "#6B7C74", "ic_receipt", 15.0, false, 0);
+        long catEducation = insertCategory(db, "Education", "Études", "التعليم", Category.TYPE_EXPENSE, "#8E735B", "ic_school", 10.0, false, 0);
+        long catEntertainment = insertCategory(db, "Leisure & Outings", "Loisirs et sorties", "الترفيه والخرجات", Category.TYPE_EXPENSE, "#E9B66B", "ic_gamepad", 8.0, false, 0);
+        long catChildren = insertCategory(db, "Children", "Enfants", "الأطفال", Category.TYPE_EXPENSE, "#5C8276", "ic_profile", 10.0, false, 0);
+        long catFamily = insertCategory(db, "Family Support", "Aide à la famille", "مساعدة العائلة", Category.TYPE_EXPENSE, "#446B60", "ic_profile", 10.0, false, 0);
+        long catSavings = insertCategory(db, "Savings", "Épargne", "الادخار", Category.TYPE_EXPENSE, "#D9F0E4", "ic_wallet", 15.0, false, 0);
+        long catDonations = insertCategory(db, "Donations & Charity", "Dons et charité", "الصدقات والتبرعات", Category.TYPE_EXPENSE, "#DE7363", "ic_heart", 5.0, false, 0);
+        long catBankFees = insertCategory(db, "Bank Fees", "Frais bancaires", "المصاريف البنكية", Category.TYPE_EXPENSE, "#738079", "ic_card", 5.0, false, 0);
+        long catOthers = insertCategory(db, "Others", "Autres", "أخرى", Category.TYPE_EXPENSE, "#9AA69F", "ic_file", 5.0, false, 0);
+
+        // Sélection initiale pour Ines
+        long[] inesSelection = new long[]{ catFood, catClothes, catHygiene, catIT, catTransport, catBills, catEducation, catEntertainment };
+        for (long cid : inesSelection) {
+            ContentValues uc = new ContentValues();
+            uc.put(COLUMN_UC_USER_ID, userId);
+            uc.put(COLUMN_UC_CAT_ID, cid);
+            uc.put(COLUMN_UC_IS_SELECTED, 1);
+            db.insert(TABLE_USER_CATEGORIES, null, uc);
+        }
 
         // 3. BUDGET MENSUEL POUR INES (Figma 07 : Total 1200 DT, Dépensé 750 DT, Reste 450 DT)
         ContentValues budget = new ContentValues();
@@ -519,6 +784,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertUserPoints(db, userId, ruleBudgetRespected, 100, "Budget respecté · Octobre 2026", "2026-10_BUDGET", "2026-10-31 20:00:00");
         insertUserPoints(db, userId, ruleBudgetRespected, 100, "Budget respecté · Novembre 2026", "2026-11_BUDGET", "2026-11-15 14:00:00");
         insertUserPoints(db, userId, ruleStreak3, 50, "Bonus streak : 3 périodes consécutives !", "2026-11_STREAK_3", "2026-11-15 14:05:00");
+
+        // Transactions enfants démo (Dépenses d'argent de poche)
+        insertTransaction(db, youssefId, 0, catEducation, "Education", 0, "Fournitures scolaires", 15.000, 15.000, 1.0, "lot", "Librairie Al Kitab", "10 Nov 2026", "Cahiers et stylos");
+        insertTransaction(db, youssefId, 0, catFood, "Food", 0, "Goûter boulangerie", 3.500, 3.500, 1.0, "pièce", "Boulangerie", "12 Nov 2026", "Jus et croissant");
+        insertTransaction(db, salmaId, 0, catEducation, "Education", 0, "Cahier de dessin", 6.500, 6.500, 1.0, "pièce", "Librairie", "11 Nov 2026", "Matériel de dessin");
 
         // 10. ACHIEVEMENTS / BADGES (Table 11, Figma 21)
         long achFirst = insertAchievement(db, "FIRST_STEP", "First Step", "Premier Pas", "الخطوة الأولى",

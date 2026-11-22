@@ -14,6 +14,8 @@ import androidx.core.app.NotificationManagerCompat;
 import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
 
+import java.util.Locale;
+
 /**
  * RÔLE : Gestionnaire centralisé des notifications système de Masrouf (Alertes de budget, rappels).
  * COUCHE MVC : Utilitaire (Util / Controller support).
@@ -183,5 +185,14 @@ public class NotificationHelper {
         } catch (SecurityException e) {
             Log.e(TAG, "Permission POST_NOTIFICATIONS requise : " + e.getMessage());
         }
+    }
+
+    /**
+     * Notification spécifique envoyée au Parent lorsqu'un enfant dépasse son budget alloué.
+     */
+    public static void showChildOverspendNotification(Context context, String childName, double overspentAmount) {
+        String title = "Alerte Dépassement Enfant — " + childName;
+        String msg = String.format(Locale.US, "Votre enfant %s a dépassé son allocation budgétaire de %.3f DT.", childName, overspentAmount);
+        showBudgetAlert(context, title, msg, true);
     }
 }

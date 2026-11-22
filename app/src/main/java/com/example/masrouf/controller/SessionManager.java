@@ -28,6 +28,12 @@ public class SessionManager {
     private static final String KEY_USER_NAME = "user_name";
     private static final String KEY_USER_ROLE = "user_role";
     private static final String KEY_LANGUAGE = "app_language";
+    private static final String KEY_ACTIVE_SPACE = "active_space";
+    private static final String KEY_FAMILY_ID = "family_id";
+    private static final String KEY_FAMILY_NAME = "family_name";
+
+    public static final String SPACE_PERSONAL = "PERSONAL";
+    public static final String SPACE_FAMILY = "FAMILY";
 
     private final SharedPreferences preferences;
     private final SharedPreferences.Editor editor;
@@ -74,7 +80,44 @@ public class SessionManager {
      */
     public boolean isAdmin() {
         String role = preferences.getString(KEY_USER_ROLE, User.ROLE_USER);
-        return User.ROLE_ADMIN.equalsIgnoreCase(role);
+        return User.ROLE_ADMIN.equalsIgnoreCase(role) || User.ROLE_PARENT.equalsIgnoreCase(role);
+    }
+
+    public boolean isParent() {
+        String role = preferences.getString(KEY_USER_ROLE, User.ROLE_USER);
+        return User.ROLE_PARENT.equalsIgnoreCase(role) || User.ROLE_ADMIN.equalsIgnoreCase(role);
+    }
+
+    public boolean isChild() {
+        String role = preferences.getString(KEY_USER_ROLE, User.ROLE_USER);
+        return User.ROLE_CHILD.equalsIgnoreCase(role);
+    }
+
+    public String getActiveSpace() {
+        return preferences.getString(KEY_ACTIVE_SPACE, SPACE_PERSONAL);
+    }
+
+    public void setActiveSpace(String space) {
+        editor.putString(KEY_ACTIVE_SPACE, space);
+        editor.apply();
+    }
+
+    public long getFamilyId() {
+        return preferences.getLong(KEY_FAMILY_ID, 1);
+    }
+
+    public void setFamilyId(long familyId) {
+        editor.putLong(KEY_FAMILY_ID, familyId);
+        editor.apply();
+    }
+
+    public String getFamilyName() {
+        return preferences.getString(KEY_FAMILY_NAME, "Famille Ben Ali");
+    }
+
+    public void setFamilyName(String familyName) {
+        editor.putString(KEY_FAMILY_NAME, familyName);
+        editor.apply();
     }
 
     public long getUserId() {
@@ -125,6 +168,50 @@ public class SessionManager {
      * @return Le code de langue ("fr", "en", ou "ar").
      */
     public String getLanguage() {
-        return preferences.getString(KEY_LANGUAGE, "en");
+        return preferences.getString(KEY_LANGUAGE, "fr");
+    }
+
+    private static final String KEY_ONBOARDING_PREFIX = "onboarding_completed_";
+    private static final String KEY_SELECTED_MONTH = "selected_month_key";
+
+    public boolean isOnboardingCompleted(long userId) {
+        return preferences.getBoolean(KEY_ONBOARDING_PREFIX + userId, false);
+    }
+
+    public boolean isOnboardingCompleted() {
+        return isOnboardingCompleted(getUserId());
+    }
+
+    public void setOnboardingCompleted(long userId, boolean completed) {
+        editor.putBoolean(KEY_ONBOARDING_PREFIX + userId, completed);
+        editor.apply();
+    }
+
+    public void setOnboardingCompleted(boolean completed) {
+        setOnboardingCompleted(getUserId(), completed);
+    }
+
+    public void createLoginSession(long id, String email, String name, String role) {
+        editor.putBoolean(KEY_IS_LOGGED_IN, true);
+        editor.putLong(KEY_USER_ID, id);
+        editor.putString(KEY_USER_EMAIL, email);
+        editor.putString(KEY_USER_NAME, name);
+        editor.putString(KEY_USER_ROLE, role);
+        editor.apply();
+    }
+
+    public void setSelectedMonthKey(String monthKey) {
+        editor.putString(KEY_SELECTED_MONTH, monthKey);
+        editor.apply();
+    }
+
+    public String getSelectedMonthKey() {
+        return preferences.getString(KEY_SELECTED_MONTH, "2026-11");
+    }
+
+    public void updateUserProfile(String fullName, String email) {
+        editor.putString(KEY_USER_NAME, fullName);
+        editor.putString(KEY_USER_EMAIL, email);
+        editor.apply();
     }
 }

@@ -45,6 +45,12 @@ public class AdminPointsRulesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sessionManager = new SessionManager(this);
+        if (!sessionManager.isAdmin()) {
+            Toast.makeText(this, "Accès réservé aux administrateurs.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_admin_points_rules);
 
         sessionManager = new SessionManager(this);

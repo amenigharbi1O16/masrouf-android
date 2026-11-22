@@ -64,6 +64,9 @@ public class UserDao {
         values.put(DatabaseHelper.COLUMN_USER_IS_ACTIVE, user.isActive() ? 1 : 0);
         values.put(DatabaseHelper.COLUMN_USER_IS_TEMP_PASSWORD, user.isTemporaryPassword() ? 1 : 0);
         values.put(DatabaseHelper.COLUMN_USER_CREATED_AT, user.getCreatedAt());
+        values.put(DatabaseHelper.COLUMN_USER_FAMILY_ID, user.getFamilyId());
+        values.put(DatabaseHelper.COLUMN_USER_PARENT_ID, user.getParentId());
+        values.put(DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES, user.getBalanceMillimes());
 
         long generatedId = -1;
         try {
@@ -168,6 +171,10 @@ public class UserDao {
         return user;
     }
 
+    public User getUserByEmail(String email) {
+        return findByEmail(email);
+    }
+
     /**
      * Recherche un utilisateur par son identifiant unique.
      *
@@ -209,6 +216,23 @@ public class UserDao {
 
     public User getUserById(long id) {
         return findById(id);
+    }
+
+    /**
+     * Met à jour le profil (nom complet et adresse email) de l'utilisateur (Figma 22 / Réglages).
+     */
+    public boolean updateUserProfile(long userId, String fullName, String email) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.COLUMN_USER_FULL_NAME, fullName);
+        values.put(DatabaseHelper.COLUMN_USER_EMAIL, email.trim().toLowerCase());
+        int rows = db.update(
+                DatabaseHelper.TABLE_USERS,
+                values,
+                DatabaseHelper.COLUMN_USER_ID + " = ?",
+                new String[]{ String.valueOf(userId) }
+        );
+        return rows > 0;
     }
 
     /**
@@ -355,6 +379,94 @@ public class UserDao {
             user.setLevel(cursor.getString(levelIndex));
         }
 
+        int familyIdIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_USER_FAMILY_ID);
+        if (familyIdIndex != -1) {
+            user.setFamilyId(cursor.getLong(familyIdIndex));
+        }
+        int parentIdIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_USER_PARENT_ID);
+        if (parentIdIndex != -1) {
+            user.setParentId(cursor.getLong(parentIdIndex));
+        }
+        int balanceIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES);
+        if (balanceIndex != -1) {
+            user.setBalanceMillimes(cursor.getLong(balanceIndex));
+        }
+
         return user;
+    }
+
+    /**
+     * Met à jour le solde (en millimes) d'un compte enfant.
+     */
+    public boolean updateBalance(long userId, long newBalanceMillimes) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES, newBalanceMillimes);
+        return db.update(DatabaseHelper.TABLE_USERS, cv, DatabaseHelper.COLUMN_USER_ID + " = ?",
+                new String[]{ String.valueOf(userId) }) > 0;
+    }
+
+    /**
+     * Récupère la liste des enfants rattachés à un parent.
+     */
+    public List<User> getChildrenByParent(long parentId) {
+        List<User> list = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(DatabaseHelper.TABLE_USERS, null,
+                    DatabaseHelper.COLUMN_USER_PARENT_ID + " = ? AND " + DatabaseHelper.COLUMN_USER_ROLE + " = ?",
+                    new String[]{ String.valueOf(parentId), User.ROLE_CHILD },
+                    null, null, DatabaseHelper.COLUMN_USER_FULL_NAME + " ASC");
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    list.add(cursorToUser(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur getChildrenByParent : " + e.getMessage(), e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return list;
+    }
+
+    /**
+     * Récupère la liste des enfants rattachés à une famille.
+     */
+    public List<User> getChildrenByFamily(long familyId) {
+        List<User> list = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(DatabaseHelper.TABLE_USERS, null,
+                    DatabaseHelper.COLUMN_USER_FAMILY_ID + " = ? AND " + DatabaseHelper.COLUMN_USER_ROLE + " = ?",
+                    new String[]{ String.valueOf(familyId), User.ROLE_CHILD },
+                    null, null, DatabaseHelper.COLUMN_USER_FULL_NAME + " ASC");
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    list.add(cursorToUser(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur getChildrenByFamily : " + e.getMessage(), e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return list;
+    }
+
+    /**
+     * Met à jour le familyId et rôle d'un utilisateur.
+     */
+    public boolean updateUserFamily(long userId, long familyId, String role) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseHelper.COLUMN_USER_FAMILY_ID, familyId);
+        if (role != null) {
+            cv.put(DatabaseHelper.COLUMN_USER_ROLE, role);
+        }
+        return db.update(DatabaseHelper.TABLE_USERS, cv, DatabaseHelper.COLUMN_USER_ID + " = ?",
+                new String[]{ String.valueOf(userId) }) > 0;
     }
 }

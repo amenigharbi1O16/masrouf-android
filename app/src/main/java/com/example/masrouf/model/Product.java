@@ -121,6 +121,10 @@ public class Product {
         return lastUnitPrice;
     }
 
+    public double getPrice() {
+        return lastUnitPrice;
+    }
+
     public void setLastUnitPrice(double lastUnitPrice) {
         this.lastUnitPrice = lastUnitPrice;
         this.lastUnitPriceMillimes = MillimesUtil.dtToMillimes(lastUnitPrice);

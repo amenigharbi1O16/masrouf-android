@@ -16,6 +16,7 @@
 
     <!-- Fond et surfaces -->
     <color name="warm_bg">#F5F3ED</color>         <!-- Fond général beige chaleureux (windowBackground) -->
+    <color name="bg_warm">#F5F3ED</color>         <!-- Alias pour fond beige utilisé dans les layouts -->
     <color name="white">#FFFFFF</color>           <!-- Blanc pur : cartes blanches de saisie -->
     <color name="card_white">#FFFFFF</color>      <!-- Surface des cartes de formulaire -->
     <color name="border_subtle">#E5E2DA</color>   <!-- Bordure discrète des champs de saisie -->
@@ -28,6 +29,7 @@
     <!-- Typographie et contrastes -->
     <color name="ink">#111A16</color>             <!-- Texte noir d'encre principal à fort contraste -->
     <color name="muted">#6B7C74</color>           <!-- Texte secondaire gris-vert atténué pour sous-titres et labels -->
+    <color name="text_muted">#6B7C74</color>      <!-- Alias officiel pour texte secondaire -->
     <color name="muted_light">#A0ADA7</color>     <!-- Texte tertiaire très léger pour séparateurs et hints -->
     <color name="black">#000000</color>
 </resources>

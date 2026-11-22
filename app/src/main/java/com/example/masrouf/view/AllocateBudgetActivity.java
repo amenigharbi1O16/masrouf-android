@@ -62,6 +62,12 @@ public class AllocateBudgetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sessionManager = new SessionManager(this);
+        if (sessionManager.isChild()) {
+            Toast.makeText(this, "Accès réservé : Seul votre père peut modifier le budget global.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_allocate_budget);
 
         budgetDao = new BudgetDao(this);

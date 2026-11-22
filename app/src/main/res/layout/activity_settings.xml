@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Layout XML : Écran Paramètres, Assistance et Démonstrations Techniques (Figma 22 / Lab 3 / Ch. 5)
-  EXIGENCES DU PROF COUVERTES :
-    - Matrice §4 ligne 11 : Intent implicite ACTION_DIAL et ACTION_CALL (avec demande de permission runtime).
-    - Matrice §4 ligne 12 : Intent implicite SMS ACTION_SENDTO (smsto:).
-    - Matrice §4 ligne 13 : Intent implicite ACTION_SEND avec Chooser.
-    - Matrice §4 ligne 14 : Intent implicite ACTION_VIEW (Guide utilisateur & web).
-    - Matrice §4 ligne 17 : Changement de langue dynamique (EN / FR / AR).
-    - Matrice §4 ligne 20 : Lecture audio depuis res/raw/budget_alert.wav.
-    - Matrice §4 ligne 35 : Déclenchement de Notification avec NotificationChannel et PendingIntent.
-    - Matrice §4 ligne 36 : Démarrage du Service en arrière-plan (ReminderService).
+  Layout XML : Écran Réglages, Compte Personnel & Assistance (Image 15 & Figma 22)
+  EXIGENCES COUVERTES :
+    - Section Compte Personnel (Nom complet, Email, Enregistrer).
+    - Section Préférences (Budget, Catégories, Points, Mot de passe, Manuel PDF).
+    - Sélecteur de langue 3 pilules (Français / العربية / English).
+    - Bouton déconnexion stylisé rouge (bg_btn_danger).
+    - Section Assistance & Démonstrations (Intents implicites, Audio raw, Service, Notifications).
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/warm_bg"
@@ -21,7 +19,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="20dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="28dp">
 
         <!-- Barre de titre avec retour -->
         <LinearLayout
@@ -31,31 +32,43 @@
             android:orientation="horizontal"
             android:paddingBottom="16dp">
 
-            <Button
+            <ImageView
                 android:id="@+id/btn_back_settings"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@android:color/transparent"
-                android:text="←"
-                android:textColor="@color/deep_forest"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_arrow_back"
+                android:tint="@color/deep_forest" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
                 android:layout_weight="1"
-                android:text="Paramètres &amp; Support"
+                android:text="Réglages"
                 android:textColor="@color/deep_forest"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- CARTE 1 : Langue de l'application (Multilingue EN / FR / AR) -->
+        <!-- ============================================================= -->
+        <!-- SECTION 1 : COMPTE PERSONNEL (Image 15)                       -->
+        <!-- ============================================================= -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:letterSpacing="0.06"
+            android:text="COMPTE PERSONNEL"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_input_card"
             android:orientation="vertical"
             android:padding="16dp">
@@ -63,225 +76,411 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🌐 Langue de l'application (i18n)"
-                android:textColor="@color/deep_forest"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="10dp"
-                android:text="Basculez entre Anglais, Français et Arabe (support RTL)"
-                android:textColor="#666666"
+                android:text="Nom complet"
+                android:textColor="@color/text_muted"
                 android:textSize="12sp" />
 
-            <RadioGroup
-                android:id="@+id/rg_language"
+            <EditText
+                android:id="@+id/etSettingsFullName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginTop="4dp"
+                android:background="@null"
+                android:hint="Votre nom"
+                android:inputType="textPersonName"
+                android:minHeight="36dp"
+                android:textColor="@color/deep_forest"
+                android:textSize="15sp"
+                tools:ignore="Autofill" />
 
-                <RadioButton
-                    android:id="@+id/rb_lang_fr"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:text="Français"
-                    android:textColor="@color/deep_forest" />
-
-                <RadioButton
-                    android:id="@+id/rb_lang_en"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="English"
-                    android:textColor="@color/deep_forest" />
-
-                <RadioButton
-                    android:id="@+id/rb_lang_ar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="العربية"
-                    android:textColor="@color/deep_forest" />
-            </RadioGroup>
-        </LinearLayout>
-
-        <!-- CARTE 2 : DÉMONSTRATION DES INTENTS IMPLICITES (Ch. 5 du cours) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_input_card"
-            android:orientation="vertical"
-            android:padding="16dp">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#EDEDED" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📞 Intents Implicites Téléphonie &amp; SMS"
+                android:text="Adresse e-mail"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/etSettingsEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@null"
+                android:hint="nom@gmail.com"
+                android:inputType="textEmailAddress"
+                android:minHeight="36dp"
                 android:textColor="@color/deep_forest"
-                android:textSize="16sp"
+                android:textSize="15sp"
+                tools:ignore="Autofill" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnSaveProfile"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_btn_primary"
+                android:text="Enregistrer"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- ============================================================= -->
+        <!-- SECTION 2 : PRÉFÉRENCES (Image 15)                            -->
+        <!-- ============================================================= -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:letterSpacing="0.06"
+            android:text="PRÉFÉRENCES"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical">
+
+            <!-- Budget du mois -->
+            <LinearLayout
+                android:id="@+id/btnPrefBudget"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Budget du mois"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:tint="@color/text_muted" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EDEDED" />
+
+            <!-- Gérer les catégories -->
+            <LinearLayout
+                android:id="@+id/btnPrefCategories"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Gérer les catégories"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:tint="@color/text_muted" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EDEDED" />
+
+            <!-- Points et récompenses -->
+            <LinearLayout
+                android:id="@+id/btnPrefPoints"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Points et récompenses"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:tint="@color/text_muted" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EDEDED" />
+
+            <!-- Changer le mot de passe -->
+            <LinearLayout
+                android:id="@+id/btnPrefChangePassword"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Changer le mot de passe"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:tint="@color/text_muted" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EDEDED" />
+
+            <!-- Manuel d'utilisation (PDF) -->
+            <LinearLayout
+                android:id="@+id/btnPrefManual"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Manuel d'utilisation (PDF)"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:tint="@color/text_muted" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ============================================================= -->
+        <!-- SECTION 3 : LANGUE DE L'APPLICATION (Image 15)                -->
+        <!-- ============================================================= -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:letterSpacing="0.06"
+            android:text="LANGUE"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnSettingsLangFr"
+                android:layout_width="0dp"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_pill_active"
+                android:gravity="center"
+                android:text="Français"
+                android:textColor="@color/white"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <!-- ACTION_DIAL (Sans permission) -->
-            <Button
+            <TextView
+                android:id="@+id/btnSettingsLangAr"
+                android:layout_width="0dp"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="6dp"
+                android:background="@drawable/bg_pill_inactive"
+                android:gravity="center"
+                android:text="العربية"
+                android:textColor="@color/deep_forest"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnSettingsLangEn"
+                android:layout_width="0dp"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_pill_inactive"
+                android:gravity="center"
+                android:text="English"
+                android:textColor="@color/deep_forest"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- ============================================================= -->
+        <!-- SECTION 4 : ASSISTANCE TECHNIQUE & DÉMONSTRATIONS SYSTÈME     -->
+        <!-- (Exigences du cours : Matrice §4 lignes 11, 12, 13, 20, 35, 36) -->
+        <!-- ============================================================= -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:letterSpacing="0.06"
+            android:text="ASSISTANCE &amp; DÉMONSTRATIONS"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_input_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_action_dial"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="12dp"
+                android:layout_height="44dp"
                 android:background="@drawable/bg_btn_secondary"
-                android:text="Composeur (ACTION_DIAL : 71 000 000)"
+                android:text="Composer un numéro (ACTION_DIAL)"
+                android:textAllCaps="false"
                 android:textColor="@color/deep_forest"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
-            <!-- ACTION_CALL (Permission dangereuse CALL_PHONE à l'exécution) -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_action_call"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_btn_secondary"
-                android:text="Appel Direct (ACTION_CALL + Runtime Permission)"
+                android:text="Appel direct (ACTION_CALL + Runtime Permission)"
+                android:textAllCaps="false"
                 android:textColor="@color/deep_forest"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
-            <!-- ACTION_SENDTO SMS -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_action_sms"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_btn_secondary"
-                android:text="SMS Support (ACTION_SENDTO : smsto:)"
-                android:textColor="@color/deep_forest"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- CARTE 3 : INTENTS IMPLICITES DOCUMENT & PARTAGE -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_input_card"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📄 Documents (assets) &amp; Partage Chooser"
-                android:textColor="@color/deep_forest"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <!-- Lire le fichier asset masrouf_manual.txt -->
-            <Button
-                android:id="@+id/btn_read_manual_asset"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_btn_secondary"
-                android:text="Consulter le Guide (Lecture dossier assets)"
+                android:text="Envoyer un SMS (ACTION_SENDTO)"
+                android:textAllCaps="false"
                 android:textColor="@color/deep_forest"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
-            <!-- ACTION_VIEW Web URL -->
-            <Button
-                android:id="@+id/btn_action_view_web"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_btn_secondary"
-                android:text="Portail Web Masrouf (ACTION_VIEW : https://)"
-                android:textColor="@color/deep_forest"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <!-- ACTION_SEND + Intent.createChooser -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_action_share"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_btn_secondary"
-                android:text="Recommander Masrouf (ACTION_SEND + Chooser)"
+                android:text="Partager l'application (ACTION_SEND + Chooser)"
+                android:textAllCaps="false"
                 android:textColor="@color/deep_forest"
                 android:textSize="13sp"
                 android:textStyle="bold" />
-        </LinearLayout>
 
-        <!-- CARTE 4 : AUDIO RAW, NOTIFICATIONS & SERVICE D'ARRIÈRE-PLAN -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_input_card"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🔔 Notifications, Audio res/raw &amp; Service"
-                android:textColor="@color/deep_forest"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <!-- Audio res/raw -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_play_audio_raw"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="12dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/bg_btn_secondary"
-                android:text="🔊 Jouer Alerte Audio (res/raw/budget_alert.wav)"
+                android:text="Jouer Alerte Audio (res/raw/budget_alert.wav)"
+                android:textAllCaps="false"
                 android:textColor="@color/deep_forest"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
-            <!-- Notification test -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_trigger_notification"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_btn_secondary"
-                android:text="🔔 Déclencher Notification (PendingIntent)"
+                android:text="Déclencher Notification (PendingIntent)"
+                android:textAllCaps="false"
                 android:textColor="@color/deep_forest"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
-            <!-- Service test -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_start_service"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_btn_secondary"
-                android:text="⚙ Lancer ReminderService (Started Service)"
+                android:text="Lancer ReminderService (Started Service)"
+                android:textAllCaps="false"
                 android:textColor="@color/deep_forest"
                 android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Bouton Déconnexion -->
-        <Button
+        <!-- ============================================================= -->
+        <!-- BOUTON DÉCONNEXION (Rouge danger Image 15)                    -->
+        <!-- ============================================================= -->
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_logout"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="24dp"
-            android:background="@drawable/bg_btn_primary"
-            android:text="Se Déconnecter"
-            android:textColor="@android:color/white"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_btn_danger"
+            android:text="Se déconnecter"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
             android:textSize="15sp"
             android:textStyle="bold" />
 

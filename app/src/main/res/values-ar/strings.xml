@@ -30,8 +30,12 @@
     <string name="error_invalid_email_domain">يجب أن يكون البريد الإلكتروني تابعاً لـ gmail.com (مثل name@gmail.com).</string>
     <string name="error_password_policy">يجب أن تتكون كلمة المرور من 8 أحرف على الأقل، وتحتوي على حرف كبير، ورقم، ورمز خاص.</string>
     <string name="error_invalid_credentials">البريد الإلكتروني أو كلمة المرور غير صحيحة.</string>
+    <string name="error_passwords_mismatch">كلمتا المرور غير متطابقتين.</string>
+    <string name="error_email_already_exists">يوجد حساب مسجل بهذا البريد الإلكتروني مسبقاً.</string>
     <string name="error_account_suspended">هذا الحساب معلّق. يرجى الاتصال بمسؤول النظام.</string>
     <string name="msg_login_success">تم تسجيل الدخول بنجاح.</string>
+    <string name="msg_register_success">تم إنشاء الحساب بنجاح.</string>
+    <string name="error_generic_database">حدث خطأ أثناء الحفظ في قاعدة البيانات. يرجى المحاولة ثانية.</string>
 
     <!-- Écran d'accueil utilisateur standard (Home - Figma 07 AR) -->
     <string name="home_title">مصروف — نظرة عامة</string>
@@ -170,4 +174,77 @@
     <string name="btn_delete">حذف</string>
     <string name="btn_cancel">إلغاء</string>
     <string name="confirm_delete">هل أنت متأكد من الحذف؟</string>
+
+    <!-- إضافة فئة من الشاشة الرئيسية -->
+    <string name="btn_add_category">+ إضافة فئة</string>
+    <string name="dialog_add_category_title">إضافة فئة جديدة</string>
+    <string name="hint_category_name">اسم الفئة</string>
+    <string name="label_category_type">نوع الفئة</string>
+    <string name="type_product">منتج / مشتريات</string>
+    <string name="type_expense">مصروف / فواتير</string>
+    <string name="btn_confirm_add">إضافة</string>
+    <string name="msg_category_added">تمت إضافة الفئة بنجاح!</string>
+
+    <!-- Onboarding & Welcome Flow AR -->
+    <string name="welcome_welcome_to">أهلاً بك في</string>
+    <string name="welcome_app_title">مصروف</string>
+    <string name="welcome_btn_start">البدء</string>
+    <string name="welcome_already_have_account">لديك حساب بالفعل؟ تسجيل الدخول</string>
+    <string name="welcome_skip">تخطي</string>
+    <string name="welcome_btn_continue">متابعة</string>
+    <string name="welcome_btn_choose_account">اختر نوع حسابك</string>
+
+    <!-- Slide 1 AR -->
+    <string name="welcome_slide1_title">إدارة أموالك الشخصية</string>
+    <string name="welcome_slide1_desc">تتبع مصاريفك اليومية، ومشترياتك بالمليم وحافظ على التوازن المالي لميزانيتك.</string>
+    <string name="welcome_slide1_check1">متابعة مشتريات المواد الغذائية والأسعار الفردية</string>
+    <string name="welcome_slide1_check2">إدارة المصاريف الثابتة والاشتراكات</string>
+
+    <!-- Slide 2 AR -->
+    <string name="welcome_slide2_title">تنظيم المشتريات والمصاريف والميزانيات</string>
+    <string name="welcome_slide2_desc">صنّف مصاريفك حسب الفئات وتابع تطور الأسعار الفردية لتحقيق أهدافك الماليّة.</string>
+    <string name="welcome_slide2_check1">ميزانيات شهرية مخصصة</string>
+    <string name="welcome_slide2_check2">تنبيهات عند اقتراب وتجاوز السقف المحدد</string>
+
+    <!-- Slide 3 AR -->
+    <string name="welcome_slide3_title">إدارة مالية العائلة والأبناء</string>
+    <string name="welcome_slide3_desc">خصّص مصاريف الجيب، ووافق على الطلبات فورياً وعلم أبناءك إدارة الأموال.</string>
+    <string name="welcome_slide3_check1">إنشاء حسابات محميّة للأبناء</string>
+    <string name="welcome_slide3_check2">الخزينة العائلية، مصاريف الجيب وطلبات الأموال</string>
+
+    <!-- Choice Screen AR -->
+    <string name="welcome_choice_subtitle">مصروف · اختيار نوع الحساب</string>
+    <string name="welcome_choice_title">اختر نوع حسابك</string>
+    <string name="welcome_choice_desc">اختر نمط الحساب المناسب لاستخدامك. يمكنك دائماً ترقية حسابك لاحقاً.</string>
+    <string name="welcome_card_personal_title">حساب شخصي</string>
+    <string name="welcome_card_personal_badge">فردي</string>
+    <string name="welcome_card_personal_desc">إدارة مالية فردية للمشتريات والمصاريف اليومية والميزانيات.</string>
+    <string name="welcome_card_personal_check1">✓ إدارة مالية فردية ومستقلة</string>
+    <string name="welcome_card_personal_check2">✓ المشتريات والمصاريف اليومية والميزانيات</string>
+    <string name="welcome_card_personal_check3">✓ متابعة أسعار الوحدات والادخار</string>
+    <string name="welcome_card_personal_action">اختيار الحساب الشخصي ›</string>
+
+    <string name="welcome_card_family_title">حساب عائلي</string>
+    <string name="welcome_card_family_badge">الأب / الولي</string>
+    <string name="welcome_card_family_desc">فضاء شخصي + فضاء عائلي، إدارة الأبناء، الخزينة العائلية، المصاريف والطلبات.</string>
+    <string name="welcome_card_family_check1">✓ فضاء شخصي + فضاء عائلي</string>
+    <string name="welcome_card_family_check2">✓ إنشاء حسابات للأبناء بأمان</string>
+    <string name="welcome_card_family_check3">✓ الخزينة العائلية ومصاريف الجيب والموافقة على الطلبات</string>
+    <string name="welcome_card_family_check4">✓ ميزانيات وتقارير تحليلية شاملة للعائلة</string>
+    <string name="welcome_card_family_action">اختيار الحساب العائلي ›</string>
+
+    <!-- Registration Screen AR -->
+    <string name="reg_screen_title">إنشاء حساب جديد</string>
+    <string name="reg_subtitle">متابعة الميزانية العائلية</string>
+    <string name="reg_toggle_personal">👤 حساب شخصي</string>
+    <string name="reg_toggle_family">👥 حساب عائلي</string>
+    <string name="reg_info_personal">👤 حساب شخصي : إدارة فردية مستقلة لمشترياتك وميزانياتك</string>
+    <string name="reg_info_family">ℹ️ حساب ولي الأمر : وصول كامل للفضاء الشخصي والفضاء العائلي</string>
+    <string name="reg_local_storage_notice">ميزانياتك ومشترياتك تحفظ محلياً على هذا الجهاز.</string>
+    <string name="reg_label_fullname">الاسم الكامل</string>
+    <string name="reg_hint_fullname">أدخل اسمك</string>
+    <string name="reg_label_confirm_password">تأكيد كلمة المرور</string>
+    <string name="reg_hint_confirm_password">تأكيد كلمة المرور</string>
+    <string name="reg_btn_do_register">إنشاء حساب جديد</string>
+    <string name="reg_btn_go_login">تسجيل الدخول</string>
 </resources>

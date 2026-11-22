@@ -1,43 +1,80 @@
 package com.example.masrouf.view;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
+import com.example.masrouf.controller.SessionManager;
+import com.example.masrouf.dao.BudgetDao;
 import com.example.masrouf.dao.ProductDao;
+import com.example.masrouf.model.Budget;
 import com.example.masrouf.model.Product;
+import com.example.masrouf.util.LocaleHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * RÔLE : Activité de consultation du catalogue de produits et de suivi de leurs prix unitaires (Figma 12).
+ * RÔLE : Activité de consultation du catalogue de produits et de gestion des périodes (Image 10).
  * COUCHE MVC : Vue (View).
  * EXIGENCES DU PROF COUVERTES :
- *   - Exigence n°2 (Layout XML : res/layout/activity_products.xml).
  *   - Matrice §4 ligne 30 (ADAPTER PERSONNALISÉ : classe héritant de BaseAdapter avec implémentation du pattern ViewHolder et recyclage convertView, Ch.6 du cours).
- *   - Matrice §4 ligne 9 (Transmission des détails du produit cliqué à l'écran d'achat via Intent extras).
+ *   - Matrice §4 ligne 9 (Transmission des détails du produit cliqué à l'écran de détails via Intent extras).
+ *   - Gestion dynamique de l'état sans budget/période (Image 10).
+ *   - Tiroir latéral de navigation intégré (Image 10).
  */
 public class ProductsActivity extends AppCompatActivity {
 
+    private DrawerLayout drawerLayoutProducts;
+    private ImageView ivMenuProducts;
+    private FrameLayout frameNotifProducts;
+    private ImageView ivProfileProducts;
+
+    private LinearLayout layoutNoBudgetWarning;
+    private Button btnDefinePeriodTop;
+    private EditText etSearchProduct;
+    private LinearLayout layoutEmptyProductsCard;
+    private Button btnDefinePeriodCard;
     private ListView lvProducts;
-    private Button btnNewPurchaseFromProducts;
-    private ImageView ivBackProducts;
+    private Button btnAddProductFromCatalogue;
+
+    private TextView tvDrawerUserNameProd;
 
     private ProductDao productDao;
-    private List<Product> productList;
+    private BudgetDao budgetDao;
+    private SessionManager sessionManager;
+
+    private List<Product> allProducts = new ArrayList<>();
+    private List<Product> filteredProducts = new ArrayList<>();
     private ProductAdapter productAdapter;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.updateResources(newBase, LocaleHelper.getLanguage(newBase)));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,56 +82,192 @@ public class ProductsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_products);
 
         productDao = new ProductDao(this);
+        budgetDao = new BudgetDao(this);
+        sessionManager = new SessionManager(this);
+
+        initViews();
+        setupNavigationDrawer();
+        setupListeners();
+    }
+
+    private void initViews() {
+        drawerLayoutProducts = findViewById(R.id.drawerLayoutProducts);
+        ivMenuProducts = findViewById(R.id.ivMenuProducts);
+        frameNotifProducts = findViewById(R.id.frameNotifProducts);
+        ivProfileProducts = findViewById(R.id.ivProfileProducts);
+
+        layoutNoBudgetWarning = findViewById(R.id.layoutNoBudgetWarning);
+        btnDefinePeriodTop = findViewById(R.id.btnDefinePeriodTop);
+        etSearchProduct = findViewById(R.id.etSearchProduct);
+        layoutEmptyProductsCard = findViewById(R.id.layoutEmptyProductsCard);
+        btnDefinePeriodCard = findViewById(R.id.btnDefinePeriodCard);
         lvProducts = findViewById(R.id.lvProducts);
-        btnNewPurchaseFromProducts = findViewById(R.id.btnNewPurchaseFromProducts);
-        ivBackProducts = findViewById(R.id.ivBackProducts);
+        btnAddProductFromCatalogue = findViewById(R.id.btnAddProductFromCatalogue);
 
-        // Chargement des données depuis SQLite
-        loadProducts();
+        tvDrawerUserNameProd = findViewById(R.id.tvDrawerUserNameProd);
+    }
 
-        btnNewPurchaseFromProducts.setOnClickListener(v -> {
-            Intent intent = new Intent(ProductsActivity.this, AddPurchaseActivity.class);
-            startActivity(intent);
+    private void setupNavigationDrawer() {
+        String name = sessionManager.getUserName();
+        if (tvDrawerUserNameProd != null) {
+            tvDrawerUserNameProd.setText(name != null && !name.isEmpty() ? name : "am75");
+        }
+
+        findViewById(R.id.btnDrawerHomeProd).setOnClickListener(v -> {
+            drawerLayoutProducts.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(ProductsActivity.this, MainActivity.class));
+            finish();
         });
 
-        View btnHistory = findViewById(R.id.btnViewPurchaseHistory);
-        if (btnHistory != null) {
-            btnHistory.setOnClickListener(v -> startActivity(new Intent(ProductsActivity.this, PurchaseHistoryActivity.class)));
+        findViewById(R.id.btnDrawerProductsProd).setOnClickListener(v -> drawerLayoutProducts.closeDrawer(GravityCompat.START));
+
+        findViewById(R.id.btnDrawerCalendarProd).setOnClickListener(v -> {
+            drawerLayoutProducts.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(ProductsActivity.this, CalendarActivity.class));
+        });
+
+        findViewById(R.id.btnDrawerAnalyticsProd).setOnClickListener(v -> {
+            drawerLayoutProducts.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(ProductsActivity.this, AnalyticsActivity.class));
+        });
+
+        findViewById(R.id.btnDrawerPointsProd).setOnClickListener(v -> {
+            drawerLayoutProducts.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(ProductsActivity.this, PointsAndAchievementsActivity.class));
+        });
+
+        findViewById(R.id.btnDrawerSettingsProd).setOnClickListener(v -> {
+            drawerLayoutProducts.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(ProductsActivity.this, SettingsActivity.class));
+        });
+
+        findViewById(R.id.btnDrawerLogoutProd).setOnClickListener(v -> {
+            drawerLayoutProducts.closeDrawer(GravityCompat.START);
+            sessionManager.clearSession();
+            Intent intent = new Intent(ProductsActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+    }
+
+    private void setupListeners() {
+        ivMenuProducts.setOnClickListener(v -> {
+            if (drawerLayoutProducts != null) {
+                if (drawerLayoutProducts.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayoutProducts.closeDrawer(GravityCompat.START);
+                } else {
+                    drawerLayoutProducts.openDrawer(GravityCompat.START);
+                }
+            }
+        });
+
+        if (frameNotifProducts != null) {
+            frameNotifProducts.setOnClickListener(v -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Notifications");
+                builder.setMessage("Vous avez 1 recommandation active : Sélectionnez une période pour suivre vos prix.");
+                builder.setPositiveButton("OK", (d, w) -> d.dismiss());
+                builder.show();
+            });
         }
 
-        View ivAddProduct = findViewById(R.id.ivAddProductFromToolbar);
-        if (ivAddProduct != null) {
-            ivAddProduct.setOnClickListener(v -> startActivity(new Intent(ProductsActivity.this, AddProductActivity.class)));
+        ivProfileProducts.setOnClickListener(v -> startActivity(new Intent(ProductsActivity.this, SettingsActivity.class)));
+
+        View.OnClickListener goToCalendar = v -> startActivity(new Intent(ProductsActivity.this, CalendarActivity.class));
+        if (btnDefinePeriodTop != null) btnDefinePeriodTop.setOnClickListener(goToCalendar);
+        if (btnDefinePeriodCard != null) btnDefinePeriodCard.setOnClickListener(goToCalendar);
+
+        if (btnAddProductFromCatalogue != null) {
+            btnAddProductFromCatalogue.setOnClickListener(v -> startActivity(new Intent(ProductsActivity.this, AddProductActivity.class)));
         }
 
-        ivBackProducts.setOnClickListener(v -> finish());
+        // Recherche en temps réel
+        if (etSearchProduct != null) {
+            etSearchProduct.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    filterProducts(s.toString());
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+        }
+
+        // Clic sur un produit de la liste -> détails complets
+        lvProducts.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < filteredProducts.size()) {
+                Product selected = filteredProducts.get(position);
+                Intent intent = new Intent(ProductsActivity.this, ProductDetailsActivity.class);
+                intent.putExtra(ProductDetailsActivity.EXTRA_PRODUCT_ID, selected.getId());
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadProducts();
+        loadData();
     }
 
-    private void loadProducts() {
-        productList = productDao.getAllProducts();
+    private void loadData() {
+        long userId = sessionManager.getUserId();
+        if (userId <= 0) userId = 1;
 
-        // EXIGENCE MATRICE §4 LIGNE 30 : Utilisation de notre Adapter personnalisé
-        productAdapter = new ProductAdapter(this, productList);
-        lvProducts.setAdapter(productAdapter);
+        Budget currentBudget = budgetDao.getCurrentBudget(userId);
+        allProducts = productDao.getProductsByUser(userId);
+        if (allProducts == null) allProducts = new ArrayList<>();
 
-        // Clic sur un produit de la liste -> Ouvre les détails complets du produit (Figma 13)
-        lvProducts.setOnItemClickListener((parent, view, position, id) -> {
-            Product selected = productList.get(position);
-            Intent intent = new Intent(ProductsActivity.this, ProductDetailsActivity.class);
-            intent.putExtra(ProductDetailsActivity.EXTRA_PRODUCT_ID, selected.getId());
-            startActivity(intent);
-        });
+        if (currentBudget == null) {
+            // État sans budget (Image 10)
+            layoutNoBudgetWarning.setVisibility(View.VISIBLE);
+            btnDefinePeriodTop.setVisibility(View.VISIBLE);
+            layoutEmptyProductsCard.setVisibility(View.VISIBLE);
+            lvProducts.setVisibility(View.GONE);
+            btnAddProductFromCatalogue.setVisibility(View.GONE);
+        } else if (allProducts.isEmpty()) {
+            layoutNoBudgetWarning.setVisibility(View.GONE);
+            btnDefinePeriodTop.setVisibility(View.GONE);
+            layoutEmptyProductsCard.setVisibility(View.VISIBLE);
+            lvProducts.setVisibility(View.GONE);
+            btnAddProductFromCatalogue.setVisibility(View.VISIBLE);
+        } else {
+            // État actif avec produits
+            layoutNoBudgetWarning.setVisibility(View.GONE);
+            btnDefinePeriodTop.setVisibility(View.GONE);
+            layoutEmptyProductsCard.setVisibility(View.GONE);
+            lvProducts.setVisibility(View.VISIBLE);
+            btnAddProductFromCatalogue.setVisibility(View.VISIBLE);
+
+            filterProducts(etSearchProduct != null ? etSearchProduct.getText().toString() : "");
+        }
+    }
+
+    private void filterProducts(String query) {
+        filteredProducts.clear();
+        String q = query.toLowerCase().trim();
+
+        for (Product p : allProducts) {
+            if (q.isEmpty() || p.getName().toLowerCase().contains(q) || (p.getBrand() != null && p.getBrand().toLowerCase().contains(q))) {
+                filteredProducts.add(p);
+            }
+        }
+
+        if (productAdapter == null) {
+            productAdapter = new ProductAdapter(this, filteredProducts);
+            lvProducts.setAdapter(productAdapter);
+        } else {
+            productAdapter.notifyDataSetChanged();
+        }
     }
 
     /**
-     * EXIGENCE DU COURS (Ch.6) : Adapter personnalisé héritant de BaseAdapter.
-     * Implémente le pattern 'ViewHolder' pour éviter les appels répétitifs et coûteux à findViewById().
+     * ADAPTER PERSONNALISÉ (BaseAdapter + ViewHolder - Matrice §4 ligne 30, Ch.6)
      */
     public static class ProductAdapter extends BaseAdapter {
 
@@ -123,9 +296,6 @@ public class ProductsActivity extends AppCompatActivity {
             return products.get(position).getId();
         }
 
-        /**
-         * Patron ViewHolder recommandé par le cours pour mémoriser les références de vues.
-         */
         static class ViewHolder {
             TextView tvName;
             TextView tvSub;
@@ -138,7 +308,6 @@ public class ProductsActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
 
-            // 1. Recyclage de vue (convertView) pour économiser la mémoire RAM (Ch.6 du cours)
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.item_product, parent, false);
                 holder = new ViewHolder();
@@ -147,20 +316,22 @@ public class ProductsActivity extends AppCompatActivity {
                 holder.tvStore = convertView.findViewById(R.id.tvProdItemStore);
                 holder.tvPrice = convertView.findViewById(R.id.tvProdItemPrice);
                 holder.tvUnit = convertView.findViewById(R.id.tvProdItemUnit);
-                // Mémorisation dans le tag de la vue
                 convertView.setTag(holder);
             } else {
-                // Récupération instantanée du holder existant sans refaire findViewById
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            // 2. Remplissage des données du produit courant
-            Product p = products.get(position);
-            holder.tvName.setText(p.getName());
-            holder.tvSub.setText((p.getBrand() != null ? p.getBrand() + " · " : "") + p.getCategoryName() + " · 1 " + p.getUnit());
-            holder.tvStore.setText(p.getStore() + " · " + p.getLastPurchaseDate());
-            holder.tvPrice.setText(String.format(Locale.US, "%.3f DT", p.getLastUnitPrice()));
-            holder.tvUnit.setText("par " + p.getUnit());
+            Product product = products.get(position);
+
+            if (holder.tvName != null) holder.tvName.setText(product.getName());
+            if (holder.tvSub != null) {
+                String brand = product.getBrand();
+                String category = product.getCategoryName();
+                holder.tvSub.setText(String.format("%s · %s", brand != null ? brand : "Générique", category != null ? category : "Produit"));
+            }
+            if (holder.tvStore != null) holder.tvStore.setText(product.getStore() != null ? product.getStore() : "Magasin");
+            if (holder.tvPrice != null) holder.tvPrice.setText(String.format(Locale.US, "%.3f DT", product.getPrice()));
+            if (holder.tvUnit != null) holder.tvUnit.setText(String.format(Locale.US, "/ %s", product.getUnit() != null ? product.getUnit() : "unité"));
 
             return convertView;
         }

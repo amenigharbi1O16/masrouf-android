@@ -140,14 +140,31 @@
                 android:id="@+id/btnOpenPdfNative"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/control_height"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/bg_btn_primary"
                 android:drawableStart="@drawable/ic_book"
                 android:drawablePadding="12dp"
                 android:drawableTint="@color/white"
                 android:text="@string/manual_btn_open_pdf"
                 android:textColor="@color/white"
-                android:textSize="15sp"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:textStyle="bold" />
+
+            <!-- Native PDF Download Button (Exigence n°9) -->
+            <Button
+                android:id="@+id/btnDownloadPdfNative"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/control_height"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_btn_secondary"
+                android:drawableStart="@drawable/ic_arrow_back"
+                android:drawablePadding="12dp"
+                android:drawableTint="@color/deep_forest"
+                android:text="Télécharger le manuel (PDF)"
+                android:textColor="@color/deep_forest"
+                android:textSize="14sp"
+                android:textAllCaps="false"
                 android:textStyle="bold" />
 
         </LinearLayout>

@@ -101,13 +101,18 @@ public class Category {
         this.nameAr = nameAr;
     }
 
-    public String getLocalizedName(String languageCode) {
-        if ("fr".equalsIgnoreCase(languageCode)) {
-            return nameFr != null && !nameFr.isEmpty() ? nameFr : nameEn;
-        } else if ("ar".equalsIgnoreCase(languageCode)) {
-            return nameAr != null && !nameAr.isEmpty() ? nameAr : nameEn;
+    public String getNameByLocale(String lang) {
+        if ("ar".equalsIgnoreCase(lang) && nameAr != null && !nameAr.isEmpty()) {
+            return nameAr;
         }
-        return nameEn;
+        if ("en".equalsIgnoreCase(lang) && nameEn != null && !nameEn.isEmpty()) {
+            return nameEn;
+        }
+        return nameFr != null && !nameFr.isEmpty() ? nameFr : (nameEn != null ? nameEn : "");
+    }
+
+    public String getLocalizedName(String lang) {
+        return getNameByLocale(lang);
     }
 
     public String getType() {

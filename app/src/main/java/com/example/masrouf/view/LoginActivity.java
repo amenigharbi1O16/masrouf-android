@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,25 +14,28 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
 import com.example.masrouf.controller.AuthController;
 import com.example.masrouf.controller.SessionManager;
 import com.example.masrouf.model.User;
+import com.example.masrouf.util.LocaleHelper;
 import com.example.masrouf.view.admin.AdminDashboardActivity;
+import com.example.masrouf.view.child.ChildMainActivity;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
 /**
- * RÔLE : Activité de présentation et de captation des saisies pour l'authentification.
+ * RÔLE : Activité de présentation et de captation des saisies pour l'authentification (Image 4).
  * COUCHE MVC : Vue (View).
  * EXIGENCES DU PROF COUVERTES :
  *   - Exigence n°2 (Interface déclarée via layout XML : res/layout/activity_login.xml, Ch.4).
  *   - Matrice §4 ligne 7 (Listener explicite : l'activité elle-même implémente View.OnClickListener
  *                         et centralise le traitement avec v.getId() - Conforme au Lab 2 méthode 3).
- *   - Matrice §4 ligne 17 (Support multilingue dynamique : bascule EN / FR / AR).
+ *   - Matrice §4 ligne 17 (Support multilingue dynamique : bascule instantanée FR / AR / EN).
  *   - Matrice §4 ligne 26 (Affichage combiné Toast pour erreurs et Snackbar pour confirmation).
  *   - Matrice §4 ligne 34 (Pattern MVC : zéro SQL dans l'activité, délégation au contrôleur).
  *   - Matrice §4 ligne 38 (Contrôle de session active au démarrage via SharedPreferences).
@@ -46,13 +49,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText etPassword;
     private Button btnLogin;
     private Button btnCreateAccount;
-    private TextView tvLangEn;
-    private TextView tvLangFr;
-    private TextView tvLangAr;
+
+    private TextView btnLangFr;
+    private TextView btnLangAr;
+    private TextView btnLangEn;
 
     // Dépendances architecturales (Contrôleurs)
     private AuthController authController;
     private SessionManager sessionManager;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.updateResources(newBase, LocaleHelper.getLanguage(newBase)));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,171 +79,170 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return;
         }
 
-        // 3. Liaison de l'activité avec son fichier de présentation XML (Ch.4 du cours)
+        // 3. Liaison de l'activité avec son fichier de présentation XML
         setContentView(R.layout.activity_login);
 
-        // 4. Récupération des objets graphiques via leurs identifiants uniques R.id (Ch.4)
+        // 4. Récupération des objets graphiques
         initViews();
 
-        // 5. Enregistrement des écouteurs d'événements (Listeners)
-        // EXIGENCE LAB 2 MÉTHODE 3 : L'activité passe 'this' comme écouteur explicite
+        // 5. Mise à jour de l'état visuel des pilules de langue
+        updateLanguagePillsState(sessionManager.getLanguage());
+
+        // 6. Enregistrement des écouteurs d'événements
         setupListeners();
     }
 
-    /**
-     * Retrouve chaque composant graphique dans l'arbre des vues issu du layout XML.
-     */
     private void initViews() {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
-        tvLangEn = findViewById(R.id.tvLangEn);
-        tvLangFr = findViewById(R.id.tvLangFr);
-        tvLangAr = findViewById(R.id.tvLangAr);
+
+        btnLangFr = findViewById(R.id.btnLangFr);
+        btnLangAr = findViewById(R.id.btnLangAr);
+        btnLangEn = findViewById(R.id.btnLangEn);
     }
 
-    /**
-     * Associe l'activité comme listener de clics sur les boutons et sélecteurs.
-     */
     private void setupListeners() {
-        // Enregistrement explicite : l'activité écoute les événements de clic
-        btnLogin.setOnClickListener(this);
-        btnCreateAccount.setOnClickListener(this);
-        tvLangEn.setOnClickListener(this);
-        tvLangFr.setOnClickListener(this);
-        tvLangAr.setOnClickListener(this);
+        if (btnLogin != null) btnLogin.setOnClickListener(this);
+        if (btnCreateAccount != null) btnCreateAccount.setOnClickListener(this);
+
+        if (btnLangFr != null) btnLangFr.setOnClickListener(this);
+        if (btnLangAr != null) btnLangAr.setOnClickListener(this);
+        if (btnLangEn != null) btnLangEn.setOnClickListener(this);
     }
 
-    /**
-     * Méthode de rappel de l'interface View.OnClickListener (Lab 2, Méthode 3).
-     * Tous les clics de l'écran convergent ici et sont aiguillés selon l'ID de la vue cliquée.
-     *
-     * @param v La vue ayant déclenché l'événement de clic
-     */
+    private void updateLanguagePillsState(String currentLang) {
+        if (btnLangFr == null || btnLangAr == null || btnLangEn == null) return;
+
+        int activeBg = R.drawable.bg_pill_active;
+        int inactiveBg = R.drawable.bg_pill_inactive;
+        int activeText = Color.WHITE;
+        int inactiveText = ContextCompat.getColor(this, R.color.deep_forest);
+
+        if ("ar".equalsIgnoreCase(currentLang)) {
+            btnLangAr.setBackgroundResource(activeBg);
+            btnLangAr.setTextColor(activeText);
+
+            btnLangFr.setBackgroundResource(inactiveBg);
+            btnLangFr.setTextColor(inactiveText);
+
+            btnLangEn.setBackgroundResource(inactiveBg);
+            btnLangEn.setTextColor(inactiveText);
+        } else if ("en".equalsIgnoreCase(currentLang)) {
+            btnLangEn.setBackgroundResource(activeBg);
+            btnLangEn.setTextColor(activeText);
+
+            btnLangFr.setBackgroundResource(inactiveBg);
+            btnLangFr.setTextColor(inactiveText);
+
+            btnLangAr.setBackgroundResource(inactiveBg);
+            btnLangAr.setTextColor(inactiveText);
+        } else {
+            // Français par défaut
+            btnLangFr.setBackgroundResource(activeBg);
+            btnLangFr.setTextColor(activeText);
+
+            btnLangAr.setBackgroundResource(inactiveBg);
+            btnLangAr.setTextColor(inactiveText);
+
+            btnLangEn.setBackgroundResource(inactiveBg);
+            btnLangEn.setTextColor(inactiveText);
+        }
+    }
+
     @Override
     public void onClick(View v) {
         int viewId = v.getId();
 
-        // Aiguillage par identifiant numérique R.id
         if (viewId == R.id.btnLogin) {
-            // L'utilisateur clique sur "Log in"
             handleLoginAction();
         } else if (viewId == R.id.btnCreateAccount) {
-            // L'utilisateur souhaite créer un nouveau compte
             handleCreateAccountAction();
-        } else if (viewId == R.id.tvLangEn) {
-            // Bascule vers la langue anglaise
-            changeLanguage("en");
-        } else if (viewId == R.id.tvLangFr) {
-            // Bascule vers la langue française
+        } else if (viewId == R.id.btnLangFr) {
             changeLanguage("fr");
-        } else if (viewId == R.id.tvLangAr) {
-            // Bascule vers la langue arabe
+        } else if (viewId == R.id.btnLangAr) {
             changeLanguage("ar");
+        } else if (viewId == R.id.btnLangEn) {
+            changeLanguage("en");
         }
     }
 
-    /**
-     * Traite la soumission du formulaire de connexion.
-     * Récupère les données de la vue et délègue l'authentification au contrôleur.
-     */
     private void handleLoginAction() {
-        // 1. Récupération du texte saisi dans les champs EditText
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        // 2. Appel du contrôleur métier (Aucun calcul de hash ni requête SQL dans l'activité)
         AuthController.LoginResult result = authController.login(email, password);
 
-        // 3. Gestion de l'affichage selon la réponse du contrôleur
         switch (result.getStatus()) {
             case SUCCESS:
-                // Connexion réussie : notification visuelle via Snackbar Material (Matrice §4 ligne 26)
                 Snackbar.make(findViewById(R.id.scrollLogin), R.string.msg_login_success, Snackbar.LENGTH_SHORT).show();
-
-                // Redirection immédiate par Intent explicite selon le rôle (ADMIN ou USER)
                 authController.redirectUserByRole(this, result.getUser());
                 break;
 
             case EMPTY_FIELDS:
-                // Champs incomplets : alerte rapide via Toast classique (Matrice §4 ligne 26)
                 Toast.makeText(this, R.string.error_empty_fields, Toast.LENGTH_SHORT).show();
                 if (email.isEmpty()) etEmail.requestFocus();
                 else etPassword.requestFocus();
                 break;
 
             case INVALID_EMAIL_DOMAIN:
-                // Contrainte email : doit obligatoirement être @gmail.com
                 Toast.makeText(this, R.string.error_invalid_email_domain, Toast.LENGTH_LONG).show();
                 etEmail.requestFocus();
                 break;
 
             case INVALID_PASSWORD_POLICY:
-                // Contrainte mot de passe : 8 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial
                 Toast.makeText(this, R.string.error_password_policy, Toast.LENGTH_LONG).show();
                 etPassword.requestFocus();
                 break;
 
             case INVALID_CREDENTIALS:
-                // Erreur d'identifiants
+                // Affiche un toast d'erreur pour mot de passe ou email incorrect
                 Toast.makeText(this, R.string.error_invalid_credentials, Toast.LENGTH_LONG).show();
-                etPassword.setText(""); // Effacement sécurisé du champ mot de passe
+                // Efface le mot de passe erroné
+                etPassword.setText("");
+                // Redonne le focus au champ de saisie du mot de passe
                 etPassword.requestFocus();
                 break;
 
             case ACCOUNT_SUSPENDED:
-                // Compte désactivé par l'administrateur
-                Toast.makeText(this, R.string.error_account_suspended, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Ce compte est suspendu par le parent. Accès refusé.", Toast.LENGTH_LONG).show();
+                etPassword.setText("");
                 break;
         }
     }
 
-    /**
-     * Ouvre l'écran d'inscription (Figma 02).
-     */
     private void handleCreateAccountAction() {
         Intent registerIntent = new Intent(this, RegisterActivity.class);
         startActivity(registerIntent);
     }
 
-    /**
-     * Redirige un utilisateur déjà connecté selon son rôle mémorisé dans les SharedPreferences.
-     */
     private void redirectLoggedInUser() {
+        // Déclare l'Intent de destination
         Intent intent;
-        if (sessionManager.isAdmin()) {
-            intent = new Intent(this, AdminDashboardActivity.class);
+        // Vérifie si l'utilisateur connecté est un parent
+        if (sessionManager.isParent()) {
+            // Redirige le parent vers son espace unifié sur MainActivity
+            intent = new Intent(this, MainActivity.class);
+        } else if (sessionManager.isChild()) {
+            // Redirige l'enfant vers son accueil dédié ChildMainActivity
+            intent = new Intent(this, ChildMainActivity.class);
+        } else if (!sessionManager.isOnboardingCompleted()) {
+            // Redirige le nouvel utilisateur vers les 3 écrans d'onboarding
+            intent = new Intent(this, OnboardingWelcomeActivity.class);
         } else {
+            // Redirige l'utilisateur personnel vers l'accueil standard
             intent = new Intent(this, MainActivity.class);
         }
+        // Lance l'activité cible
         startActivity(intent);
+        // Ferme l'écran de connexion pour empêcher le retour arrière
         finish();
     }
 
-    /**
-     * Change dynamiquement la langue de l'application et rafraîchit l'activité courante.
-     * Démontre la gestion des ressources qualifiées (values, values-fr, values-ar) du Ch.3.
-     *
-     * @param languageCode Code de langue ("en", "fr", "ar")
-     */
     private void changeLanguage(String languageCode) {
-        // 1. Mémorisation du choix dans les préférences
         sessionManager.saveLanguage(languageCode);
-
-        // 2. Configuration de la nouvelle Locale pour l'application
-        Locale locale = new Locale(languageCode);
-        Locale.setDefault(locale);
-
-        Resources resources = getResources();
-        Configuration config = new Configuration(resources.getConfiguration());
-        config.setLocale(locale);
-
-        // 3. Application de la configuration
-        createConfigurationContext(config);
-        resources.updateConfiguration(config, resources.getDisplayMetrics());
-
-        // 4. Recréation de l'activité pour recharger tous les textes avec les bonnes ressources XML
+        LocaleHelper.setLocale(this, languageCode);
         recreate();
     }
 }

@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.masrouf.R;
+import com.example.masrouf.controller.SessionManager;
 
 /**
  * RÔLE : Écran de définition des paramètres généraux d'un nouveau budget (Figma 09).
@@ -45,9 +46,26 @@ public class CreateBudgetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SessionManager sessionManager = new SessionManager(this);
+        if (sessionManager.isChild()) {
+            Toast.makeText(this, "Accès réservé : Seul votre père peut modifier le budget global.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_create_budget);
 
         initViews();
+
+        String passedStart = getIntent().getStringExtra("EXTRA_START_DATE");
+        String passedEnd = getIntent().getStringExtra("EXTRA_END_DATE");
+        if (passedStart != null && !passedStart.isEmpty()) {
+            etStartDate.setText(passedStart);
+        }
+        if (passedEnd != null && !passedEnd.isEmpty()) {
+            etEndDate.setText(passedEnd);
+        }
 
         // EXIGENCE MATRICE §4 LIGNE 5 : Instanciation et liaison d'une CLASSE NOMMÉE de listener
         BudgetActionClickListener namedListener = new BudgetActionClickListener();
