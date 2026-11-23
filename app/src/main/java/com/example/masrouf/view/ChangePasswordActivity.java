@@ -30,7 +30,9 @@ import com.example.masrouf.view.child.ChildMainActivity;
  *   - Matrice §4 ligne 32 (Mise à jour SQLite via ContentValues pour modifier le mot de passe).
  *   - Matrice §4 ligne 39 (Hachage SHA-256 du nouveau mot de passe).
  */
-public class ChangePasswordActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class ChangePasswordActivity extends BaseActivity {
 
     private static final String TAG = "ChangePasswordActivity";
 

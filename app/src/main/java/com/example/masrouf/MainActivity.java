@@ -33,12 +33,12 @@ import com.example.masrouf.controller.SessionManager;
 import com.example.masrouf.dao.BudgetDao;
 import com.example.masrouf.dao.CategoryDao;
 import com.example.masrouf.dao.FamilyDao;
+import com.example.masrouf.dao.NotificationDao;
 import com.example.masrouf.dao.TransactionDao;
 import com.example.masrouf.dao.UserDao;
 import com.example.masrouf.model.Budget;
 import com.example.masrouf.model.BudgetAllocation;
 import com.example.masrouf.model.Category;
-import com.example.masrouf.model.FamilyFunds;
 import com.example.masrouf.model.Transaction;
 import com.example.masrouf.model.User;
 import com.example.masrouf.util.LocaleHelper;
@@ -46,20 +46,24 @@ import com.example.masrouf.util.NotificationHelper;
 import com.example.masrouf.util.VoiceTransactionParser;
 import com.example.masrouf.view.AddExpenseActivity;
 import com.example.masrouf.view.AddPurchaseActivity;
+import com.example.masrouf.view.AllocateBudgetActivity;
 import com.example.masrouf.view.AnalyticsActivity;
+import com.example.masrouf.view.NotificationsActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import com.example.masrouf.view.CalendarActivity;
 import com.example.masrouf.view.CreateBudgetActivity;
 import com.example.masrouf.view.CustomCategoryModal;
-import com.example.masrouf.view.LoginActivity;
+import com.example.masrouf.LoginActivity;
 import com.example.masrouf.view.ModifyBudgetActivity;
 import com.example.masrouf.view.PointsAndAchievementsActivity;
-import com.example.masrouf.view.ProductsActivity;
+import com.example.masrouf.ProductsActivity;
 import com.example.masrouf.view.SettingsActivity;
+import com.example.masrouf.view.UserDrawerHelper;
 import com.example.masrouf.view.VoiceInputDialog;
 import com.example.masrouf.view.admin.AdminDashboardActivity;
+import com.example.masrouf.view.admin.AdminDrawerHelper;
 import com.example.masrouf.view.family.FamilyChildrenActivity;
 import com.example.masrouf.view.family.FamilyDashboardActivity;
 
@@ -77,7 +81,7 @@ import java.util.Locale;
  *   - Saisie Vocale multilingue via microphone avec dialogue de confirmation interactif.
  *   - Notifications d'alertes 80% et 100% avec boîte de dialogue des notifications.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private static final int REQ_CODE_SPEECH_INPUT = 1002;
@@ -127,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Bouton d'ajout de catégorie au-dessus du budget
     private TextView btnHomeAddCategory;
+    private Button btnChildAllocateBudget;
 
     // Vues de répartition budgétaire pour le Parent
     private LinearLayout layoutParentBudgetBreakdown;
@@ -195,233 +200,84 @@ public class MainActivity extends AppCompatActivity {
         setupListeners();
     }
 
+    @SuppressWarnings("unchecked")
+    private <T extends View> T getOptView(String name) {
+        int resId = getResources().getIdentifier(name, "id", getPackageName());
+        if (resId != 0) {
+            try { return findViewById(resId); } catch (Exception ignored) { }
+        }
+        return null;
+    }
+
     private void initViews() {
-        drawerLayout = findViewById(R.id.drawerLayout);
-        ivMainMenu = findViewById(R.id.ivMainMenu);
-        tvMainGreeting = findViewById(R.id.tvMainGreeting);
-        ivMainMic = findViewById(R.id.ivMainMic);
-        frameNotif = findViewById(R.id.frameNotif);
-        ivMainProfile = findViewById(R.id.ivMainProfile);
-        tvMainPeriodSubtitle = findViewById(R.id.tvMainPeriodSubtitle);
+        drawerLayout = getOptView("drawerLayout");
+        if (drawerLayout == null) drawerLayout = getOptView("drawer");
+        ivMainMenu = getOptView("ivMainMenu");
+        tvMainGreeting = getOptView("tvMainGreeting");
+        ivMainMic = getOptView("ivMainMic");
+        frameNotif = getOptView("frameNotif");
+        ivMainProfile = getOptView("ivMainProfile");
+        tvMainPeriodSubtitle = getOptView("tvMainPeriodSubtitle");
 
-        // Bouton Ajouter une catégorie
-        btnHomeAddCategory = findViewById(R.id.btnHomeAddCategory);
+        btnHomeAddCategory = getOptView("btnHomeAddCategory");
+        btnChildAllocateBudget = getOptView("btnChildAllocateBudget");
 
-        // Répartition Parent
-        layoutParentBudgetBreakdown = findViewById(R.id.layoutParentBudgetBreakdown);
-        tvParentGlobalBudget = findViewById(R.id.tvParentGlobalBudget);
-        tvParentChildrenAllocated = findViewById(R.id.tvParentChildrenAllocated);
-        tvParentOwnShare = findViewById(R.id.tvParentOwnShare);
+        layoutParentBudgetBreakdown = getOptView("layoutParentBudgetBreakdown");
+        tvParentGlobalBudget = getOptView("tvParentGlobalBudget");
+        tvParentChildrenAllocated = getOptView("tvParentChildrenAllocated");
+        tvParentOwnShare = getOptView("tvParentOwnShare");
 
-        // Section Enfants
-        layoutParentChildrenSection = findViewById(R.id.layoutParentChildrenSection);
-        btnParentManageChildren = findViewById(R.id.btnParentManageChildren);
-        containerChildrenCards = findViewById(R.id.containerChildrenCards);
+        layoutParentChildrenSection = getOptView("layoutParentChildrenSection");
+        btnParentManageChildren = getOptView("btnParentManageChildren");
+        containerChildrenCards = getOptView("containerChildrenCards");
 
-        // Tiroir Parent vs Normal
-        btnDrawerChildren = findViewById(R.id.btnDrawerChildren);
-        btnDrawerQuickEntry = findViewById(R.id.btnDrawerQuickEntry);
-        btnDrawerNotifications = findViewById(R.id.btnDrawerNotifications);
-        btnDrawerPoints = findViewById(R.id.btnDrawerPoints);
-        tvDrawerCalendarLabel = findViewById(R.id.tvDrawerCalendarLabel);
-        tvDrawerAnalyticsLabel = findViewById(R.id.tvDrawerAnalyticsLabel);
+        btnDrawerChildren = getOptView("btnDrawerChildren");
+        btnDrawerQuickEntry = getOptView("btnDrawerQuickEntry");
+        btnDrawerNotifications = getOptView("btnDrawerNotifications");
+        btnDrawerPoints = getOptView("btnDrawerPoints");
+        tvDrawerCalendarLabel = getOptView("tvDrawerCalendarLabel");
+        tvDrawerAnalyticsLabel = getOptView("tvDrawerAnalyticsLabel");
 
-        // État vide
-        layoutEmptyBudgetState = findViewById(R.id.layoutEmptyBudgetState);
-        btnCreateBudgetEmpty = findViewById(R.id.btnCreateBudgetEmpty);
+        layoutEmptyBudgetState = getOptView("layoutEmptyBudgetState");
+        btnCreateBudgetEmpty = getOptView("btnCreateBudgetEmpty");
 
-        // État actif
-        layoutActiveBudgetState = findViewById(R.id.layoutActiveBudgetState);
-        tvMainAvailableAmount = findViewById(R.id.tvMainAvailableAmount);
-        tvMainTotalBudgetLabel = findViewById(R.id.tvMainTotalBudgetLabel);
-        pbBudgetUsage = findViewById(R.id.pbBudgetUsage);
-        tvMainSpentLabel = findViewById(R.id.tvMainSpentLabel);
-        tvMainPercentageLabel = findViewById(R.id.tvMainPercentageLabel);
-        tvMainDateRangeLabel = findViewById(R.id.tvMainDateRangeLabel);
+        layoutActiveBudgetState = getOptView("layoutActiveBudgetState");
+        tvMainAvailableAmount = getOptView("tvMainAvailableAmount");
+        tvMainTotalBudgetLabel = getOptView("tvMainTotalBudgetLabel");
+        pbBudgetUsage = getOptView("pbBudgetUsage");
+        tvMainSpentLabel = getOptView("tvMainSpentLabel");
+        tvMainPercentageLabel = getOptView("tvMainPercentageLabel");
+        tvMainDateRangeLabel = getOptView("tvMainDateRangeLabel");
 
-        layoutStatusBanner = findViewById(R.id.layoutStatusBanner);
-        ivStatusIcon = findViewById(R.id.ivStatusIcon);
-        tvStatusTitle = findViewById(R.id.tvStatusTitle);
-        tvStatusDesc = findViewById(R.id.tvStatusDesc);
-        layoutCategoriesContainer = findViewById(R.id.layoutCategoriesContainer);
-        btnAddPurchase = findViewById(R.id.btnAddPurchase);
-        btnAddExpense = findViewById(R.id.btnAddExpense);
+        layoutStatusBanner = getOptView("layoutStatusBanner");
+        ivStatusIcon = getOptView("ivStatusIcon");
+        tvStatusTitle = getOptView("tvStatusTitle");
+        tvStatusDesc = getOptView("tvStatusDesc");
+        layoutCategoriesContainer = getOptView("layoutCategoriesContainer");
+        btnAddPurchase = getOptView("btnAddPurchase");
+        btnAddExpense = getOptView("btnAddExpense");
 
-        // Transactions
-        layoutEmptyTransactionsState = findViewById(R.id.layoutEmptyTransactionsState);
-        layoutTransactionsContainer = findViewById(R.id.layoutTransactionsContainer);
-        btnAddExpenseBottom = findViewById(R.id.btnAddExpenseBottom);
+        layoutEmptyTransactionsState = getOptView("layoutEmptyTransactionsState");
+        layoutTransactionsContainer = getOptView("layoutTransactionsContainer");
+        btnAddExpenseBottom = getOptView("btnAddExpenseBottom");
 
-        // Tiroir latéral
-        tvDrawerUserName = findViewById(R.id.tvDrawerUserName);
-        tvDrawerUserRoleBadge = findViewById(R.id.tvDrawerUserRoleBadge);
+        tvDrawerUserName = getOptView("tvDrawerUserName");
+        if (tvDrawerUserName == null) tvDrawerUserName = getOptView("drawerName");
+        tvDrawerUserRoleBadge = getOptView("tvDrawerUserRoleBadge");
 
-        btnDrawerLangAr = findViewById(R.id.btnDrawerLangAr);
-        btnDrawerLangFr = findViewById(R.id.btnDrawerLangFr);
-        btnDrawerLangEn = findViewById(R.id.btnDrawerLangEn);
+        btnDrawerLangAr = getOptView("btnDrawerLangAr");
+        if (btnDrawerLangAr == null) btnDrawerLangAr = getOptView("langAr");
+        btnDrawerLangFr = getOptView("btnDrawerLangFr");
+        if (btnDrawerLangFr == null) btnDrawerLangFr = getOptView("langFr");
+        btnDrawerLangEn = getOptView("btnDrawerLangEn");
+        if (btnDrawerLangEn == null) btnDrawerLangEn = getOptView("langEn");
     }
 
     private void setupNavigationDrawer() {
-        // Récupère le nom complet de l'utilisateur connecté depuis la session
-        String name = sessionManager.getUserName();
-        // Vérifie si le TextView du nom dans le tiroir est présent
-        if (tvDrawerUserName != null) {
-            // Affiche le nom de l'utilisateur ou un libellé par défaut
-            tvDrawerUserName.setText(name != null && !name.isEmpty() ? name : "Utilisateur");
-        }
-
-        // Configure le badge du type de compte dans le tiroir latéral
-        if (tvDrawerUserRoleBadge != null) {
-            // Vérifie si l'utilisateur est le parent de la famille
-            if (sessionManager.isParent()) {
-                // Affiche le badge Compte Familial (Parent)
-                tvDrawerUserRoleBadge.setText("Compte Famille (Parent)");
-            } else if (sessionManager.isChild()) {
-                // Affiche le badge Compte Enfant pour l'enfant
-                tvDrawerUserRoleBadge.setText("Compte Enfant");
-            } else {
-                // Affiche le badge Compte personnel pour l'utilisateur standard
-                tvDrawerUserRoleBadge.setText("Compte personnel");
-            }
-        }
-
-        // Configuration dynamique des options du tiroir selon le rôle
-        if (sessionManager.isParent()) {
-            View btnDrawerSwitchFamily = findViewById(R.id.btnDrawerSwitchFamily);
-            if (btnDrawerSwitchFamily != null) {
-                btnDrawerSwitchFamily.setVisibility(View.VISIBLE);
-                btnDrawerSwitchFamily.setOnClickListener(v -> {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    sessionManager.setActiveSpace(SessionManager.SPACE_FAMILY);
-                    startActivity(new Intent(MainActivity.this, FamilyDashboardActivity.class));
-                });
-            }
-
-            // Affiche l'option Enfants dans le tiroir pour le Parent
-            if (btnDrawerChildren != null) {
-                // Rend visible le bouton Enfants
-                btnDrawerChildren.setVisibility(View.VISIBLE);
-                // Associe le clic pour ouvrir l'activité de gestion des enfants
-                btnDrawerChildren.setOnClickListener(v -> {
-                    // Ferme le tiroir latéral
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    // Ouvre l'écran de gestion des enfants
-                    startActivity(new Intent(MainActivity.this, FamilyChildrenActivity.class));
-                });
-            }
-
-            // Affiche l'option Saisie rapide dans le tiroir pour le Parent
-            if (btnDrawerQuickEntry != null) {
-                // Rend visible le bouton Saisie rapide
-                btnDrawerQuickEntry.setVisibility(View.VISIBLE);
-                // Associe le clic pour ouvrir le sélecteur de saisie rapide (Achat vs Dépense)
-                btnDrawerQuickEntry.setOnClickListener(v -> {
-                    // Ferme le tiroir latéral
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    // Ouvre la boîte de dialogue de saisie rapide
-                    showQuickEntryDialog();
-                });
-            }
-
-            // Affiche l'option Notifications dans le tiroir pour le Parent
-            if (btnDrawerNotifications != null) {
-                // Rend visible le bouton Notifications
-                btnDrawerNotifications.setVisibility(View.VISIBLE);
-                // Associe le clic pour afficher les notifications
-                btnDrawerNotifications.setOnClickListener(v -> {
-                    // Ferme le tiroir latéral
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                    // Ouvre la boîte de dialogue des notifications
-                    showNotificationDialog();
-                });
-            }
-
-            // Masque la gamification (Points) pour l'espace Parent
-            if (btnDrawerPoints != null) {
-                // Masque l'élément Points du tiroir
-                btnDrawerPoints.setVisibility(View.GONE);
-            }
-
-            // Met à jour les libellés pour le Parent
-            if (tvDrawerCalendarLabel != null) {
-                // Affiche Calendrier & Historique
-                tvDrawerCalendarLabel.setText("Calendrier & Historique");
-            }
-            if (tvDrawerAnalyticsLabel != null) {
-                // Affiche Budgets & Analyses
-                tvDrawerAnalyticsLabel.setText("Budgets & Analyses");
-            }
+        if (sessionManager.isParent() && SessionManager.SPACE_FAMILY.equalsIgnoreCase(sessionManager.getActiveSpace())) {
+            AdminDrawerHelper.setupDrawer(this, drawerLayout, AdminDrawerHelper.Section.HOME);
         } else {
-            // Masque les options réservées au Parent pour les Enfants et Utilisateurs
-            if (btnDrawerChildren != null) btnDrawerChildren.setVisibility(View.GONE);
-            if (btnDrawerQuickEntry != null) btnDrawerQuickEntry.setVisibility(View.GONE);
-            if (btnDrawerNotifications != null) btnDrawerNotifications.setVisibility(View.GONE);
-
-            // Affiche les Points pour l'utilisateur individuel
-            if (btnDrawerPoints != null) btnDrawerPoints.setVisibility(View.VISIBLE);
-
-            // Rétablit les libellés standards
-            if (tvDrawerCalendarLabel != null) tvDrawerCalendarLabel.setText("Calendrier");
-            if (tvDrawerAnalyticsLabel != null) tvDrawerAnalyticsLabel.setText("Analyses");
-        }
-
-        // Navigation tiroir : Accueil
-        findViewById(R.id.btnDrawerHome).setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
-
-        // Navigation tiroir : Produits
-        findViewById(R.id.btnDrawerProducts).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, ProductsActivity.class));
-        });
-
-        // Navigation tiroir : Calendrier
-        findViewById(R.id.btnDrawerCalendar).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, CalendarActivity.class));
-        });
-
-        // Navigation tiroir : Analyses
-        findViewById(R.id.btnDrawerAnalytics).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, AnalyticsActivity.class));
-        });
-
-        // Navigation tiroir : Points
-        if (btnDrawerPoints != null) {
-            btnDrawerPoints.setOnClickListener(v -> {
-                drawerLayout.closeDrawer(GravityCompat.START);
-                startActivity(new Intent(MainActivity.this, PointsAndAchievementsActivity.class));
-            });
-        }
-
-        // Navigation tiroir : Réglages
-        findViewById(R.id.btnDrawerSettings).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-        });
-
-        // Navigation tiroir : Déconnexion
-        findViewById(R.id.btnDrawerLogout).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            sessionManager.clearSession();
-            Toast.makeText(MainActivity.this, "Déconnexion réussie", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
-
-        // Sélecteur de langue dans le tiroir (Image 9 : عربي / FR / ANG)
-        updateDrawerLanguageHighlight(sessionManager.getLanguage());
-
-        if (btnDrawerLangAr != null) {
-            btnDrawerLangAr.setOnClickListener(v -> changeAppLanguage("ar"));
-        }
-        if (btnDrawerLangFr != null) {
-            btnDrawerLangFr.setOnClickListener(v -> changeAppLanguage("fr"));
-        }
-        if (btnDrawerLangEn != null) {
-            btnDrawerLangEn.setOnClickListener(v -> changeAppLanguage("en"));
+            UserDrawerHelper.setupDrawer(this, drawerLayout, UserDrawerHelper.Section.HOME);
         }
     }
 
@@ -455,28 +311,34 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupListeners() {
         // Menu hamburger (3 lignes) -> ouverture du tiroir
-        ivMainMenu.setOnClickListener(v -> {
-            if (drawerLayout != null) {
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                } else {
-                    drawerLayout.openDrawer(GravityCompat.START);
+        if (ivMainMenu != null) {
+            ivMainMenu.setOnClickListener(v -> {
+                if (drawerLayout != null) {
+                    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                    } else {
+                        drawerLayout.openDrawer(GravityCompat.START);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // Saisie vocale
-        ivMainMic.setOnClickListener(v -> startVoiceRecognition());
+        if (ivMainMic != null) ivMainMic.setOnClickListener(v -> startVoiceRecognition());
 
-        View fabMic = findViewById(R.id.fabFloatingMic);
+        View fabMic = getOptView("fabFloatingMic");
         if (fabMic != null) {
             fabMic.setOnClickListener(v -> startVoiceRecognition());
         }
 
-        // Clic sur la carte héros du budget -> édition ou création
-        View cardHero = findViewById(R.id.layoutBudgetHeroCard);
+        // Clic sur la carte héros du budget -> édition ou création (interdit de modifier le total pour Enfant)
+        View cardHero = getOptView("layoutBudgetHeroCard");
         if (cardHero != null) {
             cardHero.setOnClickListener(v -> {
+                if (sessionManager.isChild()) {
+                    Toast.makeText(MainActivity.this, "Votre budget total est attribué par votre parent. Utilisez le bouton 'Répartir mon budget' pour le répartir.", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 long userId = sessionManager.getUserId();
                 Budget b = budgetDao.getCurrentBudget(userId);
                 if (b != null) {
@@ -487,16 +349,21 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        // Bouton Répartir mon budget pour Enfant
+        if (btnChildAllocateBudget != null) {
+            btnChildAllocateBudget.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AllocateBudgetActivity.class)));
+        }
+
         // Notifications
         if (frameNotif != null) {
-            frameNotif.setOnClickListener(v -> showNotificationDialog());
+            frameNotif.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, NotificationsActivity.class)));
         }
 
         // Profil -> Paramètres
-        ivMainProfile.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
+        if (ivMainProfile != null) ivMainProfile.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
 
         // Lien Calendrier ›
-        View btnGoCal = findViewById(R.id.btnMainGoToCalendar);
+        View btnGoCal = getOptView("btnMainGoToCalendar");
         if (btnGoCal != null) {
             btnGoCal.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CalendarActivity.class)));
         }
@@ -527,14 +394,45 @@ public class MainActivity extends AppCompatActivity {
             btnAddExpenseBottom.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AddExpenseActivity.class)));
         }
 
-        // Actions rapides état actif
+        // Actions rapides état actif (contrôle strict budget préalable)
         if (btnAddPurchase != null) {
-            btnAddPurchase.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AddPurchaseActivity.class)));
+            btnAddPurchase.setOnClickListener(v -> {
+                long userId = sessionManager.getUserId();
+                Budget b = budgetDao.getCurrentBudget(userId);
+                if (b == null || b.getTotalAmount() <= 0) {
+                    Toast.makeText(MainActivity.this, "Veuillez d'abord créer et configurer votre budget pour la période.", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(MainActivity.this, CreateBudgetActivity.class));
+                    return;
+                }
+                startActivity(new Intent(MainActivity.this, AddPurchaseActivity.class));
+            });
         }
 
         if (btnAddExpense != null) {
-            btnAddExpense.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AddExpenseActivity.class)));
+            btnAddExpense.setOnClickListener(v -> {
+                long userId = sessionManager.getUserId();
+                Budget b = budgetDao.getCurrentBudget(userId);
+                if (b == null || b.getTotalAmount() <= 0) {
+                    Toast.makeText(MainActivity.this, "Veuillez d'abord créer et configurer votre budget pour la période.", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(MainActivity.this, CreateBudgetActivity.class));
+                    return;
+                }
+                Intent intent = new Intent(MainActivity.this, AddPurchaseActivity.class);
+                intent.putExtra("EXTRA_IS_SIMPLE_EXPENSE", true);
+                startActivity(intent);
+            });
         }
+    }
+
+    /**
+     * Listener implicite XML (Matrice §4 ligne 4 / Ch.4 méthode 2).
+     * Lié directement via l'attribut android:onClick="onQuickExpenseClicked" dans activity_main.xml et layout-land/activity_main.xml.
+     * Déclenché automatiquement par réflexion au clic sur le bouton d'ajout de dépense rapide.
+     *
+     * @param v Vue ayant déclenché le clic
+     */
+    public void onQuickExpenseClicked(View v) {
+        startActivity(new Intent(MainActivity.this, AddExpenseActivity.class));
     }
 
     /**
@@ -709,26 +607,33 @@ public class MainActivity extends AppCompatActivity {
         // Recherche du budget actif pour ce mois dans la table budgets
         Budget currentBudget = budgetDao.getCurrentBudget(userId);
 
+        // Mettre à jour le badge de la cloche de notification
+        NotificationDao notifDao = new NotificationDao(this);
+        int unreadNotifCount = notifDao.getUnreadCount(userId);
+        TextView tvNotifBadge = getOptView("tvMainNotifBadge");
+        if (tvNotifBadge == null) tvNotifBadge = getOptView("navNotifBadge");
+        if (tvNotifBadge != null) {
+            if (unreadNotifCount > 0) {
+                tvNotifBadge.setVisibility(View.VISIBLE);
+                tvNotifBadge.setText(String.valueOf(unreadNotifCount));
+            } else {
+                tvNotifBadge.setVisibility(View.GONE);
+            }
+        }
+
         // CAS 1 : Utilisateur avec profil PARENT (Espace Familial Unifié)
         if (sessionManager.isParent()) {
-            // Récupère le fonds global familial géré par ce parent
-            FamilyFunds funds = familyDao.getFamilyFundsByParent(userId);
-            // Vérifie si un budget global est configuré pour cette famille
-            if (funds != null && funds.getTotalFundsMillimes() > 0) {
+            if (currentBudget != null && currentBudget.getTotalAmount() > 0) {
                 // Masque l'état vide
                 layoutEmptyBudgetState.setVisibility(View.GONE);
                 // Affiche la carte active du budget
                 layoutActiveBudgetState.setVisibility(View.VISIBLE);
-                // Affiche la ventilation globale Parent / Enfants
                 if (layoutParentBudgetBreakdown != null) {
                     layoutParentBudgetBreakdown.setVisibility(View.VISIBLE);
                 }
 
-                // Convertit le budget global familial en Dinars
-                double totalGlobal = funds.getTotalFundsMillimes() / 1000.0;
-                // Convertit la part allouée aux enfants en Dinars
-                double allocatedChildren = funds.getAllocatedFundsMillimes() / 1000.0;
-                // Calcule les dépenses personnelles du parent en Dinars
+                double totalGlobal = currentBudget.getTotalAmount();
+                double allocatedChildren = familyDao.getChildTotalAllowancesMillimes(0, null) / 1000.0;
                 double parentSpent = transactionDao.getTotalExpenses(userId);
 
                 // Montant restant du budget familial = Budget familial - Dépenses parent - Allocations enfants
@@ -826,19 +731,32 @@ public class MainActivity extends AppCompatActivity {
                 tvMainPeriodSubtitle.setText("ARGENT DE POCHE · ALLOUÉ PAR LE PARENT");
                 tvMainDateRangeLabel.setText("Mois en cours");
 
+                if (btnChildAllocateBudget != null) {
+                    btnChildAllocateBudget.setVisibility(View.VISIBLE);
+                }
+
                 updateStatusBanner(percentage, available);
 
-                if (currentBudget != null) {
-                    populateCategoriesDynamically(currentBudget.getId());
-                } else {
-                    layoutCategoriesContainer.removeAllViews();
+                // Assure la présence d'un objet Budget pour le child
+                if (currentBudget == null) {
+                    currentBudget = new Budget(userId, totalBudget, "2026-11-01", "2026-11-30");
+                    long bId = budgetDao.saveBudget(currentBudget);
+                    currentBudget.setId(bId);
+                } else if (Math.abs(currentBudget.getTotalAmount() - totalBudget) > 0.001) {
+                    currentBudget.setTotalAmount(totalBudget);
+                    budgetDao.updateBudget(currentBudget);
                 }
+
+                populateCategoriesDynamically(currentBudget.getId());
             } else {
                 layoutEmptyBudgetState.setVisibility(View.VISIBLE);
                 layoutActiveBudgetState.setVisibility(View.GONE);
                 tvMainPeriodSubtitle.setText("AUCUN BUDGET ALLOUÉ PAR LE PARENT");
+                if (btnChildAllocateBudget != null) {
+                    btnChildAllocateBudget.setVisibility(View.GONE);
+                }
                 if (btnCreateBudgetEmpty != null) {
-                    btnCreateBudgetEmpty.setText("Budget alloué par le parent");
+                    btnCreateBudgetEmpty.setText("Budget en attente du Parent");
                     btnCreateBudgetEmpty.setEnabled(false);
                 }
             }

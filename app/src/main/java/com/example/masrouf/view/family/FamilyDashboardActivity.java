@@ -3,18 +3,19 @@ package com.example.masrouf.view.family;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,78 +23,100 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
 import com.example.masrouf.controller.SessionManager;
+import com.example.masrouf.dao.BudgetDao;
+import com.example.masrouf.dao.CategoryDao;
+import com.example.masrouf.dao.ExpenseDao;
 import com.example.masrouf.dao.FamilyDao;
+import com.example.masrouf.dao.TransactionDao;
 import com.example.masrouf.dao.UserDao;
-import com.example.masrouf.model.FamilyFunds;
-import com.example.masrouf.model.MoneyRequest;
+import com.example.masrouf.model.Budget;
+import com.example.masrouf.model.BudgetAllocation;
+import com.example.masrouf.model.Category;
 import com.example.masrouf.model.Transaction;
 import com.example.masrouf.model.User;
 import com.example.masrouf.util.LocaleHelper;
 import com.example.masrouf.util.MillimesUtil;
-import com.example.masrouf.view.LoginActivity;
+import com.example.masrouf.view.AddExpenseActivity;
+import com.example.masrouf.view.AddPurchaseActivity;
+import com.example.masrouf.view.CreateBudgetActivity;
+import com.example.masrouf.view.CustomCategoryModal;
+import com.example.masrouf.view.NotificationsActivity;
+import com.example.masrouf.ProductsActivity;
+import com.example.masrouf.view.VoiceInputDialog;
+import com.example.masrouf.view.admin.AdminDrawerHelper;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * RÔLE : Tableau de bord familial pour le profil Parent.
- * COUCHE MVC : Vue (View).
+ * Tableau de bord principal Parent - Espace Familial.
+ * 
  * Fonctionnalités :
- * - Aperçu des fonds globaux, disponibles et alloués de la famille.
- * - Suivi des soldes et dépenses des enfants.
- * - Traitement en 1 clic (Approuver / Refuser) des demandes d'argent.
- * - Transfert d'argent atomique aux enfants.
- * - Tiroir de navigation dédié et bascule d'espace vers l'Espace personnel.
+ * - Header avec bouton Hamburger 40x40, greeting personnalisé et cloche de notification.
+ * - AdminDrawer latéral complet (7 rubriques, profil, 3 langues, déconnexion).
+ * - Carte "Budget du Mois" avec statut réactif selon l'existence d'un budget.
+ * - Si budget === 0 : Carte d'incitation, bouton "+ Ajouter une catégorie", pas d'alertes 80/100%.
+ * - Si budget > 0 : Reste à vivre, jauge de progression, bannière de santé (Sain, 80%, Dépassé).
+ * - Cartes des envelopes par catégorie avec pastille DÉPASSÉ DE X DT.
+ * - Section "Mes Enfants" avec bouton "Donner" (allocation depuis l'enveloppe Enfant).
+ * - Actions rapides et bouton micro flottant centré pour saisie vocale bilingue.
  */
-public class FamilyDashboardActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class FamilyDashboardActivity extends BaseActivity {
 
     private DrawerLayout drawerLayoutFamily;
     private ImageView ivFamilyMenu;
-    private TextView tvFamilyTitle;
+    private TextView tvFamilyGreeting;
     private TextView tvFamilyNameSub;
-    private TextView btnSwitchToPersonal;
     private FrameLayout frameNotifFamily;
-    private ImageView ivFamilyProfile;
 
-    private TextView tvAvailableFunds;
-    private TextView tvAllocatedFunds;
-    private TextView tvTotalFunds;
-    private Button btnQuickGiveMoney;
+    private LinearLayout cardBudgetMonth;
+    private TextView tvBudgetPeriod;
+    private TextView tvBudgetRemaining;
+    private TextView tvBudgetSpentLabel;
+    private TextView tvBudgetTotalLabel;
+    private ProgressBar pbBudgetProgress;
 
+    private LinearLayout layoutAddCategoryRow;
+    private Button btnAddCustomCategoryPill;
+    private LinearLayout cardNoBudgetDefined;
+    private Button btnDefineMonthBudget;
+
+    private LinearLayout layoutHealthBanner;
+    private ImageView ivHealthIcon;
+    private TextView tvHealthTitle;
+    private TextView tvHealthSub;
+
+    private LinearLayout btnQuickAddChild;
+    private LinearLayout btnQuickBudgetsAnalytics;
+    private LinearLayout btnQuickProducts;
+    private LinearLayout btnQuickNotifications;
+
+    private TextView btnAddChildHeaderLink;
     private LinearLayout layoutChildrenContainer;
-    private TextView btnAddChildLink;
+    private LinearLayout layoutCategoryEnvelopes;
 
-    private LinearLayout layoutRequestsContainer;
-    private TextView btnViewAllRequests;
+    private Button btnDashboardAddPurchase;
+    private Button btnDashboardAddExpense;
+    private LinearLayout layoutRecentParentTransactions;
 
-    private LinearLayout layoutChildExpensesContainer;
-
-    // Drawer views
-    private TextView tvDrawerParentName;
-    private LinearLayout btnDrawerSwitchPersonal;
-    private LinearLayout btnNavFamilyDashboard;
-    private LinearLayout btnNavFamilyChildren;
-    private LinearLayout btnNavFamilyFinances;
-    private LinearLayout btnNavFamilyRequests;
-    private LinearLayout btnNavFamilyAnalytics;
-    private LinearLayout btnNavFamilyHistory;
-    private LinearLayout btnNavFamilyPrivacy;
-    private TextView btnDrawerFamilyLangAr;
-    private TextView btnDrawerFamilyLangFr;
-    private TextView btnDrawerFamilyLangEn;
-    private LinearLayout btnDrawerFamilyLogout;
+    private ImageView fabDashboardMic;
 
     private FamilyDao familyDao;
     private UserDao userDao;
+    private BudgetDao budgetDao;
+    private CategoryDao categoryDao;
+    private TransactionDao transactionDao;
+    private ExpenseDao expenseDao;
     private SessionManager sessionManager;
 
-    private long currentFamilyId = 1;
     private long currentParentId = 1;
-    private List<User> familyChildren = new ArrayList<>();
+    private long currentFamilyId = 1;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -113,15 +136,18 @@ public class FamilyDashboardActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_family_dashboard);
 
-        sessionManager = new SessionManager(this);
         familyDao = new FamilyDao(this);
         userDao = new UserDao(this);
+        budgetDao = new BudgetDao(this);
+        categoryDao = new CategoryDao(this);
+        transactionDao = new TransactionDao(this);
+        expenseDao = new ExpenseDao(this);
 
         currentParentId = sessionManager.getUserId();
         currentFamilyId = sessionManager.getFamilyId();
 
         initViews();
-        setupNavigationDrawer();
+        setupAdminDrawer();
         setupListeners();
     }
 
@@ -134,558 +160,479 @@ public class FamilyDashboardActivity extends AppCompatActivity {
     private void initViews() {
         drawerLayoutFamily = findViewById(R.id.drawerLayoutFamily);
         ivFamilyMenu = findViewById(R.id.ivFamilyMenu);
-        tvFamilyTitle = findViewById(R.id.tvFamilyTitle);
+        tvFamilyGreeting = findViewById(R.id.tvFamilyGreeting);
         tvFamilyNameSub = findViewById(R.id.tvFamilyNameSub);
-        btnSwitchToPersonal = findViewById(R.id.btnSwitchToPersonal);
         frameNotifFamily = findViewById(R.id.frameNotifFamily);
-        ivFamilyProfile = findViewById(R.id.ivFamilyProfile);
 
-        tvAvailableFunds = findViewById(R.id.tvAvailableFunds);
-        tvAllocatedFunds = findViewById(R.id.tvAllocatedFunds);
-        tvTotalFunds = findViewById(R.id.tvTotalFunds);
-        btnQuickGiveMoney = findViewById(R.id.btnQuickGiveMoney);
+        cardBudgetMonth = findViewById(R.id.cardBudgetMonth);
+        tvBudgetPeriod = findViewById(R.id.tvBudgetPeriod);
+        tvBudgetRemaining = findViewById(R.id.tvBudgetRemaining);
+        tvBudgetSpentLabel = findViewById(R.id.tvBudgetSpentLabel);
+        tvBudgetTotalLabel = findViewById(R.id.tvBudgetTotalLabel);
+        pbBudgetProgress = findViewById(R.id.pbBudgetProgress);
 
+        layoutAddCategoryRow = findViewById(R.id.layoutAddCategoryRow);
+        btnAddCustomCategoryPill = findViewById(R.id.btnAddCustomCategoryPill);
+        cardNoBudgetDefined = findViewById(R.id.cardNoBudgetDefined);
+        btnDefineMonthBudget = findViewById(R.id.btnDefineMonthBudget);
+
+        layoutHealthBanner = findViewById(R.id.layoutHealthBanner);
+        ivHealthIcon = findViewById(R.id.ivHealthIcon);
+        tvHealthTitle = findViewById(R.id.tvHealthTitle);
+        tvHealthSub = findViewById(R.id.tvHealthSub);
+
+        btnQuickAddChild = findViewById(R.id.btnQuickAddChild);
+        btnQuickBudgetsAnalytics = findViewById(R.id.btnQuickBudgetsAnalytics);
+        btnQuickProducts = findViewById(R.id.btnQuickProducts);
+        btnQuickNotifications = findViewById(R.id.btnQuickNotifications);
+
+        btnAddChildHeaderLink = findViewById(R.id.btnAddChildHeaderLink);
         layoutChildrenContainer = findViewById(R.id.layoutChildrenContainer);
-        btnAddChildLink = findViewById(R.id.btnAddChildLink);
+        layoutCategoryEnvelopes = findViewById(R.id.layoutCategoryEnvelopes);
 
-        layoutRequestsContainer = findViewById(R.id.layoutRequestsContainer);
-        btnViewAllRequests = findViewById(R.id.btnViewAllRequests);
+        btnDashboardAddPurchase = findViewById(R.id.btnDashboardAddPurchase);
+        btnDashboardAddExpense = findViewById(R.id.btnDashboardAddExpense);
+        layoutRecentParentTransactions = findViewById(R.id.layoutRecentParentTransactions);
 
-        layoutChildExpensesContainer = findViewById(R.id.layoutChildExpensesContainer);
+        fabDashboardMic = findViewById(R.id.fabDashboardMic);
+    }
 
-        // Drawer
-        tvDrawerParentName = findViewById(R.id.tvDrawerParentName);
-        btnDrawerSwitchPersonal = findViewById(R.id.btnDrawerSwitchPersonal);
-        btnNavFamilyDashboard = findViewById(R.id.btnNavFamilyDashboard);
-        btnNavFamilyChildren = findViewById(R.id.btnNavFamilyChildren);
-        btnNavFamilyFinances = findViewById(R.id.btnNavFamilyFinances);
-        btnNavFamilyRequests = findViewById(R.id.btnNavFamilyRequests);
-        btnNavFamilyAnalytics = findViewById(R.id.btnNavFamilyAnalytics);
-        btnNavFamilyHistory = findViewById(R.id.btnNavFamilyHistory);
-        btnNavFamilyPrivacy = findViewById(R.id.btnNavFamilyPrivacy);
-        btnDrawerFamilyLangAr = findViewById(R.id.btnDrawerFamilyLangAr);
-        btnDrawerFamilyLangFr = findViewById(R.id.btnDrawerFamilyLangFr);
-        btnDrawerFamilyLangEn = findViewById(R.id.btnDrawerFamilyLangEn);
-        btnDrawerFamilyLogout = findViewById(R.id.btnDrawerFamilyLogout);
-
-        if (sessionManager.getUserName() != null && !sessionManager.getUserName().isEmpty()) {
-            tvDrawerParentName.setText(sessionManager.getUserName());
+    private void setupAdminDrawer() {
+        if (drawerLayoutFamily != null) {
+            AdminDrawerHelper.setupDrawer(this, drawerLayoutFamily, AdminDrawerHelper.Section.HOME);
         }
-    }
-
-    private void setupNavigationDrawer() {
-        // Menu burger -> ouvre le tiroir
-        ivFamilyMenu.setOnClickListener(v -> {
-            if (drawerLayoutFamily.isDrawerOpen(GravityCompat.START)) {
-                drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            } else {
-                drawerLayoutFamily.openDrawer(GravityCompat.START);
-            }
-        });
-
-        // Bascule vers l'espace personnel
-        View.OnClickListener switchSpaceListener = v -> {
-            drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            sessionManager.setActiveSpace(SessionManager.SPACE_PERSONAL);
-            startActivity(new Intent(FamilyDashboardActivity.this, MainActivity.class));
-            finish();
-        };
-
-        btnSwitchToPersonal.setOnClickListener(switchSpaceListener);
-        btnDrawerSwitchPersonal.setOnClickListener(switchSpaceListener);
-
-        // Liens du tiroir
-        btnNavFamilyDashboard.setOnClickListener(v -> drawerLayoutFamily.closeDrawer(GravityCompat.START));
-
-        btnNavFamilyChildren.setOnClickListener(v -> {
-            drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(FamilyDashboardActivity.this, FamilyChildrenActivity.class));
-        });
-
-        btnNavFamilyFinances.setOnClickListener(v -> {
-            drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(FamilyDashboardActivity.this, FamilyFinancesActivity.class));
-        });
-
-        btnNavFamilyRequests.setOnClickListener(v -> {
-            drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(FamilyDashboardActivity.this, FamilyRequestsActivity.class));
-        });
-
-        btnNavFamilyAnalytics.setOnClickListener(v -> {
-            drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(FamilyDashboardActivity.this, FamilyAnalyticsActivity.class));
-        });
-
-        btnNavFamilyHistory.setOnClickListener(v -> {
-            drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(FamilyDashboardActivity.this, FamilyHistoryActivity.class));
-        });
-
-        btnNavFamilyPrivacy.setOnClickListener(v -> {
-            drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(FamilyDashboardActivity.this, FamilyPrivacyActivity.class));
-        });
-
-        // Déconnexion
-        btnDrawerFamilyLogout.setOnClickListener(v -> {
-            drawerLayoutFamily.closeDrawer(GravityCompat.START);
-            sessionManager.clearSession();
-            Intent intent = new Intent(FamilyDashboardActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
-
-        // Sélecteur de langue
-        updateDrawerLanguage(sessionManager.getLanguage());
-        if (btnDrawerFamilyLangAr != null)
-            btnDrawerFamilyLangAr.setOnClickListener(v -> changeAppLanguage("ar"));
-        if (btnDrawerFamilyLangFr != null)
-            btnDrawerFamilyLangFr.setOnClickListener(v -> changeAppLanguage("fr"));
-        if (btnDrawerFamilyLangEn != null)
-            btnDrawerFamilyLangEn.setOnClickListener(v -> changeAppLanguage("en"));
-    }
-
-    private void updateDrawerLanguage(String lang) {
-        if (btnDrawerFamilyLangAr == null)
-            return;
-        btnDrawerFamilyLangAr.setBackground(null);
-        btnDrawerFamilyLangFr.setBackground(null);
-        btnDrawerFamilyLangEn.setBackground(null);
-        btnDrawerFamilyLangAr.setTextColor(Color.parseColor("#A0C8BC"));
-        btnDrawerFamilyLangFr.setTextColor(Color.parseColor("#A0C8BC"));
-        btnDrawerFamilyLangEn.setTextColor(Color.parseColor("#A0C8BC"));
-
-        if ("ar".equalsIgnoreCase(lang)) {
-            btnDrawerFamilyLangAr.setBackgroundResource(R.drawable.bg_pill_active);
-            btnDrawerFamilyLangAr.setTextColor(Color.WHITE);
-        } else if ("en".equalsIgnoreCase(lang)) {
-            btnDrawerFamilyLangEn.setBackgroundResource(R.drawable.bg_pill_active);
-            btnDrawerFamilyLangEn.setTextColor(Color.WHITE);
-        } else {
-            btnDrawerFamilyLangFr.setBackgroundResource(R.drawable.bg_pill_active);
-            btnDrawerFamilyLangFr.setTextColor(Color.WHITE);
+        if (ivFamilyMenu != null) {
+            ivFamilyMenu.setOnClickListener(v -> drawerLayoutFamily.openDrawer(GravityCompat.START));
         }
-    }
-
-    private void changeAppLanguage(String code) {
-        sessionManager.saveLanguage(code);
-        LocaleHelper.setLocale(this, code);
-        recreate();
     }
 
     private void setupListeners() {
-        btnQuickGiveMoney.setOnClickListener(v -> showGiveMoneyDialog(null));
+        if (frameNotifFamily != null) {
+            frameNotifFamily.setOnClickListener(v -> startActivity(new Intent(this, NotificationsActivity.class)));
+        }
 
-        btnAddChildLink.setOnClickListener(v -> {
-            startActivity(new Intent(FamilyDashboardActivity.this, FamilyChildrenActivity.class));
-        });
+        if (cardBudgetMonth != null) {
+            cardBudgetMonth.setOnClickListener(v -> startActivity(new Intent(this, CreateBudgetActivity.class)));
+        }
 
-        btnViewAllRequests.setOnClickListener(v -> {
-            startActivity(new Intent(FamilyDashboardActivity.this, FamilyRequestsActivity.class));
-        });
+        if (btnDefineMonthBudget != null) {
+            btnDefineMonthBudget.setOnClickListener(v -> startActivity(new Intent(this, CreateBudgetActivity.class)));
+        }
+
+        if (btnAddCustomCategoryPill != null) {
+            btnAddCustomCategoryPill.setOnClickListener(v -> CustomCategoryModal.show(this, this::loadDashboardData));
+        }
+
+        if (btnQuickAddChild != null) {
+            btnQuickAddChild.setOnClickListener(v -> startActivity(new Intent(this, FamilyChildrenActivity.class)));
+        }
+
+        if (btnQuickBudgetsAnalytics != null) {
+            btnQuickBudgetsAnalytics.setOnClickListener(v -> startActivity(new Intent(this, FamilyAnalyticsActivity.class)));
+        }
+
+        if (btnQuickProducts != null) {
+            btnQuickProducts.setOnClickListener(v -> startActivity(new Intent(this, ProductsActivity.class)));
+        }
+
+        if (btnQuickNotifications != null) {
+            btnQuickNotifications.setOnClickListener(v -> startActivity(new Intent(this, NotificationsActivity.class)));
+        }
+
+        if (btnAddChildHeaderLink != null) {
+            btnAddChildHeaderLink.setOnClickListener(v -> startActivity(new Intent(this, FamilyChildrenActivity.class)));
+        }
+
+        if (btnDashboardAddPurchase != null) {
+            btnDashboardAddPurchase.setOnClickListener(v -> startActivity(new Intent(this, AddPurchaseActivity.class)));
+        }
+
+        if (btnDashboardAddExpense != null) {
+            btnDashboardAddExpense.setOnClickListener(v -> startActivity(new Intent(this, AddExpenseActivity.class)));
+        }
+
+        if (fabDashboardMic != null) {
+            fabDashboardMic.setOnClickListener(v -> {
+                Toast.makeText(this, "Parlez pour enregistrer une opération...", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void loadDashboardData() {
-        // 1. Fonds
-        FamilyFunds funds = familyDao.getFamilyFunds(currentFamilyId);
-        if (funds == null) {
-            funds = familyDao.getFamilyFundsByParent(currentParentId);
-        }
-        if (funds != null) {
-            tvFamilyNameSub.setText(funds.getFamilyName());
-            tvAvailableFunds.setText(MillimesUtil.formatMillimes(funds.getAvailableFundsMillimes()));
-            tvAllocatedFunds.setText(MillimesUtil.formatMillimes(funds.getAllocatedFundsMillimes()));
-            tvTotalFunds.setText(MillimesUtil.formatMillimes(funds.getTotalFundsMillimes()));
+        // En-tête
+        String name = sessionManager.getUserName();
+        tvFamilyGreeting.setText("Bonjour, " + (name != null && !name.isEmpty() ? name : "Parent") + " 👋");
+        tvFamilyNameSub.setText(sessionManager.getFamilyName());
+
+        String currentMonthKey = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
+        Budget currentBudget = budgetDao.getBudgetForMonth(currentParentId, currentMonthKey);
+
+        double totalBudgetAmount = currentBudget != null ? currentBudget.getTotalAmount() : 0.0;
+        long totalBudgetMillimes = currentBudget != null ? currentBudget.getTotalAmountMillimes() : 0;
+
+        // Calcul des dépense totales réelles du Parent + allocations enfants
+        long parentSpentMillimes = MillimesUtil.dtToMillimes(transactionDao.getTotalExpensesForMonth(currentParentId, currentMonthKey)) +
+                expenseDao.getTotalExpensesForMonthMillimes(currentParentId, currentMonthKey);
+
+        long totalRemainingMillimes = Math.max(0, totalBudgetMillimes - parentSpentMillimes);
+        double totalSpentDt = parentSpentMillimes / 1000.0;
+        double remainingDt = totalRemainingMillimes / 1000.0;
+
+        double usedPercent = totalBudgetAmount > 0 ? (totalSpentDt / totalBudgetAmount) * 100.0 : 0.0;
+
+        // Date de la période
+        if (currentBudget != null) {
+            tvBudgetPeriod.setText(currentBudget.getStartDate() + " – " + currentBudget.getEndDate());
+        } else {
+            tvBudgetPeriod.setText("Ce mois-ci");
         }
 
-        // 2. Enfants
-        familyChildren = userDao.getChildrenByFamily(currentFamilyId);
-        if (familyChildren.isEmpty()) {
-            familyChildren = userDao.getChildrenByParent(currentParentId);
+        tvBudgetRemaining.setText(String.format(Locale.US, "%.3f DT", remainingDt));
+        tvBudgetSpentLabel.setText(String.format(Locale.US, "Dépensé : %.3f DT", totalSpentDt));
+        tvBudgetTotalLabel.setText(String.format(Locale.US, "Total : %.3f DT (%.0f%%)", totalBudgetAmount, usedPercent));
+
+        pbBudgetProgress.setMax(100);
+        pbBudgetProgress.setProgress((int) Math.min(100, usedPercent));
+
+        // Comportement conditionnel du Dashboard selon totalBudgetAmount
+        if (totalBudgetAmount <= 0) {
+            // AUCUN BUDGET DEFINI (totalBudgetAmount === 0)
+            layoutAddCategoryRow.setVisibility(View.VISIBLE);
+            cardNoBudgetDefined.setVisibility(View.VISIBLE);
+            layoutHealthBanner.setVisibility(View.GONE);
+        } else {
+            // BUDGET DÉFINI (totalBudgetAmount > 0)
+            layoutAddCategoryRow.setVisibility(View.GONE);
+            cardNoBudgetDefined.setVisibility(View.GONE);
+            layoutHealthBanner.setVisibility(View.VISIBLE);
+
+            // Bannière de santé budgétaire
+            if (usedPercent >= 100.0) {
+                double excessDt = totalSpentDt - totalBudgetAmount;
+                tvHealthTitle.setText("Budget mensuel dépassé !");
+                tvHealthTitle.setTextColor(Color.parseColor("#DC7770"));
+                tvHealthSub.setText(String.format(Locale.US, "Vous avez dépassé votre enveloppe globale de %.3f DT.", excessDt));
+                ivHealthIcon.setImageResource(R.drawable.ic_bell);
+                ivHealthIcon.setColorFilter(Color.parseColor("#DC7770"));
+            } else if (usedPercent >= 80.0) {
+                tvHealthTitle.setText("Attention : 80% du budget consommé");
+                tvHealthTitle.setTextColor(Color.parseColor("#E9B66B"));
+                tvHealthSub.setText(String.format(Locale.US, "Il vous reste %.3f DT pour le reste de la période.", remainingDt));
+                ivHealthIcon.setImageResource(R.drawable.ic_bell);
+                ivHealthIcon.setColorFilter(Color.parseColor("#E9B66B"));
+            } else {
+                tvHealthTitle.setText("Votre budget se porte bien");
+                tvHealthTitle.setTextColor(Color.parseColor("#112B28"));
+                tvHealthSub.setText(String.format(Locale.US, "%.3f DT disponibles pour le reste de la période.", remainingDt));
+                ivHealthIcon.setImageResource(R.drawable.ic_check_circle);
+                ivHealthIcon.setColorFilter(Color.parseColor("#2E7D43"));
+            }
         }
-        renderChildrenCards();
 
-        // 3. Demandes d'argent récentes
-        renderPendingRequests();
+        // Section Mes Enfants
+        loadChildrenSection(currentMonthKey);
 
-        // 4. Dernières dépenses enfants
-        renderChildExpenses();
+        // Section Enveloppes par Catégorie
+        loadCategoryEnvelopesSection(currentBudget);
+
+        // Dernières opérations Parent
+        loadRecentTransactions();
     }
 
-    private void renderChildrenCards() {
+    private void loadChildrenSection(String monthKey) {
         layoutChildrenContainer.removeAllViews();
-        if (familyChildren == null || familyChildren.isEmpty()) {
-            TextView tvEmpty = new TextView(this);
-            tvEmpty.setText("Aucun compte enfant configuré.");
-            tvEmpty.setTextColor(Color.parseColor("#6B7C74"));
-            tvEmpty.setPadding(0, 16, 0, 16);
-            layoutChildrenContainer.addView(tvEmpty);
+        List<User> children = userDao.getChildrenByParent(currentParentId);
+
+        if (children.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText("Aucun enfant enregistré dans le foyer.");
+            empty.setTextColor(Color.parseColor("#61746D"));
+            empty.setTextSize(13);
+            empty.setPadding(0, 8, 0, 8);
+            layoutChildrenContainer.addView(empty);
             return;
         }
 
-        for (User child : familyChildren) {
-            LinearLayout card = new LinearLayout(this);
-            card.setOrientation(LinearLayout.VERTICAL);
-            card.setBackgroundResource(R.drawable.bg_input_card);
-            card.setPadding(36, 32, 36, 32);
+        for (User child : children) {
+            LinearLayout childCard = new LinearLayout(this);
+            childCard.setOrientation(LinearLayout.VERTICAL);
+            childCard.setBackgroundResource(R.drawable.bg_input_card);
+            childCard.setPadding(28, 20, 28, 20);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = 24;
-            card.setLayoutParams(lp);
-
-            // Rangée 1 : Avatar, Nom, Solde
-            LinearLayout row1 = new LinearLayout(this);
-            row1.setOrientation(LinearLayout.HORIZONTAL);
-            row1.setGravity(android.view.Gravity.CENTER_VERTICAL);
-
-            ImageView ivAvatar = new ImageView(this);
-            ivAvatar.setLayoutParams(new LinearLayout.LayoutParams(80, 80));
-            ivAvatar.setBackgroundResource(R.drawable.bg_circle_mint);
-            ivAvatar.setImageResource(R.drawable.ic_profile);
-            ivAvatar.setPadding(16, 16, 16, 16);
-            ivAvatar.setColorFilter(Color.parseColor("#102B27"));
-            row1.addView(ivAvatar);
-
-            LinearLayout infoLayout = new LinearLayout(this);
-            infoLayout.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams infoLp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1.0f);
-            infoLp.setMargins(24, 0, 0, 0);
-            infoLayout.setLayoutParams(infoLp);
-
-            TextView tvName = new TextView(this);
-            tvName.setText(child.getFullName());
-            tvName.setTextSize(16);
-            tvName.setTextColor(Color.parseColor("#102B27"));
-            tvName.setTypeface(null, Typeface.BOLD);
-            infoLayout.addView(tvName);
-
-            TextView tvRole = new TextView(this);
-            tvRole.setText("Compte Enfant · " + child.getEmail());
-            tvRole.setTextSize(12);
-            tvRole.setTextColor(Color.parseColor("#6B7C74"));
-            infoLayout.addView(tvRole);
-
-            row1.addView(infoLayout);
-
-            // Solde
-            LinearLayout balanceLayout = new LinearLayout(this);
-            balanceLayout.setOrientation(LinearLayout.VERTICAL);
-            balanceLayout.setGravity(android.view.Gravity.END);
-
-            TextView tvBalLabel = new TextView(this);
-            tvBalLabel.setText("Solde actuel");
-            tvBalLabel.setTextSize(11);
-            tvBalLabel.setTextColor(Color.parseColor("#6B7C74"));
-            balanceLayout.addView(tvBalLabel);
-
-            TextView tvBalValue = new TextView(this);
-            tvBalValue.setText(MillimesUtil.formatMillimes(child.getBalanceMillimes()));
-            tvBalValue.setTextSize(16);
-            tvBalValue.setTextColor(Color.parseColor("#102B27"));
-            tvBalValue.setTypeface(null, Typeface.BOLD);
-            balanceLayout.addView(tvBalValue);
-
-            row1.addView(balanceLayout);
-            card.addView(row1);
-
-            // Boutons d'action : Donner de l'argent & Voir profil
-            LinearLayout btnRow = new LinearLayout(this);
-            btnRow.setOrientation(LinearLayout.HORIZONTAL);
-            btnRow.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT));
-            btnRow.setPadding(0, 20, 0, 0);
-
-            Button btnGive = new Button(this);
-            btnGive.setText("＋ Allouer");
-            btnGive.setTextSize(13);
-            btnGive.setBackgroundResource(R.drawable.bg_btn_secondary);
-            btnGive.setTextColor(Color.parseColor("#102B27"));
-            LinearLayout.LayoutParams btnGiveLp = new LinearLayout.LayoutParams(0, 84, 1.0f);
-            btnGiveLp.setMargins(0, 0, 12, 0);
-            btnGive.setLayoutParams(btnGiveLp);
-            btnGive.setOnClickListener(v -> showGiveMoneyDialog(child));
-            btnRow.addView(btnGive);
-
-            Button btnProfile = new Button(this);
-            btnProfile.setText("Profil & Limites");
-            btnProfile.setTextSize(13);
-            btnProfile.setBackgroundResource(R.drawable.bg_input_card);
-            btnProfile.setTextColor(Color.parseColor("#102B27"));
-            LinearLayout.LayoutParams btnProfLp = new LinearLayout.LayoutParams(0, 84, 1.0f);
-            btnProfile.setLayoutParams(btnProfLp);
-            btnProfile.setOnClickListener(v -> {
-                Intent intent = new Intent(FamilyDashboardActivity.this, ChildProfileActivity.class);
-                intent.putExtra("child_id", child.getId());
-                intent.putExtra("child_name", child.getFullName());
-                startActivity(intent);
-            });
-            btnRow.addView(btnProfile);
-
-            card.addView(btnRow);
-            layoutChildrenContainer.addView(card);
-        }
-    }
-
-    private void renderPendingRequests() {
-        layoutRequestsContainer.removeAllViews();
-        List<MoneyRequest> pending = familyDao.getPendingMoneyRequests(currentFamilyId);
-        if (pending == null || pending.isEmpty()) {
-            TextView tvEmpty = new TextView(this);
-            tvEmpty.setText("Aucune demande en attente.");
-            tvEmpty.setTextColor(Color.parseColor("#6B7C74"));
-            tvEmpty.setPadding(0, 16, 0, 16);
-            layoutRequestsContainer.addView(tvEmpty);
-            return;
-        }
-
-        for (MoneyRequest req : pending) {
-            LinearLayout card = new LinearLayout(this);
-            card.setOrientation(LinearLayout.VERTICAL);
-            card.setBackgroundResource(R.drawable.bg_input_card);
-            card.setPadding(36, 28, 36, 28);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = 20;
-            card.setLayoutParams(lp);
+            lp.bottomMargin = 12;
+            childCard.setLayoutParams(lp);
 
             LinearLayout topRow = new LinearLayout(this);
             topRow.setOrientation(LinearLayout.HORIZONTAL);
-            topRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            topRow.setGravity(Gravity.CENTER_VERTICAL);
+
+            ImageView ivAvatar = new ImageView(this);
+            ivAvatar.setLayoutParams(new LinearLayout.LayoutParams(64, 64));
+            ivAvatar.setBackgroundResource(R.drawable.bg_circle_mint);
+            ivAvatar.setImageResource(R.drawable.ic_profile);
+            ivAvatar.setPadding(12, 12, 12, 12);
+            ivAvatar.setColorFilter(Color.parseColor("#112B28"));
+            topRow.addView(ivAvatar);
+
+            LinearLayout info = new LinearLayout(this);
+            info.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams infoLp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+            infoLp.setMargins(16, 0, 0, 0);
+            info.setLayoutParams(infoLp);
 
             TextView tvName = new TextView(this);
-            tvName.setText(req.getChildName());
+            tvName.setText(child.getFullName());
             tvName.setTextSize(15);
-            tvName.setTextColor(Color.parseColor("#102B27"));
+            tvName.setTextColor(Color.parseColor("#112B28"));
             tvName.setTypeface(null, Typeface.BOLD);
-            LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1.0f);
-            tvName.setLayoutParams(nameLp);
-            topRow.addView(tvName);
+            info.addView(tvName);
 
-            TextView tvAmount = new TextView(this);
-            tvAmount.setText(MillimesUtil.formatMillimes(req.getAmountMillimes()));
-            tvAmount.setTextSize(16);
-            tvAmount.setTextColor(Color.parseColor("#102B27"));
-            tvAmount.setTypeface(null, Typeface.BOLD);
-            topRow.addView(tvAmount);
+            long childAllocated = familyDao.getChildTotalAllowancesMillimes(child.getId(), monthKey);
+            long childSpent = familyDao.getChildMonthlySpendingMillimes(child.getId(), monthKey);
+            long childRemaining = child.getBalanceMillimes();
 
-            card.addView(topRow);
+            TextView tvSub = new TextView(this);
+            tvSub.setText("Alloué: " + MillimesUtil.formatMillimes(childAllocated) + " · Dispo: " + MillimesUtil.formatMillimes(childRemaining));
+            tvSub.setTextSize(11);
+            tvSub.setTextColor(Color.parseColor("#61746D"));
+            info.addView(tvSub);
 
-            TextView tvReason = new TextView(this);
-            tvReason.setText("Motif : " + req.getReason());
-            tvReason.setTextSize(13);
-            tvReason.setTextColor(Color.parseColor("#6B7C74"));
-            tvReason.setPadding(0, 8, 0, 16);
-            card.addView(tvReason);
+            topRow.addView(info);
 
-            // Boutons Approuver et Refuser
-            LinearLayout btnRow = new LinearLayout(this);
-            btnRow.setOrientation(LinearLayout.HORIZONTAL);
+            // Bouton "Donner" avec icône cadeau
+            Button btnGive = new Button(this);
+            btnGive.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 72));
+            btnGive.setBackgroundResource(R.drawable.bg_btn_primary);
+            btnGive.setText("🎁 Donner");
+            btnGive.setTextColor(Color.WHITE);
+            btnGive.setTextSize(11);
+            btnGive.setTypeface(null, Typeface.BOLD);
+            btnGive.setPadding(16, 0, 16, 0);
+            btnGive.setOnClickListener(v -> showGiveMoneyDialog(child));
+            topRow.addView(btnGive);
 
-            Button btnApprove = new Button(this);
-            btnApprove.setText("✓ Approuver");
-            btnApprove.setTextSize(12);
-            btnApprove.setBackgroundResource(R.drawable.bg_btn_primary);
-            btnApprove.setTextColor(Color.WHITE);
-            LinearLayout.LayoutParams bAppLp = new LinearLayout.LayoutParams(0, 76, 1.0f);
-            bAppLp.setMargins(0, 0, 12, 0);
-            btnApprove.setLayoutParams(bAppLp);
-            btnApprove.setOnClickListener(v -> {
-                boolean ok = familyDao.approveMoneyRequest(req.getId(), "Validé par le parent");
-                if (ok) {
-                    Toast.makeText(FamilyDashboardActivity.this, "Demande approuvée avec succès !", Toast.LENGTH_SHORT)
-                            .show();
-                    loadDashboardData();
-                } else {
-                    Toast.makeText(FamilyDashboardActivity.this, "Échec : vérifiez les fonds disponibles.",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-            btnRow.addView(btnApprove);
+            childCard.addView(topRow);
 
-            Button btnReject = new Button(this);
-            btnReject.setText("✕ Refuser");
-            btnReject.setTextSize(12);
-            btnReject.setBackgroundResource(R.drawable.bg_btn_danger);
-            btnReject.setTextColor(Color.WHITE);
-            LinearLayout.LayoutParams bRejLp = new LinearLayout.LayoutParams(0, 76, 1.0f);
-            btnReject.setLayoutParams(bRejLp);
-            btnReject.setOnClickListener(v -> {
-                familyDao.rejectMoneyRequest(req.getId(), "Refusé par le parent");
-                Toast.makeText(FamilyDashboardActivity.this, "Demande refusée.", Toast.LENGTH_SHORT).show();
-                loadDashboardData();
-            });
-            btnRow.addView(btnReject);
+            // Jauge
+            double childPct = childAllocated > 0 ? ((double) childSpent / childAllocated) * 100.0 : 0.0;
+            ProgressBar pb = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+            LinearLayout.LayoutParams pbLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 10);
+            pbLp.topMargin = 12;
+            pb.setLayoutParams(pbLp);
+            pb.setMax(100);
+            pb.setProgress((int) Math.min(100, childPct));
+            pb.setProgressTintList(ColorStateList.valueOf(
+                    childPct > 100 ? Color.parseColor("#DC7770") : Color.parseColor("#2E7D43")
+            ));
+            childCard.addView(pb);
 
-            card.addView(btnRow);
-            layoutRequestsContainer.addView(card);
+            layoutChildrenContainer.addView(childCard);
         }
     }
 
-    private void renderChildExpenses() {
-        layoutChildExpensesContainer.removeAllViews();
-        List<Transaction> allExpenses = new ArrayList<>();
-        if (familyChildren != null) {
-            for (User c : familyChildren) {
-                allExpenses.addAll(familyDao.getChildTransactions(c.getId()));
-            }
-        }
+    private void loadCategoryEnvelopesSection(Budget currentBudget) {
+        layoutCategoryEnvelopes.removeAllViews();
 
-        if (allExpenses.isEmpty()) {
-            TextView tvEmpty = new TextView(this);
-            tvEmpty.setText("Aucune dépense récente.");
-            tvEmpty.setTextColor(Color.parseColor("#6B7C74"));
-            tvEmpty.setPadding(0, 16, 0, 16);
-            layoutChildExpensesContainer.addView(tvEmpty);
+        if (currentBudget == null) {
+            TextView empty = new TextView(this);
+            empty.setText("Définissez un budget pour consulter vos enveloppes par catégorie.");
+            empty.setTextColor(Color.parseColor("#61746D"));
+            empty.setTextSize(12);
+            empty.setPadding(0, 8, 0, 8);
+            layoutCategoryEnvelopes.addView(empty);
             return;
         }
 
-        int count = 0;
-        for (Transaction t : allExpenses) {
-            if (count++ >= 5)
-                break; // Afficher les 5 plus récentes
+        List<BudgetAllocation> allocations = budgetDao.getAllocationsForBudget(currentBudget.getId());
+        if (allocations.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText("Aucune catégorie allouée dans ce budget.");
+            empty.setTextColor(Color.parseColor("#61746D"));
+            empty.setTextSize(12);
+            empty.setPadding(0, 8, 0, 8);
+            layoutCategoryEnvelopes.addView(empty);
+            return;
+        }
 
-            LinearLayout item = new LinearLayout(this);
-            item.setOrientation(LinearLayout.HORIZONTAL);
-            item.setBackgroundResource(R.drawable.bg_input_card);
-            item.setPadding(32, 24, 32, 24);
-            item.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        for (BudgetAllocation alloc : allocations) {
+            Category cat = categoryDao.getCategoryById(alloc.getCategoryId());
+            if (cat == null) continue;
+
+            double allocatedDt = alloc.getAllocatedAmount();
+            double spentDt = alloc.getSpentAmount();
+            double remainingDt = Math.max(0, allocatedDt - spentDt);
+            double pct = allocatedDt > 0 ? (spentDt / allocatedDt) * 100.0 : 0.0;
+
+            LinearLayout envCard = new LinearLayout(this);
+            envCard.setOrientation(LinearLayout.VERTICAL);
+            envCard.setBackgroundResource(R.drawable.bg_input_card);
+            envCard.setPadding(28, 20, 28, 20);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = 14;
-            item.setLayoutParams(lp);
+            lp.bottomMargin = 10;
+            envCard.setLayoutParams(lp);
 
-            ImageView iv = new ImageView(this);
-            iv.setLayoutParams(new LinearLayout.LayoutParams(64, 64));
-            iv.setBackgroundResource(R.drawable.bg_circle_mint);
-            iv.setImageResource(R.drawable.ic_receipt);
-            iv.setPadding(14, 14, 14, 14);
-            iv.setColorFilter(Color.parseColor("#102B27"));
-            item.addView(iv);
+            LinearLayout topRow = new LinearLayout(this);
+            topRow.setOrientation(LinearLayout.HORIZONTAL);
+            topRow.setGravity(Gravity.CENTER_VERTICAL);
 
-            LinearLayout details = new LinearLayout(this);
-            details.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams dLp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1.0f);
-            dLp.setMargins(20, 0, 0, 0);
-            details.setLayoutParams(dLp);
+            TextView tvCatName = new TextView(this);
+            tvCatName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+            tvCatName.setText(cat.getNameByLocale(sessionManager.getLanguage()));
+            tvCatName.setTextColor(Color.parseColor("#112B28"));
+            tvCatName.setTypeface(null, Typeface.BOLD);
+            tvCatName.setTextSize(14);
+            topRow.addView(tvCatName);
+
+            if (spentDt > allocatedDt && allocatedDt > 0) {
+                double excessDt = spentDt - allocatedDt;
+                TextView tvExcess = new TextView(this);
+                tvExcess.setText(String.format(Locale.US, "DÉPASSÉ DE %.3f DT", excessDt));
+                tvExcess.setTextColor(Color.WHITE);
+                tvExcess.setBackgroundResource(R.drawable.bg_badge_pill);
+                tvExcess.setPadding(12, 4, 12, 4);
+                tvExcess.setTextSize(10);
+                tvExcess.setTypeface(null, Typeface.BOLD);
+                topRow.addView(tvExcess);
+            } else {
+                TextView tvVal = new TextView(this);
+                tvVal.setText(String.format(Locale.US, "%.3f DT / %.3f DT", spentDt, allocatedDt));
+                tvVal.setTextColor(Color.parseColor("#61746D"));
+                tvVal.setTextSize(12);
+                topRow.addView(tvVal);
+            }
+
+            envCard.addView(topRow);
+
+            ProgressBar pb = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+            LinearLayout.LayoutParams pbLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 12);
+            pbLp.topMargin = 10;
+            pb.setLayoutParams(pbLp);
+            pb.setMax(100);
+            pb.setProgress((int) Math.min(100, pct));
+            pb.setProgressTintList(ColorStateList.valueOf(
+                    pct > 100 ? Color.parseColor("#DC7770") : (pct >= 80 ? Color.parseColor("#E9B66B") : Color.parseColor("#2E7D43"))
+            ));
+            envCard.addView(pb);
+
+            layoutCategoryEnvelopes.addView(envCard);
+        }
+    }
+
+    private void loadRecentTransactions() {
+        layoutRecentParentTransactions.removeAllViews();
+        List<Transaction> recent = transactionDao.getRecentTransactions(currentParentId, 5);
+
+        if (recent.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText("Aucune opération récente enregistrée.");
+            empty.setTextColor(Color.parseColor("#61746D"));
+            empty.setTextSize(12);
+            empty.setPadding(0, 8, 0, 8);
+            layoutRecentParentTransactions.addView(empty);
+            return;
+        }
+
+        for (Transaction t : recent) {
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setBackgroundResource(R.drawable.bg_input_card);
+            row.setPadding(24, 16, 24, 16);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.bottomMargin = 8;
+            row.setLayoutParams(lp);
+
+            LinearLayout info = new LinearLayout(this);
+            info.setOrientation(LinearLayout.VERTICAL);
+            info.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
 
             TextView tvTitle = new TextView(this);
             tvTitle.setText(t.getTitle());
-            tvTitle.setTextSize(14);
-            tvTitle.setTextColor(Color.parseColor("#102B27"));
+            tvTitle.setTextColor(Color.parseColor("#112B28"));
             tvTitle.setTypeface(null, Typeface.BOLD);
-            details.addView(tvTitle);
+            tvTitle.setTextSize(13);
+            info.addView(tvTitle);
 
             TextView tvSub = new TextView(this);
-            tvSub.setText(t.getDate() + (t.getStore() != null && !t.getStore().isEmpty() ? " · " + t.getStore() : ""));
-            tvSub.setTextSize(12);
-            tvSub.setTextColor(Color.parseColor("#6B7C74"));
-            details.addView(tvSub);
+            tvSub.setText(t.getCategoryName() + " · " + t.getDate());
+            tvSub.setTextColor(Color.parseColor("#61746D"));
+            tvSub.setTextSize(11);
+            info.addView(tvSub);
 
-            item.addView(details);
+            row.addView(info);
 
-            TextView tvPrice = new TextView(this);
-            tvPrice.setText("-" + MillimesUtil.formatMillimes(t.getAmountMillimes()));
-            tvPrice.setTextSize(15);
-            tvPrice.setTextColor(Color.parseColor("#102B27"));
-            tvPrice.setTypeface(null, Typeface.BOLD);
-            item.addView(tvPrice);
+            TextView tvAmt = new TextView(this);
+            tvAmt.setText(String.format(Locale.US, "-%.3f DT", t.getAmount()));
+            tvAmt.setTextColor(Color.parseColor("#DC7770"));
+            tvAmt.setTypeface(null, Typeface.BOLD);
+            tvAmt.setTextSize(13);
+            row.addView(tvAmt);
 
-            layoutChildExpensesContainer.addView(item);
+            layoutRecentParentTransactions.addView(row);
         }
     }
 
-    private void showGiveMoneyDialog(User preselectedChild) {
-        if (familyChildren == null || familyChildren.isEmpty()) {
-            Toast.makeText(this, "Aucun enfant enregistré dans la famille.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void showGiveMoneyDialog(final User child) {
+        long availableInEnvelope = familyDao.getEnfantEnvelopeAvailableMillimes(currentParentId);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Donner de l'argent");
-
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(48, 32, 48, 16);
+        layout.setPadding(40, 40, 40, 40);
 
-        TextView lblChild = new TextView(this);
-        lblChild.setText("Sélectionner l'enfant :");
-        lblChild.setTextColor(Color.parseColor("#102B27"));
-        lblChild.setTypeface(null, Typeface.BOLD);
-        layout.addView(lblChild);
+        TextView tvTitle = new TextView(this);
+        tvTitle.setText("Donner à " + child.getFullName());
+        tvTitle.setTextSize(16);
+        tvTitle.setTextColor(Color.parseColor("#112B28"));
+        tvTitle.setTypeface(null, Typeface.BOLD);
+        layout.addView(tvTitle);
 
-        Spinner spChild = new Spinner(this);
-        List<String> names = new ArrayList<>();
-        int selectedIndex = 0;
-        for (int i = 0; i < familyChildren.size(); i++) {
-            names.add(familyChildren.get(i).getFullName() + " (Solde: "
-                    + MillimesUtil.formatMillimes(familyChildren.get(i).getBalanceMillimes()) + ")");
-            if (preselectedChild != null && familyChildren.get(i).getId() == preselectedChild.getId()) {
-                selectedIndex = i;
-            }
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, names);
-        spChild.setAdapter(adapter);
-        spChild.setSelection(selectedIndex);
-        spChild.setPadding(0, 8, 0, 24);
-        layout.addView(spChild);
+        TextView tvAvail = new TextView(this);
+        tvAvail.setText("Disponible enveloppe Enfant : " + MillimesUtil.formatMillimes(availableInEnvelope));
+        tvAvail.setTextColor(Color.parseColor("#2E7D43"));
+        tvAvail.setTextSize(12);
+        tvAvail.setPadding(0, 4, 0, 16);
+        layout.addView(tvAvail);
 
-        TextView lblAmount = new TextView(this);
-        lblAmount.setText("Montant en Dinars (ex: 20.000) :");
-        lblAmount.setTextColor(Color.parseColor("#102B27"));
-        lblAmount.setTypeface(null, Typeface.BOLD);
-        layout.addView(lblAmount);
-
-        EditText etAmount = new EditText(this);
-        etAmount.setHint("Montant en DT");
-        etAmount.setInputType(
-                android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        final EditText etAmount = new EditText(this);
+        etAmount.setHint("Montant en DT (ex: 20.000)");
+        etAmount.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        etAmount.setBackgroundResource(R.drawable.bg_input_card);
+        etAmount.setPadding(28, 24, 28, 24);
         layout.addView(etAmount);
 
-        TextView lblDesc = new TextView(this);
-        lblDesc.setText("Motif / Description :");
-        lblDesc.setTextColor(Color.parseColor("#102B27"));
-        lblDesc.setTypeface(null, Typeface.BOLD);
-        lblDesc.setPadding(0, 16, 0, 0);
-        layout.addView(lblDesc);
-
-        EditText etDesc = new EditText(this);
-        etDesc.setHint("Argent de poche, récompense...");
-        layout.addView(etDesc);
-
         builder.setView(layout);
-        builder.setPositiveButton("Transférer", (dialog, which) -> {
+        builder.setPositiveButton("Confirmer l'allocation", (dialog, which) -> {
             String amtStr = etAmount.getText().toString().trim();
-            if (amtStr.isEmpty()) {
-                Toast.makeText(FamilyDashboardActivity.this, "Veuillez saisir un montant.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            try {
-                double dt = Double.parseDouble(amtStr);
-                long millimes = MillimesUtil.dtToMillimes(dt);
-                int pos = spChild.getSelectedItemPosition();
-                User targetChild = familyChildren.get(pos);
-                String desc = etDesc.getText().toString().trim();
+            if (amtStr.isEmpty()) return;
 
-                boolean ok = familyDao.allocateMoneyToChild(currentFamilyId, currentParentId,
-                        targetChild.getId(), targetChild.getFullName(), millimes, desc);
-                if (ok) {
-                    Toast.makeText(FamilyDashboardActivity.this, "Transfert de " + amtStr + " DT réussi !",
-                            Toast.LENGTH_SHORT).show();
+            try {
+                double dtVal = Double.parseDouble(amtStr);
+                long millimes = MillimesUtil.dtToMillimes(dtVal);
+
+                if (millimes <= 0) {
+                    Toast.makeText(this, "Le montant doit être supérieur à 0.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                boolean success = familyDao.allocateMoneyToChild(currentFamilyId, currentParentId, child.getId(),
+                        child.getFullName(), millimes, "Allocation Parent");
+
+                if (success) {
+                    Toast.makeText(this, "Allocation attribuée avec succès !", Toast.LENGTH_SHORT).show();
                     loadDashboardData();
                 } else {
-                    Toast.makeText(FamilyDashboardActivity.this, "Fonds disponibles insuffisants !", Toast.LENGTH_LONG)
-                            .show();
+                    Toast.makeText(this, "Montant supérieur au dispo de l'enveloppe Enfant.", Toast.LENGTH_LONG).show();
                 }
             } catch (Exception e) {
-                Toast.makeText(FamilyDashboardActivity.this, "Montant invalide.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Montant invalide.", Toast.LENGTH_SHORT).show();
             }
         });
-        builder.setNegativeButton("Annuler", null);
+        builder.setNegativeButton("Annuler", (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 }

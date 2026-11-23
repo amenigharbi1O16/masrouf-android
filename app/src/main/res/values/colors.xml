@@ -1,35 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
-  Palette de couleurs officielle de l'application Masrouf
-  Extraite directement de la charte graphique Figma (Fichier de référence : MASROUF · Product and implementation guide.png)
-  EXIGENCE DU PROF : Centralisation des couleurs dans colors.xml (Ch.3)
--->
 <resources>
-    <!-- Couleurs primaires d'identité -->
-    <color name="forest">#102B27</color>          <!-- Vert forêt sombre : boutons principaux, cartes d'accentuation -->
-    <color name="deep_forest">#102B27</color>     <!-- Alias officiel Figma pour vert forêt sombre -->
-    <color name="forest_pressed">#0A1D1A</color>  <!-- État pressé pour les boutons forest -->
-    <color name="deep_green">#1C5143</color>      <!-- Vert profond : drawer de navigation, en-têtes d'administration -->
-    <color name="primary_emerald">#1C5143</color> <!-- Alias officiel Figma pour vert émeraude -->
-    <color name="mint">#D9F0E4</color>            <!-- Vert menthe pastel : boutons secondaires, badges de statut -->
-    <color name="mint_pressed">#C2E5D4</color>    <!-- État pressé pour les boutons mint -->
+    <color name="bg">#FAF9F5</color>
+    <color name="warm_bg">#FAF9F5</color>
+    <color name="bg_warm">#FAF9F5</color>
+    <color name="bg_dark">#112B28</color>
+    <color name="ink">#11201E</color>
+    <color name="text_ink">#11201E</color>
+    <color name="dark">#112B28</color>
+    <color name="text_dark">#112B28</color>
+    <color name="dark2">#3B5651</color>
+    <color name="forest">#112B28</color>
+    <color name="deep_forest">#112B28</color>
+    <color name="deep_green">#112B28</color>
+    <color name="green">#2E7D45</color>
+    <color name="success">#2E7D45</color>
+    <color name="primary_emerald">#2E7D45</color>
+    <color name="green_light">#D9EDDC</color>
+    <color name="mint">#D9EDDC</color>
+    <color name="mint_pressed">#C2E2C8</color>
+    <color name="mint_stroke">#A6D8B0</color>
+    <color name="muted">#5F7270</color>
+    <color name="text_muted">#5F7270</color>
+    <color name="muted_light">#8C9C9A</color>
+    <color name="hint">#9AA5A3</color>
+    <color name="line">#E8E8E2</color>
+    <color name="divider">#E8E8E2</color>
+    <color name="stroke">#E2E7DF</color>
+    <color name="field_stroke">#E2E7DF</color>
+    <color name="border_subtle">#E2E7DF</color>
+    <color name="warnbg">#FCECD9</color>
+    <color name="warn">#7A4A0B</color>
+    <color name="amber">#E8B05C</color>
+    <color name="gold">#F5C043</color>
+    <color name="red">#E26D6B</color>
+    <color name="coral">#E26D6B</color>
+    <color name="coral_light">#FCECD9</color>
+    <color name="badge">#E07A70</color>
+    <color name="danger">#DD7A72</color>
+    <color name="white">#FFFFFF</color>
+    <color name="card">#FFFFFF</color>
+    <color name="disabled">#93BFA3</color>
+    <color name="gray">#EDEDE6</color>
+    <color name="circle_gray">#E5E8E5</color>
+    <color name="gray_tab">#F2F2EC</color>
+    <color name="gray_tab_stroke">#D0D0C8</color>
+    <color name="tealbg">#E6F4F3</color>
 
-    <!-- Fond et surfaces -->
-    <color name="warm_bg">#F5F3ED</color>         <!-- Fond général beige chaleureux (windowBackground) -->
-    <color name="bg_warm">#F5F3ED</color>         <!-- Alias pour fond beige utilisé dans les layouts -->
-    <color name="white">#FFFFFF</color>           <!-- Blanc pur : cartes blanches de saisie -->
-    <color name="card_white">#FFFFFF</color>      <!-- Surface des cartes de formulaire -->
-    <color name="border_subtle">#E5E2DA</color>   <!-- Bordure discrète des champs de saisie -->
-
-    <!-- Accents budgétaires et alertes -->
-    <color name="gold">#E9B66B</color>            <!-- Jaune doré : avertissement budget à 80% -->
-    <color name="coral">#DC7770</color>           <!-- Rouge corail : dépassement de budget (>100%), actions destructives -->
-    <color name="coral_light">#FBECEB</color>     <!-- Fond clair pour alertes rouges -->
-
-    <!-- Typographie et contrastes -->
-    <color name="ink">#111A16</color>             <!-- Texte noir d'encre principal à fort contraste -->
-    <color name="muted">#6B7C74</color>           <!-- Texte secondaire gris-vert atténué pour sous-titres et labels -->
-    <color name="text_muted">#6B7C74</color>      <!-- Alias officiel pour texte secondaire -->
-    <color name="muted_light">#A0ADA7</color>     <!-- Texte tertiaire très léger pour séparateurs et hints -->
-    <color name="black">#000000</color>
+    <color name="blue_light">#E8F1F9</color>
+    <color name="blue_dark">#1F4068</color>
+    <color name="blue_card">#F0F5FA</color>
+    <color name="blue_stroke">#B0C8E0</color>
 </resources>

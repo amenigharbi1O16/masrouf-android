@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.widget.Button;
@@ -34,7 +35,9 @@ import java.util.Map;
  *   - Exigence n°9 (MVC avec CategoryDao).
  *   - Règle stricte : Le total des pourcentages par défaut doit obligatoirement être égal à 100%.
  */
-public class AdminPercentagesActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class AdminPercentagesActivity extends BaseActivity {
 
     private TextView tvPercentagesTotalLabel;
     private TextView tvPercentagesStatusMsg;
@@ -113,7 +116,7 @@ public class AdminPercentagesActivity extends AppCompatActivity {
             EditText etPct = new EditText(this);
             etPct.setLayoutParams(new LinearLayout.LayoutParams(200, LinearLayout.LayoutParams.WRAP_CONTENT));
             etPct.setGravity(Gravity.END);
-            etPct.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            etPct.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
             etPct.setText(String.format(Locale.US, "%.1f", c.getDefaultPercentage()));
             etPct.setTextColor(Color.parseColor("#1C5143"));
             etPct.setTextSize(14);

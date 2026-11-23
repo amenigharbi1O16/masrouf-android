@@ -13,6 +13,9 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
+import com.example.masrouf.controller.SessionManager;
+import com.example.masrouf.dao.NotificationDao;
+import com.example.masrouf.model.AppNotification;
 
 import java.util.Locale;
 
@@ -109,6 +112,19 @@ public class NotificationHelper {
         } catch (SecurityException e) {
             Log.e(TAG, "Permission POST_NOTIFICATIONS manquante (Android 13+) : " + e.getMessage());
         }
+
+        // Persistance automatique dans la table SQLite notifications
+        try {
+            SessionManager sm = new SessionManager(context);
+            long userId = sm.getUserId();
+            if (userId > 0) {
+                NotificationDao notifDao = new NotificationDao(context);
+                String type = isCritical ? AppNotification.TYPE_EXCEEDED_100 : AppNotification.TYPE_WARNING_80;
+                notifDao.insertNotification(userId, title, message, type, AppNotification.ROUTE_BUDGET);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur enregistrement SQLite notification: " + e.getMessage());
+        }
     }
 
     public static void showBudgetWarningNotification(Context context, double pct, double remaining) {
@@ -184,6 +200,17 @@ public class NotificationHelper {
             Log.d(TAG, "Notification d'achat affichée avec succès (id=" + NOTIF_ID_PURCHASE + ").");
         } catch (SecurityException e) {
             Log.e(TAG, "Permission POST_NOTIFICATIONS requise : " + e.getMessage());
+        }
+
+        try {
+            SessionManager sm = new SessionManager(context);
+            long userId = sm.getUserId();
+            if (userId > 0) {
+                NotificationDao notifDao = new NotificationDao(context);
+                notifDao.insertNotification(userId, title, message, AppNotification.TYPE_BUDGET_ALLOCATED, AppNotification.ROUTE_BUDGET);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur enregistrement SQLite notification d'achat: " + e.getMessage());
         }
     }
 

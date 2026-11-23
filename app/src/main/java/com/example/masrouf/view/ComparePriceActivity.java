@@ -18,15 +18,20 @@ import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
 import com.example.masrouf.controller.SessionManager;
 import com.example.masrouf.dao.BudgetDao;
+import com.example.masrouf.dao.PriceHistoryDao;
 import com.example.masrouf.dao.ProductDao;
 import com.example.masrouf.dao.TransactionDao;
 import com.example.masrouf.model.Budget;
+import com.example.masrouf.model.PriceHistory;
 import com.example.masrouf.model.Product;
 import com.example.masrouf.model.Transaction;
 import com.example.masrouf.util.NotificationHelper;
+import com.example.masrouf.util.PriceEvolutionChartView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -37,7 +42,9 @@ import java.util.Locale;
  *   - Matrice §4 ligne 32 (Écriture simultanée dans transactions, products et budget_allocations via SQLite).
  *   - Matrice §4 ligne 9 (Lecture des extras transmis par l'Intent).
  */
-public class ComparePriceActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class ComparePriceActivity extends BaseActivity {
 
     private static final String TAG = "ComparePriceActivity";
 
@@ -120,14 +127,19 @@ public class ComparePriceActivity extends AppCompatActivity {
         tvNewUnitPrice.setText(String.format(Locale.US, "%.3f DT / %s", unitPrice, unit));
         tvComparePurchaseTotal.setText(String.format(Locale.US, "%.3f DT", totalPrice));
 
-        // Comparaison avec le prix historique connu
-        double previousPrice = 15.000; // Référence par défaut
-        Product existing = productDao.getProductById(1);
-        if (existing != null && existing.getLastUnitPrice() > 0) {
-            previousPrice = existing.getLastUnitPrice();
-        }
+        // Recherche du produit existant dans SQLite (sans donnée fictive)
+        Product existing = productDao.getProductByName(productName);
+        double previousPrice = (existing != null && existing.getLastUnitPrice() > 0) ? existing.getLastUnitPrice() : unitPrice;
 
         tvPreviousUnitPrice.setText(String.format(Locale.US, "%.3f DT / %s", previousPrice, unit));
+
+        // Chargement du graphique dynamique d'évolution de prix
+        PriceHistoryDao priceHistoryDao = new PriceHistoryDao(this);
+        List<PriceHistory> history = (existing != null) ? priceHistoryDao.getHistoryForProduct(existing.getId()) : new ArrayList<>();
+        PriceEvolutionChartView chartView = findViewById(R.id.chartPriceEvolutionCompare);
+        if (chartView != null) {
+            chartView.setPriceHistory(history);
+        }
 
         double diff = unitPrice - previousPrice;
         double pct = (diff / previousPrice) * 100.0;

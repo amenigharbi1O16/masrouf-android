@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,9 @@ import java.util.List;
  *   - Exigence n°9 (MVC avec GamificationDao).
  *   - Paramétrage dynamique des points récompensés (ex: 100 points pour respect du budget).
  */
-public class AdminPointsRulesActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class AdminPointsRulesActivity extends BaseActivity {
 
     private ListView lvAdminPointsRules;
     private SessionManager sessionManager;
@@ -143,7 +146,7 @@ public class AdminPointsRulesActivity extends AppCompatActivity {
         builder.setTitle("Modifier la valeur des points");
 
         EditText etPoints = new EditText(this);
-        etPoints.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        etPoints.setInputType(InputType.TYPE_CLASS_NUMBER);
         etPoints.setText(String.valueOf(rule.getPointsValue()));
         builder.setView(etPoints);
 

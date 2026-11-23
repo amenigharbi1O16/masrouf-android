@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layoutDirection="ltr"
+    android:orientation="horizontal">
+
+    <!-- Ordre affiché : Français | العربية | English -->
+    <TextView
+        android:id="@+id/chip_fr"
+        style="@style/LangChip"
+        android:layout_marginEnd="10dp"
+        android:text="@string/chip_fr" />
+
+    <TextView
+        android:id="@+id/chip_ar"
+        style="@style/LangChip"
+        android:layout_marginEnd="10dp"
+        android:text="@string/chip_ar" />
+
+    <TextView
+        android:id="@+id/chip_en"
+        style="@style/LangChip"
+        android:text="@string/chip_en" />
+</LinearLayout>

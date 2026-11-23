@@ -1,6 +1,7 @@
 package com.example.masrouf.view;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -41,7 +42,9 @@ import java.util.Locale;
  *   - Synchronisation immédiate avec l'Accueil, Analyses et Produits via SessionManager.
  * COUCHE MVC : Vue (View).
  */
-public class CalendarActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class CalendarActivity extends BaseActivity {
 
     private static final String TAG = "CalendarActivity";
 
@@ -360,14 +363,14 @@ public class CalendarActivity extends AppCompatActivity {
             tvAmount.setTextColor(Color.parseColor("#D9F0E4"));
             tvAmount.setText(spent > 0 ? (int) spent + " DT" : "0 DT");
             pb.setProgress(budget != null && budget.getMontantTotal() > 0 ? (int) ((spent / budget.getMontantTotal()) * 100) : 10);
-            pb.setProgressTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#D9F0E4")));
+            pb.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#D9F0E4")));
         } else {
             bg.setColor(Color.WHITE);
             tvName.setTextColor(Color.parseColor("#102B27"));
             tvAmount.setTextColor(Color.parseColor("#6B7C74"));
             tvAmount.setText(spent > 0 ? (int) spent + " DT" : "0 DT");
             pb.setProgress(0);
-            pb.setProgressTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#EAEFEA")));
+            pb.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#EAEFEA")));
         }
 
         if (isPast) {

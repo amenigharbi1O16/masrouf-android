@@ -37,7 +37,9 @@ import java.util.Locale;
  * parentales.
  * COUCHE MVC : Vue (View).
  */
-public class ChildProfileActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class ChildProfileActivity extends BaseActivity {
 
     private ImageView ivBackChildProfile;
     private TextView tvChildProfileTitle;

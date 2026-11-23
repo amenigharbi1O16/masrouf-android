@@ -13,12 +13,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.masrouf.AddProductActivity;
 import com.example.masrouf.R;
 import com.example.masrouf.dao.PriceHistoryDao;
 import com.example.masrouf.dao.ProductDao;
 import com.example.masrouf.model.PriceHistory;
 import com.example.masrouf.model.Product;
 import com.example.masrouf.util.MillimesUtil;
+import com.example.masrouf.util.PriceEvolutionChartView;
 
 import java.util.List;
 import java.util.Locale;
@@ -31,7 +33,9 @@ import java.util.Locale;
  *   - Matrice §4 ligne 32 (Traçabilité complète des prix).
  *   - Calcul exact de variation (nouvel achat vs achat précédent).
  */
-public class ProductDetailsActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class ProductDetailsActivity extends BaseActivity {
 
     public static final String EXTRA_PRODUCT_ID = "extra_product_id";
 
@@ -86,8 +90,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
         btnCompareWithOthers = findViewById(R.id.btnCompareWithOthers);
 
         ivEditProductBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(ProductDetailsActivity.this, EditProductActivity.class);
-            intent.putExtra(EditProductActivity.EXTRA_PRODUCT_ID, productId);
+            Intent intent = new Intent(ProductDetailsActivity.this, AddProductActivity.class);
+            intent.putExtra("id", productId);
             startActivity(intent);
         });
 
@@ -150,6 +154,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private void loadPriceHistory() {
         layoutPriceHistoryContainer.removeAllViews();
         List<PriceHistory> history = priceHistoryDao.getHistoryForProduct(productId);
+
+        PriceEvolutionChartView chartView = findViewById(R.id.chartPriceEvolution);
+        if (chartView != null) {
+            chartView.setPriceHistory(history);
+        }
 
         for (PriceHistory ph : history) {
             LinearLayout row = new LinearLayout(this);

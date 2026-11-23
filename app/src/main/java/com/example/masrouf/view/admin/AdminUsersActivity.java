@@ -17,27 +17,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.masrouf.R;
+import com.example.masrouf.BaseActivity;
 import com.example.masrouf.controller.SessionManager;
 import com.example.masrouf.dao.DatabaseHelper;
 import com.example.masrouf.dao.UserDao;
-import com.example.masrouf.view.LoginActivity;
+import com.example.masrouf.LoginActivity;
 
-/**
- * RÔLE : Gestion des comptes utilisateurs par l'administrateur (Figma 36).
- * COUCHE MVC : Vue (View).
- * EXIGENCES DU PROF COUVERTES :
- *   - Exigence n°1 : Gestion des 2 rôles (écran protégé par un contrôle d'accès ADMIN).
- *   - Matrice §4 ligne 12 : Intent implicite SMS ACTION_SENDTO (envoi du mot de passe temporaire).
- *   - Matrice §4 ligne 29 : ListView liée directement à un CURSOR SQL via SIMPLECURSORADAPTER (Ch. 6 du cours).
- *   - Matrice §4 ligne 32 & 33 : Requêtes de mise à jour paramétrées SQLite via UserDao.
- *
- * PARTICULARITÉ PÉDAGOGIQUE POUR LE PROFESSEUR (Oral Question 37) :
- * Pourquoi utiliser SimpleCursorAdapter plutôt qu'un ArrayAdapter ?
- * - ArrayAdapter exige de convertir chaque ligne SQL en objet Java en mémoire (User.java, Product.java).
- * - SimpleCursorAdapter fait une liaison directe (binding) entre les colonnes du Cursor SQLite et les vues du layout XML
- *   sans aucune allocation d'objets intermédiaires. La seule contrainte est la présence obligatoire d'une colonne nommée '_id'.
- */
-public class AdminUsersActivity extends AppCompatActivity {
+public class AdminUsersActivity extends BaseActivity {
 
     private static final String TAG = "AdminUsersActivity";
 

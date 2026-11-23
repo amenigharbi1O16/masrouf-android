@@ -21,6 +21,8 @@ import com.example.masrouf.R;
 import com.example.masrouf.controller.SessionManager;
 import com.example.masrouf.dao.BudgetDao;
 import com.example.masrouf.dao.CategoryDao;
+import com.example.masrouf.dao.NotificationDao;
+import com.example.masrouf.model.AppNotification;
 import com.example.masrouf.model.Budget;
 import com.example.masrouf.model.BudgetAllocation;
 import com.example.masrouf.model.Category;
@@ -169,6 +171,15 @@ public class CustomCategoryModal {
                 double allocatedDt = (percent / 100.0) * totalBudgetAmount;
                 BudgetAllocation newAlloc = new BudgetAllocation(currentBudget.getId(), newCatId, name, allocatedDt);
                 budgetDao.saveAllocation(newAlloc);
+            }
+
+            if (newCatId > 0) {
+                NotificationDao notifDao = new NotificationDao(activity);
+                notifDao.insertNotification(userId,
+                        "Nouvelle catégorie ajoutée",
+                        "La catégorie \"" + name + "\" a été ajoutée à vos catégories.",
+                        AppNotification.TYPE_CATEGORY_ADDED,
+                        AppNotification.ROUTE_BUDGET);
             }
 
             Toast.makeText(activity, "Catégorie ajoutée avec succès !", Toast.LENGTH_SHORT).show();

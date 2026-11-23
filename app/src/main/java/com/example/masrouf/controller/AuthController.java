@@ -11,8 +11,6 @@ import com.example.masrouf.dao.UserDao;
 import com.example.masrouf.model.User;
 import com.example.masrouf.util.PasswordUtil;
 import com.example.masrouf.view.ChangePasswordActivity;
-import com.example.masrouf.view.OnboardingStep1Activity;
-import com.example.masrouf.view.OnboardingWelcomeActivity;
 import com.example.masrouf.view.admin.AdminDashboardActivity;
 import com.example.masrouf.view.child.ChildMainActivity;
 import com.example.masrouf.view.family.FamilyDashboardActivity;
@@ -212,22 +210,40 @@ public class AuthController {
         Intent destinationIntent;
 
         // 1. Mot de passe temporaire imposé à changer d'abord
+        com.example.masrouf.dao.CategoryDao categoryDao = new com.example.masrouf.dao.CategoryDao(currentActivity);
+        com.example.masrouf.dao.BudgetDao budgetDao = new com.example.masrouf.dao.BudgetDao(currentActivity);
+
         if (user.isTemporaryPassword()) {
             Log.d(TAG, "Mot de passe temporaire : redirection vers ChangePasswordActivity");
             destinationIntent = new Intent(currentActivity, ChangePasswordActivity.class);
-        } else if (!sessionManager.isOnboardingCompleted(user.getId())) {
-            // 2. Parcours d'onboarding des catégories (obligatoire pour les 3 types : Parent, Enfant, Personnel)
-            Log.d(TAG, "Redirection vers le parcours de sélection des catégories (OnboardingStep1Activity)");
-            destinationIntent = new Intent(currentActivity, OnboardingStep1Activity.class);
         } else if (user.isChild()) {
-            Log.d(TAG, "Redirection vers l'accueil dédié au Compte Enfant (ChildMainActivity)");
-            destinationIntent = new Intent(currentActivity, ChildMainActivity.class);
+            if (!categoryDao.hasUserSelectedCategories(user.getId())) {
+                Log.d(TAG, "Enfant : redirection vers sélection de catégories");
+                destinationIntent = new Intent(currentActivity, com.example.masrouf.view.OnboardingCategoriesActivity.class);
+            } else {
+                Log.d(TAG, "Redirection vers l'accueil dédié au Compte Enfant (ChildMainActivity)");
+                destinationIntent = new Intent(currentActivity, ChildMainActivity.class);
+            }
         } else if (user.isParent()) {
             Log.d(TAG, "Redirection vers l'accueil pour le profil Parent (FamilyDashboardActivity)");
             destinationIntent = new Intent(currentActivity, FamilyDashboardActivity.class);
+        } else if (user.isAdmin()) {
+            Log.d(TAG, "Redirection vers le tableau de bord Admin (AdminDashboardActivity)");
+            destinationIntent = new Intent(currentActivity, AdminDashboardActivity.class);
         } else {
-            Log.d(TAG, "Redirection vers l'accueil utilisateur standard (MainActivity)");
-            destinationIntent = new Intent(currentActivity, MainActivity.class);
+            if (!categoryDao.hasUserSelectedCategories(user.getId())) {
+                Log.d(TAG, "Utilisateur : redirection vers sélection de catégories");
+                destinationIntent = new Intent(currentActivity, com.example.masrouf.view.OnboardingCategoriesActivity.class);
+            } else {
+                com.example.masrouf.model.Budget budget = budgetDao.getCurrentBudget(user.getId());
+                if (budget == null || budget.getTotalAmount() <= 0) {
+                    Log.d(TAG, "Utilisateur : redirection vers création de budget");
+                    destinationIntent = new Intent(currentActivity, com.example.masrouf.view.CreateBudgetActivity.class);
+                } else {
+                    Log.d(TAG, "Redirection vers l'accueil utilisateur standard (MainActivity)");
+                    destinationIntent = new Intent(currentActivity, MainActivity.class);
+                }
+            }
         }
 
         // Transmission des données essentielles via les extras de l'Intent (Ch.5)

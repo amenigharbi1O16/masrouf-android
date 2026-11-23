@@ -18,10 +18,17 @@ import com.example.masrouf.R;
 import com.example.masrouf.controller.SessionManager;
 import com.example.masrouf.dao.BudgetDao;
 import com.example.masrouf.dao.CategoryDao;
+import com.example.masrouf.dao.FamilyDao;
+import com.example.masrouf.dao.NotificationDao;
+import com.example.masrouf.dao.UserDao;
+import com.example.masrouf.model.AppNotification;
 import com.example.masrouf.model.Budget;
 import com.example.masrouf.model.BudgetAllocation;
 import com.example.masrouf.model.Category;
+import com.example.masrouf.model.User;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,7 +40,9 @@ import java.util.Locale;
  *   - Matrice §4 ligne 32 (Insertion transactionnelle en base SQLite du Budget et de ses BudgetAllocations).
  *   - Calculs dynamiques de solde alloué / non alloué en Dinars Tunisiens (DT).
  */
-public class AllocateBudgetActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class AllocateBudgetActivity extends BaseActivity {
 
     private static final String TAG = "AllocateBudgetActivity";
 
@@ -62,20 +71,26 @@ public class AllocateBudgetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sessionManager = new SessionManager(this);
-        if (sessionManager.isChild()) {
-            Toast.makeText(this, "Accès réservé : Seul votre père peut modifier le budget global.", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-        setContentView(R.layout.activity_allocate_budget);
-
         budgetDao = new BudgetDao(this);
         categoryDao = new CategoryDao(this);
         sessionManager = new SessionManager(this);
 
-        // Lecture des extras transmis depuis CreateBudgetActivity (Ch.5 du cours)
-        totalBudget = getIntent().getDoubleExtra(CreateBudgetActivity.EXTRA_BUDGET_TOTAL, 1200.0);
+        long userId = sessionManager.getUserId();
+
+        // Si l'utilisateur est un enfant, il réutilise le budget attribué par le parent
+        if (sessionManager.isChild()) {
+            UserDao userDao = new UserDao(this);
+            FamilyDao familyDao = new FamilyDao(this);
+            User childUser = userDao.getUserById(userId);
+            String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.US).format(new Date());
+            long childSpentMillimes = familyDao.getChildMonthlySpendingMillimes(userId, currentMonth);
+            long totalAssignedMillimes = (childUser != null ? childUser.getBalanceMillimes() : 0) + childSpentMillimes;
+            totalBudget = totalAssignedMillimes / 1000.0;
+        } else {
+            // Lecture des extras transmis depuis CreateBudgetActivity
+            totalBudget = getIntent().getDoubleExtra(CreateBudgetActivity.EXTRA_BUDGET_TOTAL, 1200.0);
+        }
+
         startDate = getIntent().getStringExtra(CreateBudgetActivity.EXTRA_BUDGET_START);
         if (startDate == null) startDate = "2026-11-01";
         endDate = getIntent().getStringExtra(CreateBudgetActivity.EXTRA_BUDGET_END);
@@ -83,6 +98,10 @@ public class AllocateBudgetActivity extends AppCompatActivity {
 
         initViews();
         setupDynamicCalculations();
+
+        if (sessionManager.isChild() && btnCreateMyBudget != null) {
+            btnCreateMyBudget.setText("Enregistrer ma répartition");
+        }
 
         btnCreateMyBudget.setOnClickListener(v -> saveBudgetAndAllocations());
         ivBackAllocate.setOnClickListener(v -> finish());
@@ -197,10 +216,18 @@ public class AllocateBudgetActivity extends AppCompatActivity {
             }
 
             Log.d(TAG, "Nouveau budget enregistré avec succès ID = " + budgetId);
-            Toast.makeText(this, "Budget créé avec succès !", Toast.LENGTH_SHORT).show();
 
-            // Retour à l'accueil
-            Intent intent = new Intent(this, MainActivity.class);
+            NotificationDao notifDao = new NotificationDao(this);
+            notifDao.insertNotification(userId,
+                    "Répartition du budget effectuée",
+                    "Votre budget de " + String.format(Locale.US, "%.3f DT", totalBudget) + " a été réparti entre vos catégories.",
+                    AppNotification.TYPE_ALLOCATION_CHANGED,
+                    AppNotification.ROUTE_BUDGET);
+
+            Toast.makeText(this, "Répartition du budget enregistrée avec succès !", Toast.LENGTH_SHORT).show();
+
+            // Retour à l'accueil selon le profil
+            Intent intent = new Intent(this, sessionManager.isChild() ? com.example.masrouf.view.child.ChildMainActivity.class : MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();

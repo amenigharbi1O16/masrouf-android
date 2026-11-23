@@ -1,85 +1,489 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayoutAnalytics"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_warm"
-    android:orientation="vertical">
+    android:background="@color/bg_warm">
 
+    <!-- CONTENU PRINCIPAL -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="28dp"
-        android:paddingBottom="16dp">
-
-        <ImageView
-            android:id="@+id/ivBackAnalytics"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:padding="4dp"
-            android:src="@drawable/ic_menu"
-            android:tint="@color/deep_forest" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:text="Analyses Familiales"
-            android:textColor="@color/deep_forest"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:orientation="vertical">
 
+        <!-- BARRE SUPÉRIEURE : RETOUR + TITRE + CLOCHE + PROFIL -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="40dp">
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
 
-            <!-- CARTE REPARTITION PAR ENFANT -->
+            <ImageView
+                android:id="@+id/ivBackAnalytics"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="4dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/deep_forest" />
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Répartition des dépenses par enfant (ce mois)"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Budgets &amp; Analyses"
                 android:textColor="@color/deep_forest"
-                android:textSize="17sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/layoutAnalyticsByChild"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical" />
+            <FrameLayout
+                android:id="@+id/frameNotifAnalytics"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless">
 
-            <!-- CARTE REPARTITION PAR CATEGORIE -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="Dépenses des enfants par catégorie"
-                android:textColor="@color/deep_forest"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_bell"
+                    app:tint="@color/deep_forest" />
 
-            <LinearLayout
-                android:id="@+id/layoutAnalyticsByCat"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical" />
+                <TextView
+                    android:id="@+id/tvAnalyticsNotifBadge"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="top|end"
+                    android:background="@drawable/bg_badge_pill"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="@color/white"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </FrameLayout>
 
+            <ImageView
+                android:id="@+id/ivAnalyticsProfile"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="4dp"
+                android:src="@drawable/ic_profile"
+                app:tint="@color/deep_forest" />
         </LinearLayout>
-    </ScrollView>
 
-</LinearLayout>
+        <!-- CONTENU SCROLLABLE -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="48dp">
+
+                <!-- SOUS-TITRE EN-TÊTE -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.05"
+                    android:text="ANALYTIQUE &amp; CONTRÔLE BUDGÉTAIRE"
+                    android:textColor="@color/text_muted"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <!-- CARTE HÉROS : BUDGET DU MOIS (Image 2 & 9) -->
+                <LinearLayout
+                    android:id="@+id/cardAnalyticsHero"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_hero_card"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- LIGNE PÉRIODE + BOUTON AJUSTER -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvAnalyticsMonthLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:letterSpacing="0.05"
+                            android:text="BUDGET DU MOIS (2026-11)"
+                            android:textColor="#A0C8BC"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <Button
+                            android:id="@+id/btnAdjustBudget"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_pill_dark"
+                            android:paddingHorizontal="14dp"
+                            android:text="/ Ajuster"
+                            android:textAllCaps="false"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- MONTANT TOTAL DU BUDGET -->
+                    <TextView
+                        android:id="@+id/tvAnalyticsBudgetAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="0.000 DT"
+                        android:textColor="@color/white"
+                        android:textSize="32sp"
+                        android:textStyle="bold" />
+
+                    <!-- BARRE DE PROGRESSION GLOBALE -->
+                    <ProgressBar
+                        android:id="@+id/pbAnalyticsHeroProgress"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:layout_marginTop="14dp"
+                        android:max="100"
+                        android:progress="0"
+                        android:progressTint="@color/mint" />
+
+                    <!-- LIGNE DÉPENSÉ & RESTE -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvAnalyticsHeroSpent"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Dépensé : 0.000 DT (0%)"
+                            android:textColor="@color/white"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvAnalyticsHeroRemaining"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Reste : 0.000 DT"
+                            android:textColor="@color/white"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- BANNIÈRE DE STATUT INTERNE -->
+                    <LinearLayout
+                        android:id="@+id/layoutAnalyticsStatusBanner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:background="@drawable/bg_capsule_mint"
+                        android:gravity="center"
+                        android:paddingVertical="10dp">
+
+                        <TextView
+                            android:id="@+id/tvAnalyticsStatusText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Budget sous contrôle. Continuez ainsi !"
+                            android:textColor="@color/deep_forest"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ÉTAT VIDE : AUCUN BUDGET DÉFINI (Image 2) -->
+                <LinearLayout
+                    android:id="@+id/cardAnalyticsNoBudget"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_card_white_stroke"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="24dp"
+                    android:paddingVertical="32dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_wallet"
+                        app:tint="@color/deep_forest" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Aucun budget défini pour ce mois"
+                        android:textColor="@color/deep_forest"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"
+                        android:text="Fixez votre Budget du mois pour suivre vos dépenses et allouer l'argent de vos enfants."
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btnDefineBudgetAnalytics"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/bg_btn_primary"
+                        android:paddingHorizontal="24dp"
+                        android:text="Définir le budget du mois"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- SECTION : DÉPENSES PAR CATÉGORIE (Image 2 & 9) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Dépenses par catégorie"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <!-- État vide : Aucune transaction -->
+                <LinearLayout
+                    android:id="@+id/cardAnalyticsNoCategories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_card_white_stroke"
+                    android:gravity="center"
+                    android:paddingVertical="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Aucune transaction enregistrée pour ce mois-ci."
+                        android:textColor="@color/text_muted"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Conteneur des lignes de catégories (Image 9) -->
+                <LinearLayout
+                    android:id="@+id/cardAnalyticsCategoriesContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_card_white_stroke"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/layoutAnalyticsCategoryRows"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+
+                <!-- SECTION : ÉVOLUTION DES DÉPENSES GLOBALES DU PARENT & FOYER (Image 3 & 9) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:text="Évolution des dépenses globales du parent &amp; foyer"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Graphique comparatif des achats, dépenses directes et montants alloués aux enfants."
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_card_white_stroke"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dépenses globales du parent &amp; foyer · DT"
+                        android:textColor="@color/deep_forest"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Achats personnels, dépenses et allocations aux enfants"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp" />
+
+                    <!-- Graphique PillBarChart Global -->
+                    <com.example.masrouf.view.components.PillBarChartView
+                        android:id="@+id/chartGlobalExpenses"
+                        android:layout_width="match_parent"
+                        android:layout_height="170dp"
+                        android:layout_marginTop="12dp" />
+
+                    <TextView
+                        android:id="@+id/tvGlobalChartSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Juin 0 · Juil 0 · Août 0 · Sept 0 \nOct 0 · Nov 0 DT (en cours)"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- SECTION : PROGRESSION DU BUDGET ALLOUÉ AUX ENFANTS (Image 3 & 10) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:text="Progression du budget alloué aux enfants"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="🔒 Confidentialité préservée : Seule la progression globale est affichée, sans détails des achats personnels."
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp" />
+
+                <!-- État vide : Aucun compte enfant rattaché (Image 3) -->
+                <LinearLayout
+                    android:id="@+id/cardNoChildrenAnalytics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_card_white_stroke"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="28dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_group"
+                        app:tint="@color/text_muted" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Aucun compte enfant rattaché à ce foyer."
+                        android:textColor="@color/text_muted"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Conteneur des cartes de progression des enfants (Image 10) -->
+                <LinearLayout
+                    android:id="@+id/layoutChildrenProgressCards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical" />
+
+                <!-- SECTION : COMPARAISON HISTORIQUE DE CONSOMMATION ENTRE LES MOIS (Image 10) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:text="Comparaison historique de consommation entre les mois"
+                    android:textColor="@color/deep_forest"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Graphiques comparatifs construits à partir des données réelles enregistrées dans la base de données."
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_card_white_stroke"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dépenses mensuelles de l'enfant · DT"
+                        android:textColor="@color/deep_forest"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Évolution du taux de consommation du budget alloué"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp" />
+
+                    <!-- Graphique PillBarChart Enfant -->
+                    <com.example.masrouf.view.components.PillBarChartView
+                        android:id="@+id/chartChildExpenses"
+                        android:layout_width="match_parent"
+                        android:layout_height="170dp"
+                        android:layout_marginTop="12dp" />
+
+                    <TextView
+                        android:id="@+id/tvChildChartSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Juin 0 · Juil 0 · Août 0 · Sept 0 \nOct 0 · Nov 0 DT (en cours)"
+                        android:textColor="@color/text_muted"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- INCLUSION DU TIROIR ADMIN / PARENT -->
+    <include layout="@layout/layout_admin_drawer" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

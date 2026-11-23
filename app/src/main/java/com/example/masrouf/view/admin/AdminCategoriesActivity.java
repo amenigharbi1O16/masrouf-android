@@ -35,7 +35,9 @@ import java.util.List;
  *   - Exigence n°9 (MVC avec CategoryDao).
  *   - Matrice §4 ligne 32 (CRUD complet : Ajout, consultation, suppression des catégories).
  */
-public class AdminCategoriesActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class AdminCategoriesActivity extends BaseActivity {
 
     private ListView lvAdminCategories;
     private Button btnFilterAll;

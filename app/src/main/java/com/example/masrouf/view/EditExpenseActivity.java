@@ -35,7 +35,9 @@ import java.util.Locale;
  *   - Exigence n°9 (MVC avec ExpenseDao).
  *   - Matrice §4 ligne 32 (CRUD complet : Update et Delete).
  */
-public class EditExpenseActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class EditExpenseActivity extends BaseActivity {
 
     public static final String EXTRA_EXPENSE_ID = "extra_expense_id";
 

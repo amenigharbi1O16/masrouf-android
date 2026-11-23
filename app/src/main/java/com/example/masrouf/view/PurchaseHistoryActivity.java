@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,9 @@ import java.util.List;
  *   - Matrice §4 ligne 30 (Adapter personnalisé avec ViewHolder).
  *   - Clic sur une transaction pour l'éditer (Figma 24).
  */
-public class PurchaseHistoryActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class PurchaseHistoryActivity extends BaseActivity {
 
     private EditText etSearchPurchases;
     private TextView tvTotalPurchasesCount;
@@ -137,7 +140,7 @@ public class PurchaseHistoryActivity extends AppCompatActivity {
             if (convertView == null) {
                 LinearLayout card = new LinearLayout(context);
                 card.setOrientation(LinearLayout.HORIZONTAL);
-                card.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                card.setGravity(Gravity.CENTER_VERTICAL);
                 card.setPadding(28, 20, 28, 20);
 
                 GradientDrawable gd = new GradientDrawable();

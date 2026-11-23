@@ -41,7 +41,9 @@ import java.util.Locale;
  *   - Distinction stricte entre achats de produits et charges fixes (factures, loyer, abonnements).
  *   - Déclenchement automatique des alertes budgétaires si seuil atteint.
  */
-public class AddExpenseActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class AddExpenseActivity extends BaseActivity {
 
     private EditText etExpenseTitle;
     private EditText etExpenseAmount;

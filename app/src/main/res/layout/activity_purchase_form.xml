@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+    <include layout="@layout/view_header"/>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+            <TextView android:id="@+id/caption" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:textColor="@color/muted" android:textSize="12sp"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginBottom="12dp" android:background="@drawable/bp_bg_card" android:gravity="center_vertical" android:orientation="horizontal" android:paddingLeft="16dp" android:paddingRight="16dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Produit" android:textColor="@color/muted" android:textSize="10sp"/>
+                <TextView android:id="@+id/tvProduct" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/ink" android:textSize="12sp" android:textStyle="bold"/>
+            </LinearLayout>
+            <LinearLayout style="@style/Field" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+                <TextView style="@style/FieldLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Prix total · DT"/>
+                <EditText android:id="@+id/etTotal" style="@style/FieldInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="14.500" android:inputType="numberDecimal"/>
+            </LinearLayout>
+            <LinearLayout style="@style/Field" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+                <TextView style="@style/FieldLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Quantité"/>
+                <EditText android:id="@+id/etQty" style="@style/FieldInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal" android:text="1"/>
+            </LinearLayout>
+            <LinearLayout style="@style/Field" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+                <TextView style="@style/FieldLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Unité"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                    <Spinner android:id="@+id/spUnit" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:background="@null" android:paddingLeft="0dp"/>
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_down" android:tint="@color/muted"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout style="@style/Field" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+                <TextView style="@style/FieldLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Magasin"/>
+                <EditText android:id="@+id/etStore" style="@style/FieldInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Monoprix" android:inputType="textCapSentences"/>
+            </LinearLayout>
+            <LinearLayout style="@style/Field" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+                <TextView style="@style/FieldLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Date d'achat"/>
+                <TextView android:id="@+id/tvDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="4dp" android:paddingBottom="4dp" android:textColor="@color/ink" android:textSize="15sp" android:textStyle="bold"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:background="@drawable/bp_bg_card" android:gravity="center_vertical" android:orientation="horizontal" android:paddingLeft="16dp" android:paddingRight="16dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Prix unitaire calculé" android:textColor="@color/muted" android:textSize="10sp"/>
+                <TextView android:id="@+id/tvUnitPrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" android:textColor="@color/green" android:textSize="12sp" android:textStyle="bold"/>
+            </LinearLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Prix unitaire = prix total ÷ quantité." android:textColor="@color/muted" android:textSize="13sp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Comparez avec l'achat précédent avant d'enregistrer." android:textColor="@color/muted" android:textSize="10sp"/>
+            <TextView android:id="@+id/btnCompare" style="@style/BtnPrimary" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="14dp" android:text="Comparer le prix"/>
+            <TextView android:id="@+id/btnCancel" style="@style/BtnLight" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="10dp" android:text="Annuler"/>
+            <TextView android:id="@+id/btnDelete" style="@style/BtnDanger" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="16dp" android:text="Supprimer cet achat" android:visibility="gone"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

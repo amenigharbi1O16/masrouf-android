@@ -1,250 +1,300 @@
 <resources>
-    <!-- 
-      Fichier des chaînes par défaut (Langue : Anglais)
-      EXIGENCE DU PROF : Aucune chaîne en dur dans les layouts ou le Java (Ch.3)
-      100% Translation-key parity with values-fr and values-ar
-    -->
     <string name="app_name">Masrouf</string>
 
-    <!-- Écran de connexion (Login Screen - Figma 01) -->
-    <string name="login_tagline">YOUR MONEY. YOUR BALANCE.</string>
-    <string name="login_hero_title">Spend with intention.</string>
-    <string name="login_welcome_title">Welcome back</string>
-    <string name="login_welcome_subtitle">A clearer view of your everyday money.</string>
-    <string name="login_label_email">Email address</string>
-    <string name="login_hint_email">name@gmail.com</string>
-    <string name="login_label_password">Password</string>
-    <string name="login_btn_login">Log in</string>
-    <string name="login_btn_continue">Continue</string>
-    <string name="login_btn_create_account">Create an account</string>
-    <string name="login_forgot_password">Forgot password?</string>
-    <string name="login_link_signup">Sign up for Masrouf</string>
+    <!-- Écran de bienvenue (Welcome) -->
+    <string name="welcome_hello">Bienvenue sur</string>
+    <string name="welcome_start">Commencer</string>
+    <string name="have_account">Vous avez déjà un compte ? </string>
+    <string name="login">Se connecter</string>
 
-    <!-- Sélecteur de langue -->
+    <!-- Écran d'onboarding -->
+    <string name="skip">Passer</string>
+    <string name="continue_btn">Continuer</string>
+    <string name="choose_type_btn">Choisissez votre type de compte</string>
+
+    <string name="ob1_title">Gérez vos finances personnelles</string>
+    <string name="ob1_desc">Suivez vos dépenses quotidiennes et vos achats au millime près, tout en gardant le contrôle total sur votre budget.</string>
+    <string name="ob1_b1">Achats alimentaires et suivi des prix unitaires</string>
+    <string name="ob1_b2">Gestion des dépenses fixes et abonnements</string>
+
+    <string name="ob2_title">Organisez vos achats, dépenses et budgets</string>
+    <string name="ob2_desc">Classez vos dépenses par catégorie, suivez l\'évolution des prix unitaires et atteignez vos objectifs.</string>
+    <string name="ob2_b1">Enveloppes budgétaires mensuelles</string>
+    <string name="ob2_b2">Alertes visuelles de dépassement et d\'épargne</string>
+
+    <string name="ob3_title">Gérez les finances familiales &amp; vos enfants</string>
+    <string name="ob3_desc">Allouez l\'argent de poche, validez les demandes en temps réel et transmettez les bonnes habitudes financières.</string>
+    <string name="ob3_b1">Comptes enfants avec accès sécurisé</string>
+    <string name="ob3_b2">Réserve familiale, argent de poche &amp; demandes d\'argent</string>
+
+    <!-- Écran choix du type de compte (AccountType) -->
+    <string name="type_eyebrow">MASROUF · TYPE DE COMPTE</string>
+    <string name="type_title">Choisissez votre type de compte</string>
+    <string name="type_subtitle">Sélectionnez le mode adapté à votre utilisation. Vous pourrez toujours faire évoluer votre espace.</string>
+
+    <string name="personal_title">Compte Personnel</string>
+    <string name="personal_badge">Individuel</string>
+    <string name="personal_desc">Gestion financière individuelle, achats, dépenses quotidiennes et budgets personnels.</string>
+    <string name="personal_f1">Gestion financière individuelle et autonome</string>
+    <string name="personal_f2">Achats, dépenses quotidiennes et enveloppes budgétaires</string>
+    <string name="personal_f3">Suivi des prix unitaires et économies</string>
+    <string name="personal_choose">Choisir le Compte Personnel</string>
+
+    <string name="family_ribbon">★ EXPÉRIENCE COMPLÈTE</string>
+    <string name="family_title">Compte Famille</string>
+    <string name="family_badge">Parent / Tuteur</string>
+    <string name="family_desc">Espace Personnel + Espace Famille, gestion des enfants, réserve financière, allocations et demandes d\'argent.</string>
+    <string name="family_f1">Espace Personnel + Espace Famille</string>
+    <string name="family_f2">Création de comptes enfants sécurisés</string>
+    <string name="family_f3">Réserve familiale, argent de poche &amp; validation des demandes</string>
+    <string name="family_f4">Budgets consolidés et rapports d\'analyse pour la famille</string>
+    <string name="family_choose">Choisir le Compte Famille</string>
+
+    <!-- Écran Inscription (SignUp) -->
+    <string name="signup_title">Créer un compte</string>
+    <string name="section_label">SUIVI DE BUDGET FAMILIAL</string>
+    <string name="tab_personal">Compte Personnel</string>
+    <string name="tab_family">Compte Famille</string>
+    <string name="info_personal">Compte Personnel : gestion autonome de vos achats et budgets</string>
+    <string name="info_family">Compte Parent : accès complet aux espaces Personnel et Famille</string>
+    <string name="local_note">Vos budgets, achats et dépenses restent stockés localement sur cet appareil.</string>
+    <string name="field_name">Nom complet</string>
+    <string name="hint_name">Saisissez votre nom</string>
+    <string name="field_email">Adresse e-mail</string>
+    <string name="field_password">Mot de passe</string>
+    <string name="field_confirm">Confirmation mot de passe</string>
+    <string name="hint_confirm">Confirmez votre mot de passe</string>
+    <string name="btn_signup">Créer un compte</string>
+    <string name="err_name">Veuillez saisir votre nom</string>
+    <string name="err_email">Adresse e-mail invalide</string>
+    <string name="err_password_len">6 caractères minimum</string>
+    <string name="err_password_match">Les mots de passe ne correspondent pas</string>
+    <string name="err_email_exists">Un compte avec cette adresse e-mail existe déjà</string>
+    <string name="signup_ok">Compte créé avec succès !</string>
+
+    <!-- Écran Connexion (Login) -->
+    <string name="login_tagline">VOTRE ARGENT. VOTRE ÉQUILIBRE.</string>
+    <string name="login_hero_title">Dépensez en toute conscience.</string>
+    <string name="login_welcome">Bienvenue sur Masrouf</string>
+    <string name="login_welcome_title">Bon retour</string>
+    <string name="login_welcome_subtitle">Une vision claire de votre argent au quotidien.</string>
+    <string name="login_title">Se connecter</string>
+    <string name="login_subtitle">Connectez-vous pour accéder à vos comptes et budgets.</string>
+    <string name="login_label_email">Adresse e-mail</string>
+    <string name="login_hint_email">nom@gmail.com</string>
+    <string name="login_label_password">Mot de passe</string>
+    <string name="login_btn_login">Se connecter</string>
+    <string name="login_btn_continue">Continuer</string>
+    <string name="login_btn_create_account">Créer un compte</string>
+    <string name="login_forgot_password">Mot de passe oublié ?</string>
+    <string name="login_link_signup">Créer un compte Masrouf</string>
+    <string name="login_todo">Connexion validée.</string>
+
+    <!-- Pilules & puces de langues -->
     <string name="lang_en">EN</string>
     <string name="lang_fr">FR</string>
-    <string name="lang_ar">العربية</string>
+    <string name="lang_ar">عربي</string>
+    <string name="chip_fr">Français</string>
+    <string name="chip_ar">العربية</string>
+    <string name="chip_en">English</string>
 
-    <!-- Messages et validations -->
-    <string name="error_empty_fields">Please enter both email and password.</string>
-    <string name="error_invalid_email_domain">Email must be a valid @gmail.com address (e.g. name@gmail.com).</string>
-    <string name="error_password_policy">Password must be at least 8 characters, contain an uppercase letter, a number, and a special character.</string>
-    <string name="error_invalid_credentials">Invalid email or password.</string>
-    <string name="error_passwords_mismatch">Passwords do not match.</string>
-    <string name="error_email_already_exists">An account with this email already exists.</string>
-    <string name="error_account_suspended">Account suspended. Please contact an administrator.</string>
-    <string name="msg_login_success">Login successful.</string>
-    <string name="msg_register_success">Account created successfully.</string>
-    <string name="error_generic_database">A database error occurred. Please try again.</string>
+    <!-- Validation & Erreurs -->
+    <string name="error_empty_fields">Veuillez saisir votre e-mail et votre mot de passe.</string>
+    <string name="error_invalid_email_domain">L\'e-mail doit être une adresse @gmail.com valide (ex: nom@gmail.com).</string>
+    <string name="error_password_policy">Le mot de passe doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.</string>
+    <string name="error_invalid_credentials">Identifiants incorrects. Veuillez réessayer.</string>
+    <string name="error_passwords_mismatch">Les mots de passe ne correspondent pas.</string>
+    <string name="error_email_already_exists">Un compte avec cet e-mail existe déjà.</string>
+    <string name="error_account_suspended">Compte suspendu. Veuillez contacter un administrateur.</string>
+    <string name="msg_login_success">Connexion réussie.</string>
+    <string name="msg_register_success">Compte créé avec succès.</string>
+    <string name="error_generic_database">Une erreur de base de données est survenue. Veuillez réessayer.</string>
 
-    <!-- Écran d'accueil utilisateur standard (Home - Figma 07) -->
-    <string name="home_title">Masrouf — Overview</string>
-    <string name="home_greeting_format">Good morning, %1$s</string>
-    <string name="home_account_type">Personal account</string>
-    <string name="home_available_to_spend">AVAILABLE TO SPEND</string>
-    <string name="home_spent_format">Spent %1$s</string>
-    <string name="home_used_pct_format">%1$.1f%% used</string>
-    <string name="home_budget_format">Budget %1$s</string>
-    <string name="home_section_categories">CATEGORIES</string>
-    <string name="home_section_recent_purchases">RECENT PURCHASES</string>
-    <string name="home_no_transactions">No purchases recorded yet.</string>
-    <string name="home_no_budget">No active budget. Create one to get started!</string>
-    <string name="home_demo_notice">You are logged in as a standard user.</string>
-    <string name="btn_add_purchase">+ Add purchase</string>
-    <string name="btn_add_expense">+ Quick expense</string>
-    <string name="btn_logout">Log out</string>
-
-    <!-- Statuts budgétaires dynamiques -->
-    <string name="status_healthy_title">Your budget is looking healthy</string>
-    <string name="status_healthy_desc">%1$s left for the rest of this period.</string>
-    <string name="status_warning_title">Approaching budget limit (80%)</string>
-    <string name="status_warning_desc">Caution! %1$s left for the rest of this period.</string>
-    <string name="status_exceeded_title">Budget exceeded</string>
-    <string name="status_exceeded_desc">You have exceeded your plan by %1$s.</string>
-
-    <!-- Tiroir de Navigation latéral (Navigation Drawer - Figma 08) -->
-    <string name="drawer_menu_title">MASROUF</string>
-    <string name="drawer_role_user">PERSONAL ACCOUNT</string>
-    <string name="drawer_role_admin">SYSTEM ADMINISTRATOR</string>
-    <string name="drawer_nav_home">Home</string>
-    <string name="drawer_nav_products">Products &amp; Prices</string>
-    <string name="drawer_nav_calendar">Monthly Calendar</string>
-    <string name="drawer_nav_analytics">Analytics &amp; Statistics</string>
-    <string name="drawer_nav_budget">Manage Budget</string>
-    <string name="drawer_nav_points">Points &amp; Rewards</string>
-    <string name="drawer_nav_manual">User Manual (PDF)</string>
-    <string name="drawer_nav_settings">Settings &amp; Support</string>
-    <string name="drawer_nav_admin">Admin Supervision</string>
-    <string name="drawer_nav_logout">Log out</string>
-    <string name="drawer_version">Masrouf v1.0.0 · University Project</string>
-
-    <!-- Notifications système -->
-    <string name="notif_budget_warning_title">Masrouf: 80% Budget Reached</string>
-    <string name="notif_budget_warning_msg">Caution! You have used %1$.1f%% of your budget. Remaining: %2$s</string>
-    <string name="notif_budget_exceeded_title">Masrouf: Budget Exceeded!</string>
-    <string name="notif_budget_exceeded_msg">Alert! Your spending exceeds your budget by %1$s.</string>
-    <string name="notif_purchase_added_title">Purchase recorded</string>
-    <string name="notif_purchase_added_msg">New debit of %1$s for %2$s.</string>
-
-    <!-- Tableau de bord Administrateur (Admin Dashboard - Figma 35) -->
-    <string name="admin_header_title">Admin overview</string>
-    <string name="admin_subtitle">ADMINISTRATOR · GLOBAL STATISTICS</string>
-    <string name="admin_stat_active_accounts">ACTIVE ACCOUNTS</string>
-    <string name="admin_stat_accounts_summary">%1$d total · %2$d suspended</string>
-    <string name="admin_privacy_title">Anonymous statistics only</string>
-    <string name="admin_privacy_desc">No access to personal budgets or transactions.</string>
-    <string name="admin_product_categories">Product categories</string>
-    <string name="admin_expense_categories">Expense categories</string>
-    <string name="admin_btn_manage_users">Manage users</string>
-    <string name="admin_btn_manage_categories">Manage categories</string>
-    <string name="admin_btn_category_types">Category types</string>
-    <string name="admin_btn_default_percentages">Default percentages</string>
-    <string name="admin_btn_points_rules">Points rules</string>
-    <string name="admin_btn_settings">Admin settings</string>
-    <string name="admin_access_denied">Access denied: restricted to administrators.</string>
-
-    <!-- Gamification & Points (Figma 21) -->
-    <string name="gamification_title">Points &amp; Rewards</string>
-    <string name="gamification_total_points">TOTAL POINTS</string>
-    <string name="gamification_level_format">Level: %1$s</string>
-    <string name="gamification_streak_format">%1$d-period savings streak!</string>
-    <string name="gamification_streak_bonus">3-period streak bonus (+50 pts active)</string>
-    <string name="gamification_section_ledger">POINTS LEDGER</string>
-    <string name="gamification_section_badges">BADGES &amp; ACHIEVEMENTS</string>
-    <string name="gamification_badge_unlocked">Unlocked</string>
-    <string name="gamification_badge_locked">Locked (%1$d pts required)</string>
-
-    <!-- Modify Budget (Figma 11) -->
-    <string name="modify_budget_title">Modify Budget</string>
-    <string name="modify_budget_subtitle">Adjust monthly allowance &amp; category limits</string>
-    <string name="modify_budget_allocated_summary">Allocated: %1$s / %2$s</string>
-    <string name="modify_budget_unallocated_summary">Unallocated: %1$s</string>
-    <string name="modify_budget_error_exceeded">Category allocations exceed total budget!</string>
-    <string name="modify_budget_save_btn">Save Changes</string>
-    <string name="modify_budget_success">Budget updated successfully.</string>
-
-    <!-- Expenses (Figma 17 & 25) -->
-    <string name="add_expense_title">New Quick Expense</string>
-    <string name="edit_expense_title">Edit Expense</string>
-    <string name="expense_field_title">Title / Description</string>
-    <string name="expense_field_amount">Amount (DT)</string>
-    <string name="expense_field_category">Category</string>
-    <string name="expense_field_date">Date</string>
-    <string name="expense_field_recurring">Recurring monthly bill</string>
-    <string name="expense_field_note">Optional note</string>
-    <string name="expense_saved_success">Expense recorded successfully.</string>
-    <string name="expense_deleted_success">Expense deleted.</string>
-
-    <!-- Product Details & History (Figma 13, 14, 15, 24, 26) -->
-    <string name="product_details_title">Product Details</string>
-    <string name="product_add_title">Add New Product</string>
-    <string name="product_edit_title">Edit Product</string>
-    <string name="purchase_history_title">Purchase History</string>
-    <string name="purchase_edit_title">Edit Purchase</string>
-    <string name="product_price_variation_down">%1$.1f%% cheaper</string>
-    <string name="product_price_variation_up">+%1$.1f%% increase</string>
-    <string name="product_price_stable">Stable price</string>
-    <string name="product_last_price_label">Last unit price</string>
-    <string name="product_prev_price_label">Previous price</string>
-    <string name="product_store_label">Store / Market</string>
-    <string name="product_unit_label">Unit (L, kg, pack, unit)</string>
-    <string name="product_brand_label">Brand</string>
-    <string name="product_name_label">Product name</string>
-    <string name="product_photo_btn">Attach product photo</string>
-    <string name="product_saved_success">Product saved successfully.</string>
-
-    <!-- User Manual (Integrated Viewer & PDF) -->
-    <string name="manual_title">User Manual &amp; Guide</string>
-    <string name="manual_btn_open_pdf">Open Full PDF Manual</string>
-    <string name="manual_tab_philosophy">1. Philosophy</string>
-    <string name="manual_tab_budget">2. Budgets</string>
-    <string name="manual_tab_prices">3. Prices</string>
-    <string name="manual_tab_gamification">4. Rewards</string>
-
-    <!-- Admin Screens (Figma 39, 40, 41, 42, 43) -->
-    <string name="admin_categories_title">Category Management</string>
-    <string name="admin_category_types_title">Category Types</string>
-    <string name="admin_percentages_title">Default Allocations</string>
-    <string name="admin_percentages_total_format">Total allocation: %1$.1f%% (Must equal 100%%)</string>
-    <string name="admin_percentages_valid">Total is 100% valid.</string>
-    <string name="admin_percentages_invalid">Total must equal 100% exactly.</string>
-    <string name="admin_points_rules_title">Gamification Rules</string>
-    <string name="admin_settings_title">System Settings</string>
-    <string name="btn_save">Save</string>
-    <string name="btn_delete">Delete</string>
-    <string name="btn_cancel">Cancel</string>
-    <string name="confirm_delete">Are you sure you want to delete this?</string>
-
-    <!-- Category Addition on Home Screen -->
-    <string name="btn_add_category">+ Add category</string>
-    <string name="dialog_add_category_title">Add a category</string>
-    <string name="hint_category_name">Category name</string>
-    <string name="label_category_type">Category type</string>
-    <string name="type_product">Product / Purchase</string>
-    <string name="type_expense">Expense / Bill</string>
-    <string name="btn_confirm_add">Add</string>
-    <string name="msg_category_added">Category added successfully!</string>
-
-    <!-- Onboarding & Welcome Flow -->
-    <string name="welcome_welcome_to">Welcome to</string>
+    <!-- Aliases for backwards compatibility -->
+    <string name="welcome_welcome_to">Bienvenue sur</string>
     <string name="welcome_app_title">Masrouf</string>
-    <string name="welcome_btn_start">Get Started</string>
-    <string name="welcome_already_have_account">Already have an account? Log in</string>
-    <string name="welcome_skip">Skip</string>
-    <string name="welcome_btn_continue">Continue</string>
-    <string name="welcome_btn_choose_account">Choose your account type</string>
+    <string name="welcome_btn_start">Commencer</string>
+    <string name="welcome_already_have_account">Vous avez déjà un compte ? Se connecter</string>
+    <string name="welcome_skip">Passer</string>
+    <string name="welcome_btn_continue">Continuer</string>
+    <string name="welcome_btn_choose_account">Choisissez votre type de compte</string>
+    <string name="welcome_slide1_title">Gérez vos finances personnelles</string>
+    <string name="welcome_slide1_desc">Suivez vos dépenses quotidiennes et vos achats au millime près, tout en gardant le contrôle total sur votre budget.</string>
+    <string name="welcome_slide1_check1">Achats alimentaires et suivi des prix unitaires</string>
+    <string name="welcome_slide1_check2">Gestion des dépenses fixes et abonnements</string>
+    <string name="welcome_slide2_title">Organisez vos achats, dépenses et budgets</string>
+    <string name="welcome_slide2_desc">Classez vos dépenses par catégorie, suivez l\'évolution des prix unitaires et atteignez vos objectifs.</string>
+    <string name="welcome_slide2_check1">Enveloppes budgétaires mensuelles</string>
+    <string name="welcome_slide2_check2">Alertes visuelles de dépassement et d\'épargne</string>
+    <string name="welcome_slide3_title">Gérez les finances familiales &amp; vos enfants</string>
+    <string name="welcome_slide3_desc">Allouez l\'argent de poche, validez les demandes en temps réel et transmettez les bonnes habitudes financières.</string>
+    <string name="welcome_slide3_check1">Comptes enfants avec accès sécurisé</string>
+    <string name="welcome_slide3_check2">Réserve familiale, argent de poche &amp; demandes d\'argent</string>
+    <string name="welcome_choice_subtitle">MASROUF · TYPE DE COMPTE</string>
+    <string name="welcome_choice_title">Choisissez votre type de compte</string>
+    <string name="welcome_choice_desc">Sélectionnez le mode adapté à votre utilisation. Vous pourrez toujours faire évoluer votre espace.</string>
+    <string name="welcome_card_personal_title">Compte Personnel</string>
+    <string name="welcome_card_personal_badge">Individuel</string>
+    <string name="welcome_card_personal_desc">Gestion financière individuelle, achats, dépenses quotidiennes et budgets personnels.</string>
+    <string name="welcome_card_personal_check1">✓ Gestion financière individuelle et autonome</string>
+    <string name="welcome_card_personal_check2">✓ Achats, dépenses quotidiennes et enveloppes budgétaires</string>
+    <string name="welcome_card_personal_check3">✓ Suivi des prix unitaires et économies</string>
+    <string name="welcome_card_personal_action">Choisir le Compte Personnel ›</string>
+    <string name="welcome_card_family_title">Compte Famille</string>
+    <string name="welcome_card_family_badge">Parent / Tuteur</string>
+    <string name="welcome_card_family_desc">Espace Personnel + Espace Famille, gestion des enfants, réserve financière, allocations et demandes d\'argent.</string>
+    <string name="welcome_card_family_check1">✓ Espace Personnel + Espace Famille</string>
+    <string name="welcome_card_family_check2">✓ Création de comptes enfants sécurisés</string>
+    <string name="welcome_card_family_check3">✓ Réserve familiale, argent de poche &amp; validation des demandes</string>
+    <string name="welcome_card_family_check4">✓ Budgets consolidés et rapports d\'analyse pour la famille</string>
+    <string name="welcome_card_family_action">Choisir le Compte Famille ›</string>
+    <string name="reg_screen_title">Créer un compte</string>
+    <string name="reg_subtitle">SUIVI DE BUDGET FAMILIAL</string>
+    <string name="reg_toggle_personal">👤 Compte Personnel</string>
+    <string name="reg_toggle_family">👥 Compte Famille</string>
+    <string name="reg_info_personal">👤 Compte Personnel : gestion autonome de vos achats et budgets</string>
+    <string name="reg_info_family">ℹ️ Compte Parent : accès complet aux espaces Personnel et Famille</string>
+    <string name="reg_local_storage_notice">Vos budgets, achats et dépenses restent stockés localement sur cet appareil.</string>
+    <string name="reg_label_fullname">Nom complet</string>
+    <string name="reg_hint_fullname">Saisissez votre nom</string>
+    <string name="reg_label_confirm_password">Confirmation mot de passe</string>
+    <string name="reg_hint_confirm_password">Confirmez votre mot de passe</string>
+    <string name="reg_btn_do_register">Créer un compte</string>
+    <string name="reg_btn_go_login">Se connecter</string>
 
-    <!-- Slide 1 -->
-    <string name="welcome_slide1_title">Manage your personal finances</string>
-    <string name="welcome_slide1_desc">Track your daily expenses, purchases down to the millime, and keep total control of your budget.</string>
-    <string name="welcome_slide1_check1">Grocery purchase tracking and unit prices</string>
-    <string name="welcome_slide1_check2">Fixed expenses and subscriptions management</string>
+    <string name="home_title">Masrouf — Aperçu</string>
+    <string name="home_greeting_format">Bonjour, %1$s</string>
+    <string name="home_account_type">Compte personnel</string>
+    <string name="home_available_to_spend">DISPONIBLE À DÉPENSER</string>
+    <string name="home_spent_format">Dépensé %1$s</string>
+    <string name="home_used_pct_format">%1$.1f%% utilisé</string>
+    <string name="home_budget_format">Budget %1$s</string>
+    <string name="home_section_categories">CATÉGORIES</string>
+    <string name="home_section_recent_purchases">DERNIERS ACHATS</string>
+    <string name="home_no_transactions">Aucun achat enregistré pour le moment.</string>
+    <string name="home_no_budget">Aucun budget actif. Créez-en un pour commencer !</string>
+    <string name="home_demo_notice">Vous êtes connecté en tant qu\'utilisateur standard.</string>
+    <string name="btn_add_purchase">+ Ajouter un achat</string>
+    <string name="btn_add_expense">+ Dépense rapide</string>
+    <string name="btn_logout">Se déconnecter</string>
 
-    <!-- Slide 2 -->
-    <string name="welcome_slide2_title">Organize purchases, expenses and budgets</string>
-    <string name="welcome_slide2_desc">Classify your spending by category, track unit price evolution, and achieve your financial goals.</string>
-    <string name="welcome_slide2_check1">Monthly budget envelopes</string>
-    <string name="welcome_slide2_check2">Visual budget alert thresholds and savings</string>
+    <string name="status_healthy_title">Votre budget est sain</string>
+    <string name="status_healthy_desc">Il reste %1$s pour le reste de cette période.</string>
+    <string name="status_warning_title">Seuil du budget proche (80%)</string>
+    <string name="status_warning_desc">Attention ! Il reste %1$s pour le reste de cette période.</string>
+    <string name="status_exceeded_title">Budget dépassé</string>
+    <string name="status_exceeded_desc">Vous avez dépassé votre budget de %1$s.</string>
 
-    <!-- Slide 3 -->
-    <string name="welcome_slide3_title">Manage family finances &amp; your children</string>
-    <string name="welcome_slide3_desc">Allocate pocket money, approve requests in real time, and pass on good financial habits.</string>
-    <string name="welcome_slide3_check1">Child account creation with secure access</string>
-    <string name="welcome_slide3_check2">Family reserve, pocket money &amp; money requests</string>
+    <string name="drawer_menu_title">MASROUF</string>
+    <string name="drawer_role_user">COMPTE PERSONNEL</string>
+    <string name="drawer_role_admin">ADMINISTRATEUR SYSTÈME</string>
+    <string name="drawer_nav_home">Accueil</string>
+    <string name="drawer_nav_products">Produits &amp; Prix</string>
+    <string name="drawer_nav_calendar">Calendrier mensuel</string>
+    <string name="drawer_nav_analytics">Analyses &amp; Statistiques</string>
+    <string name="drawer_nav_budget">Gérer le budget</string>
+    <string name="drawer_nav_points">Points &amp; Récompenses</string>
+    <string name="drawer_nav_manual">Manuel utilisateur (PDF)</string>
+    <string name="drawer_nav_settings">Paramètres &amp; Support</string>
+    <string name="drawer_nav_admin">Supervision Admin</string>
+    <string name="drawer_nav_logout">Se déconnecter</string>
+    <string name="drawer_version">Masrouf v1.0.0 · Projet Universitaire</string>
 
-    <!-- Choice Screen -->
-    <string name="welcome_choice_subtitle">MASROUF · ACCOUNT SELECTION</string>
-    <string name="welcome_choice_title">Choose your account type</string>
-    <string name="welcome_choice_desc">Select the mode suitable for your use. You can always upgrade your space later.</string>
-    <string name="welcome_card_personal_title">Personal Account</string>
-    <string name="welcome_card_personal_badge">Individual</string>
-    <string name="welcome_card_personal_desc">Individual financial management, purchases, daily expenses and budgets.</string>
-    <string name="welcome_card_personal_check1">✓ Autonomous individual financial management</string>
-    <string name="welcome_card_personal_check2">✓ Purchases, daily expenses and budget envelopes</string>
-    <string name="welcome_card_personal_check3">✓ Unit price tracking and savings</string>
-    <string name="welcome_card_personal_action">Choose Personal Account ›</string>
+    <string name="notif_budget_warning_title">Masrouf : 80% du budget atteint</string>
+    <string name="notif_budget_warning_msg">Attention ! Vous avez utilisé %1$.1f%% de votre budget. Reste : %2$s</string>
+    <string name="notif_budget_exceeded_title">Masrouf : Budget dépassé !</string>
+    <string name="notif_budget_exceeded_msg">Alerte ! Vos dépenses dépassent votre budget de %1$s.</string>
+    <string name="notif_purchase_added_title">Achat enregistré</string>
+    <string name="notif_purchase_added_msg">Nouveau débit de %1$s pour %2$s.</string>
 
-    <string name="welcome_card_family_title">Family Account</string>
-    <string name="welcome_card_family_badge">Parent / Guardian</string>
-    <string name="welcome_card_family_desc">Personal Space + Family Space, children management, family reserve, allocations &amp; money requests.</string>
-    <string name="welcome_card_family_check1">✓ Personal Space + Family Space</string>
-    <string name="welcome_card_family_check2">✓ Child account creation with secure access</string>
-    <string name="welcome_card_family_check3">✓ Family reserve, pocket money &amp; request approval</string>
-    <string name="welcome_card_family_check4">✓ Consolidated family budgets and analytics reports</string>
-    <string name="welcome_card_family_action">Choose Family Account ›</string>
+    <string name="admin_header_title">Aperçu Admin</string>
+    <string name="admin_subtitle">ADMINISTRATEUR · STATISTIQUES GLOBALES</string>
+    <string name="admin_stat_active_accounts">COMPTES ACTIFS</string>
+    <string name="admin_stat_accounts_summary">%1$d au total · %2$d suspendus</string>
+    <string name="admin_privacy_title">Statistiques anonymes uniquement</string>
+    <string name="admin_privacy_desc">Aucun accès aux budgets ou transactions personnels.</string>
+    <string name="admin_product_categories">Catégories de produits</string>
+    <string name="admin_expense_categories">Catégories de dépenses</string>
+    <string name="admin_btn_manage_users">Gérer les utilisateurs</string>
+    <string name="admin_btn_manage_categories">Gérer les catégories</string>
+    <string name="admin_btn_category_types">Types de catégories</string>
+    <string name="admin_btn_default_percentages">Pourcentages par défaut</string>
+    <string name="admin_btn_points_rules">Règles de points</string>
+    <string name="admin_btn_settings">Paramètres Admin</string>
+    <string name="admin_access_denied">Accès refusé : réservé aux administrateurs.</string>
 
-    <!-- Registration Screen -->
-    <string name="reg_screen_title">Create an account</string>
-    <string name="reg_subtitle">FAMILY BUDGET TRACKER</string>
-    <string name="reg_toggle_personal">👤 Personal Account</string>
-    <string name="reg_toggle_family">👥 Family Account</string>
-    <string name="reg_info_personal">👤 Personal Account: Autonomous individual management of your purchases and budgets</string>
-    <string name="reg_info_family">ℹ️ Parent Account: Full access to Personal Space and Family Space</string>
-    <string name="reg_local_storage_notice">Your budgets, purchases and expenses remain stored locally on this device.</string>
-    <string name="reg_label_fullname">Full name</string>
-    <string name="reg_hint_fullname">Enter your name</string>
-    <string name="reg_label_confirm_password">Confirm password</string>
-    <string name="reg_hint_confirm_password">Confirm your password</string>
-    <string name="reg_btn_do_register">Create an account</string>
-    <string name="reg_btn_go_login">Log in</string>
+    <string name="gamification_title">Points &amp; Récompenses</string>
+    <string name="gamification_total_points">TOTAL DES POINTS</string>
+    <string name="gamification_level_format">Niveau : %1$s</string>
+    <string name="gamification_streak_format">Série d\'économie de %1$d périodes !</string>
+    <string name="gamification_streak_bonus">Bonus de série 3 périodes (+50 pts actif)</string>
+    <string name="gamification_section_ledger">REGISTRE DES POINTS</string>
+    <string name="gamification_section_badges">BADGES &amp; ÉTAPES</string>
+    <string name="gamification_badge_unlocked">Débloqué</string>
+    <string name="gamification_badge_locked">Verrouillé (%1$d pts requis)</string>
+
+    <string name="modify_budget_title">Modifier le budget</string>
+    <string name="modify_budget_subtitle">Ajuster l\'allocation mensuelle &amp; limites de catégories</string>
+    <string name="modify_budget_allocated_summary">Alloué : %1$s / %2$s</string>
+    <string name="modify_budget_unallocated_summary">Non alloué : %1$s</string>
+    <string name="modify_budget_error_exceeded">Les allocations de catégories dépassent le budget total !</string>
+    <string name="modify_budget_save_btn">Enregistrer les modifications</string>
+    <string name="modify_budget_success">Budget mis à jour avec succès.</string>
+
+    <string name="add_expense_title">Nouvelle dépense rapide</string>
+    <string name="edit_expense_title">Modifier la dépense</string>
+    <string name="expense_field_title">Titre / Description</string>
+    <string name="expense_field_amount">Montant (DT)</string>
+    <string name="expense_field_category">Catégorie</string>
+    <string name="expense_field_date">Date</string>
+    <string name="expense_field_recurring">Facture mensuelle récurrente</string>
+    <string name="expense_field_note">Note optionnelle</string>
+    <string name="expense_saved_success">Dépense enregistrée avec succès.</string>
+    <string name="expense_deleted_success">Dépense supprimée.</string>
+
+    <string name="product_details_title">Détails du produit</string>
+    <string name="product_add_title">Ajouter un nouveau produit</string>
+    <string name="product_edit_title">Modifier le produit</string>
+    <string name="purchase_history_title">Historique des achats</string>
+    <string name="purchase_edit_title">Modifier l\'achat</string>
+    <string name="product_price_variation_down">%1$.1f%% moins cher</string>
+    <string name="product_price_variation_up">+%1$.1f%% hausse de prix</string>
+    <string name="product_price_stable">Prix stable</string>
+    <string name="product_last_price_label">Dernier prix unitaire</string>
+    <string name="product_prev_price_label">Prix précédent</string>
+    <string name="product_store_label">Magasin / Surface</string>
+    <string name="product_unit_label">Unité (L, kg, paquet, pièce)</string>
+    <string name="product_brand_label">Marque</string>
+    <string name="product_name_label">Nom du produit</string>
+    <string name="product_photo_btn">Joindre une photo du produit</string>
+    <string name="product_saved_success">Produit enregistré avec succès.</string>
+
+    <string name="manual_title">Manuel &amp; Guide utilisateur</string>
+    <string name="manual_btn_open_pdf">Ouvrir le manuel PDF complet</string>
+    <string name="manual_tab_philosophy">1. Philosophie</string>
+    <string name="manual_tab_budget">2. Budgets</string>
+    <string name="manual_tab_prices">3. Prix</string>
+    <string name="manual_tab_gamification">4. Récompenses</string>
+
+    <string name="admin_categories_title">Gestion des catégories</string>
+    <string name="admin_category_types_title">Types de catégories</string>
+    <string name="admin_percentages_title">Allocations par défaut</string>
+    <string name="admin_percentages_total_format">Allocation totale : %1$.1f%% (Doit être égale à 100%%)</string>
+    <string name="admin_percentages_valid">Le total est 100% valide.</string>
+    <string name="admin_percentages_invalid">Le total doit être exactement égal à 100%.</string>
+    <string name="admin_points_rules_title">Règles de points</string>
+    <string name="admin_settings_title">Paramètres système</string>
+    <string name="btn_save">Enregistrer</string>
+    <string name="btn_delete">Supprimer</string>
+    <string name="btn_cancel">Annuler</string>
+    <string name="confirm_delete">Êtes-vous sûr de vouloir supprimer ceci ?</string>
+
+    <string name="btn_add_category">+ Ajouter une catégorie</string>
+    <string name="dialog_add_category_title">Ajouter une catégorie</string>
+    <string name="hint_category_name">Nom de la catégorie</string>
+    <string name="label_category_type">Type de catégorie</string>
+    <string name="type_product">Produit / Achat</string>
+    <string name="type_expense">Dépense / Facture</string>
+    <string name="btn_confirm_add">Ajouter</string>
+    <string name="msg_category_added">Catégorie ajoutée avec succès !</string>
 </resources>

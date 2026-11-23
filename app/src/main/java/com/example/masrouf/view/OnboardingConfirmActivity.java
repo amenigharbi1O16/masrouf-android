@@ -24,7 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RÔLE : Écran d'onboarding 03 / 03 - Confirmation de la sélection (Figma / Image 05).
+ * RÔLE : Écran d'onboarding 03 / 03 - Confirmation de la sélection (Figma /
+ * Image 05).
  * Résume les catégories choisies et enregistre la sélection finale dans SQLite.
  * COUCHE MVC : Vue (View).
  */
@@ -63,8 +64,10 @@ public class OnboardingConfirmActivity extends AppCompatActivity {
         ivBack.setOnClickListener(v -> finish());
         btnModifySelection.setOnClickListener(v -> finish());
 
-        ivBell.setOnClickListener(v -> Toast.makeText(this, "Aucune notification pour le moment", Toast.LENGTH_SHORT).show());
-        ivProfile.setOnClickListener(v -> Toast.makeText(this, "Terminez d'abord votre inscription", Toast.LENGTH_SHORT).show());
+        ivBell.setOnClickListener(
+                v -> Toast.makeText(this, "Aucune notification pour le moment", Toast.LENGTH_SHORT).show());
+        ivProfile.setOnClickListener(
+                v -> Toast.makeText(this, "Terminez d'abord votre inscription", Toast.LENGTH_SHORT).show());
 
         displaySelectedCategories();
 
@@ -75,7 +78,23 @@ public class OnboardingConfirmActivity extends AppCompatActivity {
                 sessionManager.setOnboardingCompleted(userId, true);
             }
 
-            Intent intent = new Intent(OnboardingConfirmActivity.this, MainActivity.class);
+            Intent intent;
+            if (sessionManager.isParent()) {
+                intent = new Intent(OnboardingConfirmActivity.this,
+                        com.example.masrouf.view.family.FamilyDashboardActivity.class);
+            } else if (sessionManager.isChild()) {
+                intent = new Intent(OnboardingConfirmActivity.this,
+                        com.example.masrouf.view.child.ChildMainActivity.class);
+            } else {
+                com.example.masrouf.dao.BudgetDao budgetDao = new com.example.masrouf.dao.BudgetDao(
+                        OnboardingConfirmActivity.this);
+                com.example.masrouf.model.Budget budget = budgetDao.getCurrentBudget(userId);
+                if (budget == null || budget.getTotalAmount() <= 0) {
+                    intent = new Intent(OnboardingConfirmActivity.this, CreateBudgetActivity.class);
+                } else {
+                    intent = new Intent(OnboardingConfirmActivity.this, MainActivity.class);
+                }
+            }
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
@@ -134,7 +153,8 @@ public class OnboardingConfirmActivity extends AppCompatActivity {
         textLayout.addView(tvName);
 
         TextView tvType = new TextView(this);
-        String typeLabel = Category.TYPE_PRODUCT.equalsIgnoreCase(cat.getType()) ? "Articles & Produits" : "Dépenses & Services";
+        String typeLabel = Category.TYPE_PRODUCT.equalsIgnoreCase(cat.getType()) ? "Articles & Produits"
+                : "Dépenses & Services";
         tvType.setText(typeLabel);
         tvType.setTextColor(Color.parseColor("#6B7C74"));
         tvType.setTextSize(11);
@@ -155,23 +175,39 @@ public class OnboardingConfirmActivity extends AppCompatActivity {
     }
 
     private int getIconResId(String iconName) {
-        if (iconName == null) return R.drawable.ic_leaf;
+        if (iconName == null)
+            return R.drawable.ic_leaf;
         switch (iconName) {
-            case "ic_cutlery": return R.drawable.ic_cutlery;
-            case "ic_tshirt": return R.drawable.ic_tshirt;
-            case "ic_sparkle": return R.drawable.ic_sparkle;
-            case "ic_home": return R.drawable.ic_home;
-            case "ic_laptop": return R.drawable.ic_laptop;
-            case "ic_firstaid": return R.drawable.ic_firstaid;
-            case "ic_car": return R.drawable.ic_car;
-            case "ic_receipt": return R.drawable.ic_receipt;
-            case "ic_school": return R.drawable.ic_school;
-            case "ic_gamepad": return R.drawable.ic_gamepad;
-            case "ic_wallet": return R.drawable.ic_wallet;
-            case "ic_heart": return R.drawable.ic_heart;
-            case "ic_card": return R.drawable.ic_card;
-            case "ic_file": return R.drawable.ic_file;
-            default: return R.drawable.ic_leaf;
+            case "ic_cutlery":
+                return R.drawable.ic_cutlery;
+            case "ic_tshirt":
+                return R.drawable.ic_tshirt;
+            case "ic_sparkle":
+                return R.drawable.ic_sparkle;
+            case "ic_home":
+                return R.drawable.ic_home;
+            case "ic_laptop":
+                return R.drawable.ic_laptop;
+            case "ic_firstaid":
+                return R.drawable.ic_firstaid;
+            case "ic_car":
+                return R.drawable.ic_car;
+            case "ic_receipt":
+                return R.drawable.ic_receipt;
+            case "ic_school":
+                return R.drawable.ic_school;
+            case "ic_gamepad":
+                return R.drawable.ic_gamepad;
+            case "ic_wallet":
+                return R.drawable.ic_wallet;
+            case "ic_heart":
+                return R.drawable.ic_heart;
+            case "ic_card":
+                return R.drawable.ic_card;
+            case "ic_file":
+                return R.drawable.ic_file;
+            default:
+                return R.drawable.ic_leaf;
         }
     }
 

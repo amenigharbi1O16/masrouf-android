@@ -6,12 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.masrouf.model.Budget;
+import com.example.masrouf.model.BudgetAllocation;
+import com.example.masrouf.model.Category;
 import com.example.masrouf.model.ChildPermission;
 import com.example.masrouf.model.FamilyAllocation;
-import com.example.masrouf.model.FamilyFunds;
-import com.example.masrouf.model.MoneyRequest;
 import com.example.masrouf.model.Transaction;
 import com.example.masrouf.model.User;
+import com.example.masrouf.util.MillimesUtil;
 import com.example.masrouf.util.PasswordUtil;
 
 import java.text.SimpleDateFormat;
@@ -21,40 +23,89 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Data Access Object (DAO) dédié à la gestion du Compte Familial, des fonds partagés,
- * des allocations aux enfants, des demandes d'argent et des permissions parentales.
- * Toutes les opérations modifiant des fonds sont protégées par des transactions SQLite atomiques.
+ * Data Access Object (DAO) dédié à la gestion du profil Parent, des enveloppes par catégorie,
+ * des allocations individuelles aux enfants et des permissions parentales.
+ * 
+ * Architecture financière centralisée :
+ * - Le parent définit un budget global pour la période.
+ * - Répartition du budget global par catégories (dont la catégorie "Enfant").
+ * - Le bouton "Donner" attribue un solde à l'enfant prélevé directement sur l'enveloppe "Enfant".
+ * - Opérations atomiques protégées par des transactions SQLite.
  */
 public class FamilyDao {
 
     private static final String TAG = "FamilyDao";
 
     private final DatabaseHelper dbHelper;
+    private final BudgetDao budgetDao;
+    private final CategoryDao categoryDao;
 
     public FamilyDao(Context context) {
         this.dbHelper = DatabaseHelper.getInstance(context);
+        this.budgetDao = new BudgetDao(context);
+        this.categoryDao = new CategoryDao(context);
     }
 
     public FamilyDao(DatabaseHelper dbHelper) {
         this.dbHelper = dbHelper;
+        this.budgetDao = new BudgetDao(dbHelper);
+        this.categoryDao = new CategoryDao(dbHelper);
     }
 
     /**
-     * Récupère les fonds de la famille par son ID.
+     * Recherche l'ID de la catégorie "Enfant" ou "Enfants" ou "Children".
      */
-    public FamilyFunds getFamilyFunds(long familyId) {
+    public long getEnfantCategoryId() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = null;
         try {
-            cursor = db.query(DatabaseHelper.TABLE_FAMILY_FUNDS, null,
-                    DatabaseHelper.COLUMN_FF_ID + " = ?",
-                    new String[]{ String.valueOf(familyId) },
-                    null, null, null);
+            cursor = db.query(DatabaseHelper.TABLE_CATEGORIES,
+                    new String[]{ DatabaseHelper.COLUMN_CAT_ID },
+                    DatabaseHelper.COLUMN_CAT_NAME_FR + " LIKE ? OR " +
+                    DatabaseHelper.COLUMN_CAT_NAME_EN + " LIKE ? OR " +
+                    DatabaseHelper.COLUMN_CAT_NAME_AR + " LIKE ?",
+                    new String[]{ "%Enfant%", "%Children%", "%الأطفال%" },
+                    null, null, null, "1");
             if (cursor != null && cursor.moveToFirst()) {
-                return cursorToFamilyFunds(cursor);
+                return cursor.getLong(0);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Erreur getFamilyFunds: " + e.getMessage(), e);
+            Log.e(TAG, "Erreur getEnfantCategoryId: " + e.getMessage(), e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return 11; // ID par défaut de la catégorie Enfants si non trouvée
+    }
+
+    /**
+     * Récupère l'enveloppe budgétaire "Enfant" pour le budget courant du parent.
+     */
+    public BudgetAllocation getEnfantCategoryAllocation(long parentId) {
+        Budget currentBudget = budgetDao.getCurrentBudget(parentId);
+        if (currentBudget == null) return null;
+
+        long catId = getEnfantCategoryId();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(DatabaseHelper.TABLE_BUDGET_ALLOCATIONS, null,
+                    DatabaseHelper.COLUMN_ALLOC_BUDGET_ID + " = ? AND " +
+                    DatabaseHelper.COLUMN_ALLOC_CAT_ID + " = ?",
+                    new String[]{ String.valueOf(currentBudget.getId()), String.valueOf(catId) },
+                    null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                BudgetAllocation alloc = new BudgetAllocation();
+                alloc.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_ID)));
+                alloc.setBudgetId(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_BUDGET_ID)));
+                alloc.setCategoryId(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_CAT_ID)));
+                alloc.setAllocatedAmount(cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_AMOUNT)));
+                alloc.setAllocatedMillimes(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_MILLIMES)));
+                alloc.setSpentAmount(cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_SPENT)));
+                alloc.setSpentMillimes(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_SPENT_MILLIMES)));
+                return alloc;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur getEnfantCategoryAllocation: " + e.getMessage(), e);
         } finally {
             if (cursor != null) cursor.close();
         }
@@ -62,71 +113,20 @@ public class FamilyDao {
     }
 
     /**
-     * Récupère les fonds de la famille rattachée à un parent donné.
+     * Calcule le montant disponible en millimes dans l'enveloppe "Enfant" du parent.
      */
-    public FamilyFunds getFamilyFundsByParent(long parentId) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = null;
-        try {
-            cursor = db.query(DatabaseHelper.TABLE_FAMILY_FUNDS, null,
-                    DatabaseHelper.COLUMN_FF_PARENT_ID + " = ?",
-                    new String[]{ String.valueOf(parentId) },
-                    null, null, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                return cursorToFamilyFunds(cursor);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Erreur getFamilyFundsByParent: " + e.getMessage(), e);
-        } finally {
-            if (cursor != null) cursor.close();
-        }
-
-        // Si non trouvé par parent_id direct, tenter avec family_id = 1 par défaut
-        return getFamilyFunds(1);
+    public long getEnfantEnvelopeAvailableMillimes(long parentId) {
+        BudgetAllocation alloc = getEnfantCategoryAllocation(parentId);
+        if (alloc == null) return 0;
+        long allocated = alloc.getAllocatedMillimes() > 0 ? alloc.getAllocatedMillimes() : MillimesUtil.dtToMillimes(alloc.getAllocatedAmount());
+        long spent = alloc.getSpentMillimes() > 0 ? alloc.getSpentMillimes() : MillimesUtil.dtToMillimes(alloc.getSpentAmount());
+        return Math.max(0, allocated - spent);
     }
 
     /**
-     * S'assure que la trésorerie familiale existe pour le parent donné, sinon la crée avec les valeurs initiales.
-     */
-    public FamilyFunds ensureFamilyFundsCreated(long parentId, String familyName) {
-        FamilyFunds existing = getFamilyFundsByParent(parentId);
-        if (existing != null) return existing;
-
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.COLUMN_FF_PARENT_ID, parentId);
-        cv.put(DatabaseHelper.COLUMN_FF_FAMILY_NAME, familyName != null && !familyName.isEmpty() ? familyName : "Famille");
-        cv.put(DatabaseHelper.COLUMN_FF_TOTAL_MILLIMES, 500000);
-        cv.put(DatabaseHelper.COLUMN_FF_AVAILABLE_MILLIMES, 350000);
-        cv.put(DatabaseHelper.COLUMN_FF_ALLOCATED_MILLIMES, 150000);
-        cv.put(DatabaseHelper.COLUMN_FF_CREATED_AT, String.valueOf(System.currentTimeMillis()));
-
-        long id = db.insert(DatabaseHelper.TABLE_FAMILY_FUNDS, null, cv);
-        if (id > 0) {
-            return getFamilyFunds(id);
-        }
-        return getFamilyFunds(1);
-    }
-
-    /**
-     * Met à jour les fonds globaux d'une famille.
-     */
-    public boolean updateFamilyFunds(FamilyFunds funds) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.COLUMN_FF_TOTAL_MILLIMES, funds.getTotalFundsMillimes());
-        cv.put(DatabaseHelper.COLUMN_FF_AVAILABLE_MILLIMES, funds.getAvailableFundsMillimes());
-        cv.put(DatabaseHelper.COLUMN_FF_ALLOCATED_MILLIMES, funds.getAllocatedFundsMillimes());
-        cv.put(DatabaseHelper.COLUMN_FF_FAMILY_NAME, funds.getFamilyName());
-        return db.update(DatabaseHelper.TABLE_FAMILY_FUNDS, cv,
-                DatabaseHelper.COLUMN_FF_ID + " = ?",
-                new String[]{ String.valueOf(funds.getFamilyId()) }) > 0;
-    }
-
-    /**
-     * TRANSACTION ATOMIQUE : Allocation d'argent d'un parent vers un enfant.
-     * Déduit le montant des fonds disponibles de la famille,
-     * l'ajoute aux fonds alloués, crédite le solde de l'enfant et enregistre l'historique.
+     * TRANSACTION ATOMIQUE : Allocation d'un budget individuel à un enfant depuis l'enveloppe "Enfant".
+     * Déduit le montant disponible de la catégorie "Enfant", crédite le solde de l'enfant
+     * et enregistre l'allocation dans SQLite.
      */
     public boolean allocateMoneyToChild(long familyId, long parentId, long childId,
                                         String childName, long amountMillimes, String description) {
@@ -135,54 +135,112 @@ public class FamilyDao {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            // 1. Vérifier fonds disponibles
-            FamilyFunds funds = getFamilyFunds(familyId);
-            if (funds == null || funds.getAvailableFundsMillimes() < amountMillimes) {
-                Log.w(TAG, "Fonds disponibles insuffisants pour allouer: " + amountMillimes);
+            // 1. Vérifier le budget actif et l'enveloppe Enfant
+            Budget currentBudget = budgetDao.getCurrentBudget(parentId);
+            long catId = getEnfantCategoryId();
+
+            Cursor allocCursor = db.query(DatabaseHelper.TABLE_BUDGET_ALLOCATIONS, null,
+                    DatabaseHelper.COLUMN_ALLOC_BUDGET_ID + " = ? AND " +
+                    DatabaseHelper.COLUMN_ALLOC_CAT_ID + " = ?",
+                    new String[]{ String.valueOf(currentBudget != null ? currentBudget.getId() : 0), String.valueOf(catId) },
+                    null, null, null);
+
+            long allocId = 0;
+            long currentAllocated = 0;
+            long currentSpent = 0;
+
+            if (allocCursor != null && allocCursor.moveToFirst()) {
+                allocId = allocCursor.getLong(allocCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_ID));
+                currentAllocated = allocCursor.getLong(allocCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_MILLIMES));
+                currentSpent = allocCursor.getLong(allocCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ALLOC_SPENT_MILLIMES));
+                allocCursor.close();
+            } else {
+                if (allocCursor != null) allocCursor.close();
+            }
+
+            long availableInEnvelope = Math.max(0, currentAllocated - currentSpent);
+            // Si aucune enveloppe spécifique Enfant n'est définie mais qu'un budget global existe,
+            // ou si l'enveloppe disponible est suffisante :
+            if (allocId > 0 && availableInEnvelope < amountMillimes) {
+                Log.w(TAG, "Montant disponible insuffisant dans l'enveloppe Enfant: " + availableInEnvelope + " < " + amountMillimes);
                 return false;
             }
 
-            // 2. Mettre à jour les fonds de la famille
-            funds.setAvailableFundsMillimes(funds.getAvailableFundsMillimes() - amountMillimes);
-            funds.setAllocatedFundsMillimes(funds.getAllocatedFundsMillimes() + amountMillimes);
-            ContentValues cvFunds = new ContentValues();
-            cvFunds.put(DatabaseHelper.COLUMN_FF_AVAILABLE_MILLIMES, funds.getAvailableFundsMillimes());
-            cvFunds.put(DatabaseHelper.COLUMN_FF_ALLOCATED_MILLIMES, funds.getAllocatedFundsMillimes());
-            db.update(DatabaseHelper.TABLE_FAMILY_FUNDS, cvFunds,
-                    DatabaseHelper.COLUMN_FF_ID + " = ?",
-                    new String[]{ String.valueOf(familyId) });
+            // 2. Mettre à jour l'enveloppe catégorie Enfant (si existante)
+            if (allocId > 0) {
+                long newSpentMillimes = currentSpent + amountMillimes;
+                double newSpentDt = newSpentMillimes / 1000.0;
+                ContentValues cvAllocUpdate = new ContentValues();
+                cvAllocUpdate.put(DatabaseHelper.COLUMN_ALLOC_SPENT_MILLIMES, newSpentMillimes);
+                cvAllocUpdate.put(DatabaseHelper.COLUMN_ALLOC_SPENT, newSpentDt);
+                db.update(DatabaseHelper.TABLE_BUDGET_ALLOCATIONS, cvAllocUpdate,
+                        DatabaseHelper.COLUMN_ALLOC_ID + " = ?",
+                        new String[]{ String.valueOf(allocId) });
+            }
 
-            // 3. Créditer le solde de l'enfant
+            // 3. Créditer le solde individuel de l'enfant dans la table users
             Cursor childCursor = db.query(DatabaseHelper.TABLE_USERS,
                     new String[]{ DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES },
                     DatabaseHelper.COLUMN_USER_ID + " = ?",
                     new String[]{ String.valueOf(childId) },
                     null, null, null);
-            long currentBalance = 0;
+            long currentChildBalance = 0;
             if (childCursor != null && childCursor.moveToFirst()) {
-                currentBalance = childCursor.getLong(0);
+                currentChildBalance = childCursor.getLong(0);
                 childCursor.close();
+            } else {
+                if (childCursor != null) childCursor.close();
             }
 
             ContentValues cvChild = new ContentValues();
-            cvChild.put(DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES, currentBalance + amountMillimes);
+            cvChild.put(DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES, currentChildBalance + amountMillimes);
             db.update(DatabaseHelper.TABLE_USERS, cvChild,
                     DatabaseHelper.COLUMN_USER_ID + " = ?",
                     new String[]{ String.valueOf(childId) });
 
-            // 4. Enregistrer dans family_allocations
+            // 4. Enregistrer dans l'historique family_allocations
             String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+            String currentMonthKey = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
             String now = String.valueOf(System.currentTimeMillis());
             ContentValues cvAlloc = new ContentValues();
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_FAMILY_ID, familyId);
+            cvAlloc.put(DatabaseHelper.COLUMN_FA_FAMILY_ID, familyId > 0 ? familyId : 1);
             cvAlloc.put(DatabaseHelper.COLUMN_FA_PARENT_ID, parentId);
             cvAlloc.put(DatabaseHelper.COLUMN_FA_CHILD_ID, childId);
             cvAlloc.put(DatabaseHelper.COLUMN_FA_CHILD_NAME, childName);
             cvAlloc.put(DatabaseHelper.COLUMN_FA_AMOUNT_MILLIMES, amountMillimes);
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_DESCRIPTION, description != null ? description : "Argent alloué");
+            cvAlloc.put(DatabaseHelper.COLUMN_FA_DESCRIPTION, description != null && !description.isEmpty() ? description : "Budget alloué");
             cvAlloc.put(DatabaseHelper.COLUMN_FA_DATE, today);
             cvAlloc.put(DatabaseHelper.COLUMN_FA_CREATED_AT, now);
             db.insert(DatabaseHelper.TABLE_FAMILY_ALLOCATIONS, null, cvAlloc);
+
+            // 5. Synchroniser le budget mensuel de l'enfant dans TABLE_BUDGETS
+            long childTotalForMonth = getChildTotalAllowancesMillimes(childId, currentMonthKey);
+            double childTotalDt = childTotalForMonth / 1000.0;
+            Cursor childBudgetCursor = db.query(DatabaseHelper.TABLE_BUDGETS, null,
+                    DatabaseHelper.COLUMN_BUDGET_USER_ID + " = ? AND " +
+                    DatabaseHelper.COLUMN_BUDGET_START + " LIKE ?",
+                    new String[]{ String.valueOf(childId), currentMonthKey + "%" },
+                    null, null, null);
+
+            if (childBudgetCursor != null && childBudgetCursor.moveToFirst()) {
+                long bId = childBudgetCursor.getLong(childBudgetCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_BUDGET_ID));
+                childBudgetCursor.close();
+                ContentValues cvB = new ContentValues();
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_TOTAL, childTotalDt);
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_TOTAL_MILLIMES, childTotalForMonth);
+                db.update(DatabaseHelper.TABLE_BUDGETS, cvB, DatabaseHelper.COLUMN_BUDGET_ID + " = ?", new String[]{ String.valueOf(bId) });
+            } else {
+                if (childBudgetCursor != null) childBudgetCursor.close();
+                ContentValues cvB = new ContentValues();
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_USER_ID, childId);
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_TOTAL, childTotalDt);
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_TOTAL_MILLIMES, childTotalForMonth);
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_START, currentMonthKey + "-01");
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_END, currentMonthKey + "-30");
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_STATUS, "ACTIVE");
+                cvB.put(DatabaseHelper.COLUMN_BUDGET_CREATED_AT, now);
+                db.insert(DatabaseHelper.TABLE_BUDGETS, null, cvB);
+            }
 
             db.setTransactionSuccessful();
             Log.d(TAG, "Allocation réussie: " + amountMillimes + " millimes à " + childName);
@@ -196,7 +254,7 @@ public class FamilyDao {
     }
 
     /**
-     * Récupère la liste des allocations d'une famille.
+     * Récupère la liste des allocations vers des enfants.
      */
     public List<FamilyAllocation> getAllocations(long familyId) {
         List<FamilyAllocation> list = new ArrayList<>();
@@ -221,198 +279,7 @@ public class FamilyDao {
     }
 
     /**
-     * Crée une demande d'argent d'un enfant pour son parent.
-     */
-    public long createMoneyRequest(long familyId, long childId, String childName,
-                                   long parentId, long amountMillimes, String reason) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.COLUMN_MR_FAMILY_ID, familyId);
-        cv.put(DatabaseHelper.COLUMN_MR_CHILD_ID, childId);
-        cv.put(DatabaseHelper.COLUMN_MR_CHILD_NAME, childName);
-        cv.put(DatabaseHelper.COLUMN_MR_PARENT_ID, parentId);
-        cv.put(DatabaseHelper.COLUMN_MR_AMOUNT_MILLIMES, amountMillimes);
-        cv.put(DatabaseHelper.COLUMN_MR_REASON, reason);
-        cv.put(DatabaseHelper.COLUMN_MR_STATUS, MoneyRequest.STATUS_PENDING);
-        cv.put(DatabaseHelper.COLUMN_MR_REQUEST_DATE, today);
-        return db.insert(DatabaseHelper.TABLE_MONEY_REQUESTS, null, cv);
-    }
-
-    /**
-     * Récupère les demandes en attente pour la famille.
-     */
-    public List<MoneyRequest> getPendingMoneyRequests(long familyId) {
-        return getMoneyRequests(familyId, MoneyRequest.STATUS_PENDING);
-    }
-
-    /**
-     * Récupère les demandes d'argent filtrées par statut.
-     */
-    public List<MoneyRequest> getMoneyRequests(long familyId, String statusFilter) {
-        List<MoneyRequest> list = new ArrayList<>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = null;
-        try {
-            String selection = DatabaseHelper.COLUMN_MR_FAMILY_ID + " = ?";
-            String[] args;
-            if (statusFilter != null && !statusFilter.isEmpty()) {
-                selection += " AND " + DatabaseHelper.COLUMN_MR_STATUS + " = ?";
-                args = new String[]{ String.valueOf(familyId), statusFilter };
-            } else {
-                args = new String[]{ String.valueOf(familyId) };
-            }
-
-            cursor = db.query(DatabaseHelper.TABLE_MONEY_REQUESTS, null,
-                    selection, args, null, null, DatabaseHelper.COLUMN_MR_ID + " DESC");
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    list.add(cursorToMoneyRequest(cursor));
-                } while (cursor.moveToNext());
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Erreur getMoneyRequests: " + e.getMessage(), e);
-        } finally {
-            if (cursor != null) cursor.close();
-        }
-        return list;
-    }
-
-    /**
-     * Récupère les demandes d'argent faites par un enfant spécifique.
-     */
-    public List<MoneyRequest> getMoneyRequestsByChild(long childId) {
-        List<MoneyRequest> list = new ArrayList<>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = null;
-        try {
-            cursor = db.query(DatabaseHelper.TABLE_MONEY_REQUESTS, null,
-                    DatabaseHelper.COLUMN_MR_CHILD_ID + " = ?",
-                    new String[]{ String.valueOf(childId) },
-                    null, null, DatabaseHelper.COLUMN_MR_ID + " DESC");
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    list.add(cursorToMoneyRequest(cursor));
-                } while (cursor.moveToNext());
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Erreur getMoneyRequestsByChild: " + e.getMessage(), e);
-        } finally {
-            if (cursor != null) cursor.close();
-        }
-        return list;
-    }
-
-    /**
-     * TRANSACTION ATOMIQUE : Approbation d'une demande d'argent.
-     * Déduit le montant des fonds disponibles, crédite l'enfant,
-     * met à jour le statut de la demande et crée une allocation.
-     */
-    public boolean approveMoneyRequest(long requestId, String decisionNote) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.beginTransaction();
-        try {
-            // 1. Lire la requête
-            Cursor cursor = db.query(DatabaseHelper.TABLE_MONEY_REQUESTS, null,
-                    DatabaseHelper.COLUMN_MR_ID + " = ?",
-                    new String[]{ String.valueOf(requestId) },
-                    null, null, null);
-            if (cursor == null || !cursor.moveToFirst()) {
-                if (cursor != null) cursor.close();
-                return false;
-            }
-            MoneyRequest req = cursorToMoneyRequest(cursor);
-            cursor.close();
-
-            if (!req.isPending()) {
-                Log.w(TAG, "La demande n'est pas en attente, impossible d'approuver");
-                return false;
-            }
-
-            // 2. Déduire des fonds disponibles et ajouter aux fonds alloués
-            FamilyFunds funds = getFamilyFunds(req.getFamilyId());
-            if (funds == null || funds.getAvailableFundsMillimes() < req.getAmountMillimes()) {
-                Log.w(TAG, "Fonds insuffisants pour approuver la demande");
-                return false;
-            }
-            funds.setAvailableFundsMillimes(funds.getAvailableFundsMillimes() - req.getAmountMillimes());
-            funds.setAllocatedFundsMillimes(funds.getAllocatedFundsMillimes() + req.getAmountMillimes());
-            ContentValues cvFunds = new ContentValues();
-            cvFunds.put(DatabaseHelper.COLUMN_FF_AVAILABLE_MILLIMES, funds.getAvailableFundsMillimes());
-            cvFunds.put(DatabaseHelper.COLUMN_FF_ALLOCATED_MILLIMES, funds.getAllocatedFundsMillimes());
-            db.update(DatabaseHelper.TABLE_FAMILY_FUNDS, cvFunds,
-                    DatabaseHelper.COLUMN_FF_ID + " = ?",
-                    new String[]{ String.valueOf(req.getFamilyId()) });
-
-            // 3. Créditer le compte enfant
-            Cursor childCursor = db.query(DatabaseHelper.TABLE_USERS,
-                    new String[]{ DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES },
-                    DatabaseHelper.COLUMN_USER_ID + " = ?",
-                    new String[]{ String.valueOf(req.getChildId()) },
-                    null, null, null);
-            long balance = 0;
-            if (childCursor != null && childCursor.moveToFirst()) {
-                balance = childCursor.getLong(0);
-                childCursor.close();
-            }
-
-            ContentValues cvChild = new ContentValues();
-            cvChild.put(DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES, balance + req.getAmountMillimes());
-            db.update(DatabaseHelper.TABLE_USERS, cvChild,
-                    DatabaseHelper.COLUMN_USER_ID + " = ?",
-                    new String[]{ String.valueOf(req.getChildId()) });
-
-            // 4. Mettre à jour la demande en APPROVED
-            String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-            ContentValues cvReq = new ContentValues();
-            cvReq.put(DatabaseHelper.COLUMN_MR_STATUS, MoneyRequest.STATUS_APPROVED);
-            cvReq.put(DatabaseHelper.COLUMN_MR_DECISION_NOTE, decisionNote != null ? decisionNote : "Approuvé par le parent");
-            cvReq.put(DatabaseHelper.COLUMN_MR_DECISION_DATE, today);
-            db.update(DatabaseHelper.TABLE_MONEY_REQUESTS, cvReq,
-                    DatabaseHelper.COLUMN_MR_ID + " = ?",
-                    new String[]{ String.valueOf(requestId) });
-
-            // 5. Enregistrer l'allocation
-            String now = String.valueOf(System.currentTimeMillis());
-            ContentValues cvAlloc = new ContentValues();
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_FAMILY_ID, req.getFamilyId());
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_PARENT_ID, req.getParentId());
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_CHILD_ID, req.getChildId());
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_CHILD_NAME, req.getChildName());
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_AMOUNT_MILLIMES, req.getAmountMillimes());
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_DESCRIPTION, "Demande validée : " + req.getReason());
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_DATE, today);
-            cvAlloc.put(DatabaseHelper.COLUMN_FA_CREATED_AT, now);
-            db.insert(DatabaseHelper.TABLE_FAMILY_ALLOCATIONS, null, cvAlloc);
-
-            db.setTransactionSuccessful();
-            Log.d(TAG, "Demande " + requestId + " approuvée avec succès.");
-            return true;
-        } catch (Exception e) {
-            Log.e(TAG, "Erreur approveMoneyRequest: " + e.getMessage(), e);
-            return false;
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    /**
-     * Rejet d'une demande d'argent avec motif.
-     */
-    public boolean rejectMoneyRequest(long requestId, String decisionNote) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.COLUMN_MR_STATUS, MoneyRequest.STATUS_REJECTED);
-        cv.put(DatabaseHelper.COLUMN_MR_DECISION_NOTE, decisionNote != null ? decisionNote : "Refusé par le parent");
-        cv.put(DatabaseHelper.COLUMN_MR_DECISION_DATE, today);
-        return db.update(DatabaseHelper.TABLE_MONEY_REQUESTS, cv,
-                DatabaseHelper.COLUMN_MR_ID + " = ?",
-                new String[]{ String.valueOf(requestId) }) > 0;
-    }
-
-    /**
-     * Récupère les permissions parentales d'un enfant.
+     * Récupère les permissions d'un enfant.
      */
     public ChildPermission getChildPermissions(long childId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -430,30 +297,43 @@ public class FamilyDao {
         } finally {
             if (cursor != null) cursor.close();
         }
-        // Valeurs par défaut si inexistant
-        return new ChildPermission(childId, false, 20000, 50000, true);
+
+        ChildPermission defaultPerm = new ChildPermission();
+        defaultPerm.setChildId(childId);
+        defaultPerm.setCanViewFamilyBudget(false);
+        defaultPerm.setRequiresApprovalAboveMillimes(20000);
+        defaultPerm.setDailySpendingLimitMillimes(50000);
+        defaultPerm.setAccountActive(true);
+        return defaultPerm;
     }
 
     /**
-     * Enregistre ou met à jour les permissions parentales d'un enfant.
+     * Met à jour les permissions et plafonds d'un enfant.
      */
-    public boolean saveChildPermissions(ChildPermission p) {
+    public boolean updateChildPermissions(ChildPermission perm) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.COLUMN_CP_CHILD_ID, p.getChildId());
-        cv.put(DatabaseHelper.COLUMN_CP_CAN_VIEW_BUDGET, p.isCanViewFamilyBudget() ? 1 : 0);
-        cv.put(DatabaseHelper.COLUMN_CP_APPROVAL_ABOVE_MILLIMES, p.getRequiresApprovalAboveMillimes());
-        cv.put(DatabaseHelper.COLUMN_CP_DAILY_LIMIT_MILLIMES, p.getDailySpendingLimitMillimes());
-        cv.put(DatabaseHelper.COLUMN_CP_IS_ACTIVE, p.isAccountActive() ? 1 : 0);
-        long row = db.insertWithOnConflict(DatabaseHelper.TABLE_CHILD_PERMISSIONS, null, cv,
-                SQLiteDatabase.CONFLICT_REPLACE);
+        cv.put(DatabaseHelper.COLUMN_CP_CAN_VIEW_BUDGET, perm.isCanViewFamilyBudget() ? 1 : 0);
+        cv.put(DatabaseHelper.COLUMN_CP_APPROVAL_ABOVE_MILLIMES, perm.getRequiresApprovalAboveMillimes());
+        cv.put(DatabaseHelper.COLUMN_CP_DAILY_LIMIT_MILLIMES, perm.getDailySpendingLimitMillimes());
+        cv.put(DatabaseHelper.COLUMN_CP_IS_ACTIVE, perm.isAccountActive() ? 1 : 0);
+
+        int row = db.update(DatabaseHelper.TABLE_CHILD_PERMISSIONS, cv,
+                DatabaseHelper.COLUMN_CP_CHILD_ID + " = ?",
+                new String[]{ String.valueOf(perm.getChildId()) });
+        if (row <= 0) {
+            cv.put(DatabaseHelper.COLUMN_CP_CHILD_ID, perm.getChildId());
+            return db.insert(DatabaseHelper.TABLE_CHILD_PERMISSIONS, null, cv) > 0;
+        }
         return row > 0;
+    }
+
+    public boolean saveChildPermissions(ChildPermission perm) {
+        return updateChildPermissions(perm);
     }
 
     /**
      * TRANSACTION ATOMIQUE : Enregistrement d'une dépense effectuée par un enfant.
-     * Vérifie son solde disponible, déduit le montant de son solde dans la table users
-     * et enregistre la transaction.
      */
     public boolean recordChildExpense(long childId, String title, long amountMillimes,
                                       long catId, String catName, String store, String note) {
@@ -462,7 +342,6 @@ public class FamilyDao {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            // 1. Vérifier solde de l'enfant
             Cursor cursor = db.query(DatabaseHelper.TABLE_USERS,
                     new String[]{ DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES },
                     DatabaseHelper.COLUMN_USER_ID + " = ?",
@@ -480,14 +359,12 @@ public class FamilyDao {
                 return false;
             }
 
-            // 2. Déduire du solde
             ContentValues cvUser = new ContentValues();
             cvUser.put(DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES, balance - amountMillimes);
             db.update(DatabaseHelper.TABLE_USERS, cvUser,
                     DatabaseHelper.COLUMN_USER_ID + " = ?",
                     new String[]{ String.valueOf(childId) });
 
-            // 3. Insérer la transaction
             String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             double dtAmount = amountMillimes / 1000.0;
             ContentValues cvTrans = new ContentValues();
@@ -542,7 +419,7 @@ public class FamilyDao {
     }
 
     /**
-     * Calcule le total des allocations reçues par un enfant pour un mois donné (ou au total si monthKey est null).
+     * Calcule le total des allocations reçues par un enfant pour un mois donné.
      */
     public long getChildTotalAllowancesMillimes(long childId, String monthKey) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -569,7 +446,7 @@ public class FamilyDao {
     }
 
     /**
-     * Récupère la liste des transactions d'un enfant spécifique.
+     * Récupère les transactions d'un enfant.
      */
     public List<Transaction> getChildTransactions(long childId) {
         List<Transaction> list = new ArrayList<>();
@@ -594,15 +471,13 @@ public class FamilyDao {
     }
 
     /**
-     * TRANSACTION ATOMIQUE : Création d'un nouvel enfant avec identifiants de connexion indépendants
-     * et allocation initiale optionnelle.
+     * Création d'un nouvel enfant avec identifiants et mot de passe temporaire à changer obligatoirement.
      */
     public long addChildWithCredentials(long parentId, long familyId, String fullName,
                                        String email, String plainPassword, long initialAllocationMillimes) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            // 1. Créer le compte utilisateur enfant
             String now = String.valueOf(System.currentTimeMillis());
             ContentValues cvUser = new ContentValues();
             cvUser.put(DatabaseHelper.COLUMN_USER_EMAIL, email.trim().toLowerCase());
@@ -610,11 +485,11 @@ public class FamilyDao {
             cvUser.put(DatabaseHelper.COLUMN_USER_FULL_NAME, fullName.trim());
             cvUser.put(DatabaseHelper.COLUMN_USER_ROLE, User.ROLE_CHILD);
             cvUser.put(DatabaseHelper.COLUMN_USER_IS_ACTIVE, 1);
-            cvUser.put(DatabaseHelper.COLUMN_USER_IS_TEMP_PASSWORD, 1); // Mot de passe temporaire à changer obligatoirement à la 1ère connexion
+            cvUser.put(DatabaseHelper.COLUMN_USER_IS_TEMP_PASSWORD, 1); // mustChangePassword = 1
             cvUser.put(DatabaseHelper.COLUMN_USER_POINTS, 0);
             cvUser.put(DatabaseHelper.COLUMN_USER_STREAK, 0);
             cvUser.put(DatabaseHelper.COLUMN_USER_LEVEL, User.LEVEL_BEGINNER);
-            cvUser.put(DatabaseHelper.COLUMN_USER_FAMILY_ID, familyId);
+            cvUser.put(DatabaseHelper.COLUMN_USER_FAMILY_ID, familyId > 0 ? familyId : 1);
             cvUser.put(DatabaseHelper.COLUMN_USER_PARENT_ID, parentId);
             cvUser.put(DatabaseHelper.COLUMN_USER_BALANCE_MILLIMES, initialAllocationMillimes > 0 ? initialAllocationMillimes : 0);
             cvUser.put(DatabaseHelper.COLUMN_USER_CREATED_AT, now);
@@ -622,7 +497,6 @@ public class FamilyDao {
             long childId = db.insert(DatabaseHelper.TABLE_USERS, null, cvUser);
             if (childId <= 0) return -1;
 
-            // 2. Créer permissions par défaut
             ContentValues cvPerm = new ContentValues();
             cvPerm.put(DatabaseHelper.COLUMN_CP_CHILD_ID, childId);
             cvPerm.put(DatabaseHelper.COLUMN_CP_CAN_VIEW_BUDGET, 0);
@@ -631,31 +505,8 @@ public class FamilyDao {
             cvPerm.put(DatabaseHelper.COLUMN_CP_IS_ACTIVE, 1);
             db.insert(DatabaseHelper.TABLE_CHILD_PERMISSIONS, null, cvPerm);
 
-            // 3. Si allocation initiale, déduire des fonds disponibles
             if (initialAllocationMillimes > 0) {
-                FamilyFunds funds = getFamilyFunds(familyId);
-                if (funds != null && funds.getAvailableFundsMillimes() >= initialAllocationMillimes) {
-                    funds.setAvailableFundsMillimes(funds.getAvailableFundsMillimes() - initialAllocationMillimes);
-                    funds.setAllocatedFundsMillimes(funds.getAllocatedFundsMillimes() + initialAllocationMillimes);
-                    ContentValues cvFunds = new ContentValues();
-                    cvFunds.put(DatabaseHelper.COLUMN_FF_AVAILABLE_MILLIMES, funds.getAvailableFundsMillimes());
-                    cvFunds.put(DatabaseHelper.COLUMN_FF_ALLOCATED_MILLIMES, funds.getAllocatedFundsMillimes());
-                    db.update(DatabaseHelper.TABLE_FAMILY_FUNDS, cvFunds,
-                            DatabaseHelper.COLUMN_FF_ID + " = ?",
-                            new String[]{ String.valueOf(familyId) });
-
-                    String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                    ContentValues cvAlloc = new ContentValues();
-                    cvAlloc.put(DatabaseHelper.COLUMN_FA_FAMILY_ID, familyId);
-                    cvAlloc.put(DatabaseHelper.COLUMN_FA_PARENT_ID, parentId);
-                    cvAlloc.put(DatabaseHelper.COLUMN_FA_CHILD_ID, childId);
-                    cvAlloc.put(DatabaseHelper.COLUMN_FA_CHILD_NAME, fullName);
-                    cvAlloc.put(DatabaseHelper.COLUMN_FA_AMOUNT_MILLIMES, initialAllocationMillimes);
-                    cvAlloc.put(DatabaseHelper.COLUMN_FA_DESCRIPTION, "Allocation initiale");
-                    cvAlloc.put(DatabaseHelper.COLUMN_FA_DATE, today);
-                    cvAlloc.put(DatabaseHelper.COLUMN_FA_CREATED_AT, now);
-                    db.insert(DatabaseHelper.TABLE_FAMILY_ALLOCATIONS, null, cvAlloc);
-                }
+                allocateMoneyToChild(familyId, parentId, childId, fullName, initialAllocationMillimes, "Allocation initiale");
             }
 
             db.setTransactionSuccessful();
@@ -666,22 +517,6 @@ public class FamilyDao {
         } finally {
             db.endTransaction();
         }
-    }
-
-    // ==========================================
-    // MÉTHODES DE MAPPING RELATIONNEL -> OBJET
-    // ==========================================
-
-    private FamilyFunds cursorToFamilyFunds(Cursor c) {
-        FamilyFunds f = new FamilyFunds();
-        f.setFamilyId(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FF_ID)));
-        f.setParentId(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FF_PARENT_ID)));
-        f.setFamilyName(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FF_FAMILY_NAME)));
-        f.setTotalFundsMillimes(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FF_TOTAL_MILLIMES)));
-        f.setAvailableFundsMillimes(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FF_AVAILABLE_MILLIMES)));
-        f.setAllocatedFundsMillimes(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FF_ALLOCATED_MILLIMES)));
-        f.setCreatedAt(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FF_CREATED_AT)));
-        return f;
     }
 
     private FamilyAllocation cursorToAllocation(Cursor c) {
@@ -696,22 +531,6 @@ public class FamilyDao {
         a.setDate(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FA_DATE)));
         a.setCreatedAt(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_FA_CREATED_AT)));
         return a;
-    }
-
-    private MoneyRequest cursorToMoneyRequest(Cursor c) {
-        MoneyRequest r = new MoneyRequest();
-        r.setId(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_ID)));
-        r.setFamilyId(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_FAMILY_ID)));
-        r.setChildId(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_CHILD_ID)));
-        r.setChildName(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_CHILD_NAME)));
-        r.setParentId(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_PARENT_ID)));
-        r.setAmountMillimes(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_AMOUNT_MILLIMES)));
-        r.setReason(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_REASON)));
-        r.setStatus(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_STATUS)));
-        r.setDecisionNote(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_DECISION_NOTE)));
-        r.setRequestDate(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_REQUEST_DATE)));
-        r.setDecisionDate(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MR_DECISION_DATE)));
-        return r;
     }
 
     private ChildPermission cursorToPermissions(Cursor c) {
@@ -735,10 +554,6 @@ public class FamilyDao {
         t.setTitle(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_TITLE)));
         t.setAmount(c.getDouble(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_AMOUNT)));
         t.setAmountMillimes(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_AMOUNT_MILLIMES)));
-        t.setUnitPrice(c.getDouble(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_UNIT_PRICE)));
-        t.setUnitPriceMillimes(c.getLong(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_UNIT_PRICE_MILLIMES)));
-        t.setQuantity(c.getDouble(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_QUANTITY)));
-        t.setUnit(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_UNIT)));
         t.setStore(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_STORE)));
         t.setDate(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_DATE)));
         t.setNote(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TRANS_NOTE)));

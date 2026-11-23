@@ -26,7 +26,9 @@ import java.util.Locale;
  *   - Exigence n°9 (MVC avec TransactionDao).
  *   - Matrice §4 ligne 32 (CRUD complet : Update et Delete).
  */
-public class EditPurchaseActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class EditPurchaseActivity extends BaseActivity {
 
     public static final String EXTRA_TRANSACTION_ID = "extra_trans_id";
 

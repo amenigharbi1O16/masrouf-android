@@ -162,6 +162,10 @@ public class SessionManager {
         editor.apply();
     }
 
+    public void setLanguage(String languageCode) {
+        saveLanguage(languageCode);
+    }
+
     /**
      * Récupère la langue actuellement configurée par l'utilisateur (français par défaut).
      *

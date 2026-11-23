@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
-  Layout XML Paysage : Écran de connexion (layout-land/activity_login.xml)
-  EXIGENCES DU PROF COUVERTES :
-    - Matrice §4 ligne 19 : Qualifier de ressources alternatif (layout-land).
-    - Agencement horizontal optimisé en 2 colonnes (Branding à gauche, Formulaire à droite).
-    - Même identifiants (IDs) que activity_login.xml portrait pour éviter les NullPointerException.
--->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollLogin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/warm_bg"
+    android:background="@color/bg"
     android:fillViewport="true">
 
     <LinearLayout
@@ -19,7 +13,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Barre supérieure -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,39 +20,27 @@
             android:orientation="horizontal"
             android:paddingBottom="12dp">
 
-            <ImageView
-                android:id="@+id/ivMenu"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/ic_menu" />
-
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_weight="1"
                 android:text="@string/app_name"
-                android:textColor="@color/forest"
+                android:textColor="@color/dark"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/ivProfile"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="Profile"
-                android:src="@drawable/ic_profile" />
+            <include
+                layout="@layout/view_lang_chips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <!-- Conteneur 2 colonnes Paysage -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:baselineAligned="false"
             android:orientation="horizontal">
 
-            <!-- COLONNE GAUCHE : Branding & Slogan -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -73,11 +54,11 @@
                 <ImageView
                     android:layout_width="56dp"
                     android:layout_height="56dp"
-                    android:contentDescription="Logo"
-                    android:src="@drawable/ic_leaf" />
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_leaf"
+                    app:tint="@color/mint" />
 
                 <TextView
-                    android:id="@+id/tvTagline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -92,142 +73,74 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:text="Maîtrisez votre budget en Dinars Tunisiens en toute simplicité."
-                    android:textColor="#E0F2F1"
-                    android:textSize="12sp" />
+                    android:text="@string/login_welcome"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- COLONNE DROITE : Formulaire de connexion -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:background="@drawable/bg_input_card"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_login_error_banner"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/login_label_email"
-                    android:textColor="@color/muted"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/bg_input_card"
+                    android:padding="10dp"
+                    android:text="@string/error_invalid_credentials"
+                    android:textColor="@color/coral"
                     android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:visibility="gone" />
 
-                <EditText
-                    android:id="@+id/etEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_btn_secondary"
-                    android:hint="nom@gmail.com"
-                    android:inputType="textEmailAddress"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:textColor="@color/deep_forest"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="@string/login_label_password"
-                    android:textColor="@color/muted"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/etPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_btn_secondary"
-                    android:hint="••••••••"
-                    android:inputType="textPassword"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:textColor="@color/deep_forest"
-                    android:textSize="14sp" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnLogin"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_btn_primary"
-                    android:text="@string/login_btn_login"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnCreateAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_btn_secondary"
-                    android:text="@string/login_btn_create_account"
-                    android:textColor="@color/forest"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <!-- Sélecteur de langue -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                <LinearLayout style="@style/FieldBox">
 
                     <TextView
-                        android:id="@+id/tvLangEn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="6dp"
-                        android:text="@string/lang_en"
-                        android:textColor="@color/muted"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        style="@style/FieldLabel"
+                        android:text="@string/field_email" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" / "
-                        android:textColor="@color/muted_light"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvLangFr"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="6dp"
-                        android:text="@string/lang_fr"
-                        android:textColor="@color/muted"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" / "
-                        android:textColor="@color/muted_light"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvLangAr"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="6dp"
-                        android:text="@string/lang_ar"
-                        android:textColor="@color/muted"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                    <EditText
+                        android:id="@+id/et_email"
+                        style="@style/FieldInput"
+                        android:autofillHints="emailAddress"
+                        android:hint="@string/login_hint_email"
+                        android:importantForAutofill="yes"
+                        android:inputType="textEmailAddress" />
                 </LinearLayout>
 
-            </LinearLayout>
+                <LinearLayout style="@style/FieldBox">
 
+                    <TextView
+                        style="@style/FieldLabel"
+                        android:text="@string/field_password" />
+
+                    <EditText
+                        android:id="@+id/et_password"
+                        style="@style/FieldInput"
+                        android:autofillHints="password"
+                        android:importantForAutofill="yes"
+                        android:inputType="textPassword" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/btn_login"
+                    style="@style/BtnPrimary"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/login_btn_login" />
+
+                <TextView
+                    android:id="@+id/btn_create_account"
+                    style="@style/BtnSecondary"
+                    android:layout_marginTop="8dp"
+                    android:onClick="onCreateAccountClick"
+                    android:text="@string/login_btn_create_account" />
+
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

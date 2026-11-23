@@ -17,10 +17,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.masrouf.BaseActivity;
+import com.example.masrouf.LoginActivity;
 import com.example.masrouf.MainActivity;
 import com.example.masrouf.R;
 import com.example.masrouf.controller.SessionManager;
@@ -44,7 +45,7 @@ import com.example.masrouf.util.NotificationHelper;
  *   - Matrice §4 ligne 35 : Notification système avec NotificationChannel et PendingIntent.
  *   - Matrice §4 ligne 36 : Démarrage du Service en arrière-plan (ReminderService).
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private static final String TAG = "SettingsActivity";
     private static final int PERMISSION_REQUEST_CALL_PHONE = 2001;
@@ -160,7 +161,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Gérer les catégories
         findViewById(R.id.btnPrefCategories).setOnClickListener(v ->
-                startActivity(new Intent(SettingsActivity.this, OnboardingCategoriesActivity.class))
+                startActivity(new Intent(SettingsActivity.this, SelectCategoryActivity.class))
         );
 
         // Points et récompenses

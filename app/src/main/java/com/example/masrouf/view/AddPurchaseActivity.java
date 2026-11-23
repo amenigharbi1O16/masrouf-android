@@ -40,7 +40,9 @@ import java.util.Locale;
  *   - Matrice §4 ligne 27 (Utilisation de widgets SPINNER pour les unités et magasins).
  *   - Matrice §4 ligne 9 (Transmission des données calculées vers ComparePriceActivity via Intent extras).
  */
-public class AddPurchaseActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class AddPurchaseActivity extends BaseActivity {
 
     private static final String TAG = "AddPurchaseActivity";
 
@@ -76,12 +78,23 @@ public class AddPurchaseActivity extends AppCompatActivity {
         setupDynamicCalculations();
         setupListeners();
 
-        // Récupération d'un éventuel produit pré-sélectionné transmis par ProductsActivity
+        // Récupération d'un produit existant réutilisé pour un nouvel achat
         Intent intent = getIntent();
         if (intent.hasExtra("EXTRA_PRESELECTED_PRODUCT_NAME")) {
-            etPurchaseProductName.setText(intent.getStringExtra("EXTRA_PRESELECTED_PRODUCT_NAME"));
-            double price = intent.getDoubleExtra("EXTRA_PRESELECTED_PRODUCT_PRICE", 14.500);
-            etPurchaseTotalPrice.setText(String.format(Locale.US, "%.3f", price));
+            String preselectedName = intent.getStringExtra("EXTRA_PRESELECTED_PRODUCT_NAME");
+            etPurchaseProductName.setText(preselectedName);
+            etPurchaseProductName.setEnabled(false);
+
+            String preselectedUnit = intent.getStringExtra("EXTRA_PRESELECTED_PRODUCT_UNIT");
+            if (preselectedUnit != null) {
+                setSpinnerToValue(spnPurchaseUnit, preselectedUnit);
+                spnPurchaseUnit.setEnabled(false);
+            }
+
+            double price = intent.getDoubleExtra("EXTRA_PRESELECTED_PRODUCT_PRICE", 0.0);
+            if (price > 0) {
+                etPurchaseTotalPrice.setText(String.format(Locale.US, "%.3f", price));
+            }
         }
 
         boolean isSimpleExpense = intent.getBooleanExtra("EXTRA_IS_SIMPLE_EXPENSE", false);
@@ -115,6 +128,19 @@ public class AddPurchaseActivity extends AppCompatActivity {
     /**
      * EXIGENCE MATRICE §4 LIGNE 27 : Configuration des Spinners pour les unités et magasins.
      */
+    private void setSpinnerToValue(Spinner spinner, String value) {
+        if (spinner == null || value == null) return;
+        ArrayAdapter adapter = (ArrayAdapter) spinner.getAdapter();
+        if (adapter != null) {
+            for (int i = 0; i < adapter.getCount(); i++) {
+                if (value.equalsIgnoreCase(adapter.getItem(i).toString())) {
+                    spinner.setSelection(i);
+                    break;
+                }
+            }
+        }
+    }
+
     private void setupSpinners() {
         // Spinner des unités
         String[] units = {"L", "kg", "unité", "pack", "g", "bouteille"};

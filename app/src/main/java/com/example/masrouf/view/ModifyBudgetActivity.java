@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
@@ -43,7 +44,9 @@ import java.util.Map;
  *   - Règle de validation métier : Somme des allocations <= Total budget (fonds non alloués autorisés).
  *   - Bouton Sauvegarder bloqué avec message explicite en cas de dépassement.
  */
-public class ModifyBudgetActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class ModifyBudgetActivity extends BaseActivity {
 
     private EditText etModifyTotalAmount;
     private TextView tvModifyStartDate;
@@ -161,7 +164,7 @@ public class ModifyBudgetActivity extends AppCompatActivity {
             EditText etAmount = new EditText(this);
             etAmount.setLayoutParams(new LinearLayout.LayoutParams(220, LinearLayout.LayoutParams.WRAP_CONTENT));
             etAmount.setGravity(Gravity.END);
-            etAmount.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            etAmount.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
             etAmount.setText(String.format(Locale.US, "%.1f", currentAlloc));
             etAmount.setTextColor(Color.parseColor("#1C5143"));
             etAmount.setTextSize(14);

@@ -10,6 +10,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -19,27 +20,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.masrouf.BaseActivity;
 import com.example.masrouf.R;
 import com.example.masrouf.controller.SessionManager;
 import com.example.masrouf.dao.UserDao;
-import com.example.masrouf.view.LoginActivity;
+import com.example.masrouf.LoginActivity;
+import com.example.masrouf.view.SettingsActivity;
 
-/**
- * RÔLE : Tableau de bord de supervision générale réservé aux administrateurs (Figma 35).
- * COUCHE MVC : Vue (View).
- * EXIGENCES DU PROF COUVERTES :
- *   - Exigence n°1 (Gestion des 2 rôles : écran exclusif ADMIN avec garde d'accès).
- *   - Exigence n°2 & n°3 (VUE CONSTRUITE INTÉGRALEMENT EN CODE JAVA PUR SANS AUCUN FICHIER XML).
- *   - Matrice §4 ligne 8 (Listener explicite sous forme d'expression Lambda en Java 8+ / 11).
- *   - Matrice §4 ligne 24 (Gestion du cycle de vie : rafraîchissement des données dans onResume).
- *   - Matrice §4 ligne 32 & 33 (Requêtes d'agrégation SQL via le DAO).
- *
- * PARTICULARITÉ PÉDAGOGIQUE POUR LE PROFESSEUR :
- * Aucun fichier layout XML n'est associé à cette activité.
- * L'ensemble de la hiérarchie de vues (ScrollView, LinearLayout, TextView, Button, drawables dynamiques)
- * est instancié par code Java via "new View(this)", configuré par setters et injecté avec setContentView().
- */
-public class AdminDashboardActivity extends AppCompatActivity {
+public class AdminDashboardActivity extends BaseActivity {
 
     private static final String TAG = "AdminDashboardActivity";
 
@@ -193,7 +181,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         // Bouton 6 : Paramètres et assistance
         Button btnAdminSettings = createAdminActionButton(getString(R.string.admin_btn_settings));
-        btnAdminSettings.setOnClickListener(v -> startActivity(new Intent(this, com.example.masrouf.view.SettingsActivity.class)));
+        btnAdminSettings.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         rootLayout.addView(btnAdminSettings);
 
         // 7. BOUTON DE DÉCONNEXION (Matrice §4 ligne 8 : Listener Lambda en Java)

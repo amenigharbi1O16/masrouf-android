@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,7 +32,9 @@ import java.util.List;
  * (allocations parent-enfant et dépenses enregistrées).
  * COUCHE MVC : Vue (View).
  */
-public class FamilyHistoryActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class FamilyHistoryActivity extends BaseActivity {
 
     private ImageView ivBackHistory;
     private LinearLayout layoutHistoryList;
@@ -139,7 +142,7 @@ public class FamilyHistoryActivity extends AppCompatActivity {
             card.setOrientation(LinearLayout.HORIZONTAL);
             card.setBackgroundResource(R.drawable.bg_input_card);
             card.setPadding(32, 24, 32, 24);
-            card.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            card.setGravity(Gravity.CENTER_VERTICAL);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.bottomMargin = 14;

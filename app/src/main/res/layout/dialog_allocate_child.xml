@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- EN-TÊTE : TITRE + BOUTON FERMER -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvAllocateTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Allouer à ysff"
+            android:textColor="@color/deep_forest"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivCloseAllocate"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:src="@drawable/ic_close" />
+    </LinearLayout>
+
+    <!-- SOUS-TITRE : BUDGET CATÉGORIE ENFANT & DISPONIBLE -->
+    <TextView
+        android:id="@+id/tvAllocateSubtitleEnvelope"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Budget catégorie Enfant : 128.163 DT · Disponible : 128.163 DT"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp" />
+
+    <!-- CHAMP 1 : MONTANT DE L'ALLOCATION -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Montant de l'allocation (TND)"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp" />
+
+    <EditText
+        android:id="@+id/etAllocateAmount"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_input_card"
+        android:hint="Ex: 25.000"
+        android:inputType="numberDecimal"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/deep_forest"
+        android:textSize="14sp" />
+
+    <!-- CHAMP 2 : MOTIF OU NOTE -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Motif ou note pour l'enfant"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp" />
+
+    <EditText
+        android:id="@+id/etAllocateNote"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_input_card"
+        android:hint="Ex: Semaine de cours, félicitations..."
+        android:inputType="text"
+        android:paddingHorizontal="16dp"
+        android:textColor="@color/deep_forest"
+        android:textSize="14sp" />
+
+    <!-- BOUTONS D'ACTION -->
+    <Button
+        android:id="@+id/btnConfirmAllocation"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_btn_primary"
+        android:text="Confirmer le virement"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btnCancelAllocation"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_capsule_mint"
+        android:text="Annuler"
+        android:textAllCaps="false"
+        android:textColor="@color/deep_forest"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

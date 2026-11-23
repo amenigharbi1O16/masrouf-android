@@ -1,0 +1,4 @@
+MASROUF - projet Android (Java + XML), minSdk 24
+1. Android Studio > New Project > "Empty Views Activity" (Java), package com.masrouf.app.
+2. Copiez le contenu de app/src/main/ (java, res, AndroidManifest.xml) et app/build.gradle dans votre projet, puis Sync.
+3. Run. Aucune connexion requise : tout est stocké localement (SharedPreferences).

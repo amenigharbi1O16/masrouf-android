@@ -26,7 +26,9 @@ import java.io.File;
  * 7. Price Comparison (Comparateur de prix)
  * 8. Backups (Sauvegardes & Sécurité)
  */
-public class UserManualActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class UserManualActivity extends BaseActivity {
 
     private TextView tvManualPageTitle;
     private TextView tvManualPageContent;

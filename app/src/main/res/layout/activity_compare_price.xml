@@ -234,7 +234,25 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- 5. Total de l'achat -->
+        <!-- Graphique d'évolution du prix dans le temps -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:letterSpacing="0.08"
+            android:text="ÉVOLUTION DU PRIX DANS LE TEMPS"
+            android:textColor="@color/muted"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <com.example.masrouf.util.PriceEvolutionChartView
+            android:id="@+id/chartPriceEvolutionCompare"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input_card" />
+
+        <!-- Total de l'achat -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

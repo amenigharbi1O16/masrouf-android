@@ -30,7 +30,9 @@ import java.util.Locale;
  * RÔLE : Écran de Gamification, Points, Niveaux, Streaks et Badges (Figma 21).
  * COUCHE MVC : Vue (View).
  */
-public class PointsAndAchievementsActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class PointsAndAchievementsActivity extends BaseActivity {
 
     private TextView tvGamificationTotalPoints;
     private TextView tvGamificationLevel;

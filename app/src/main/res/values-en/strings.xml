@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_hello">Welcome to</string>
+    <string name="welcome_start">Get started</string>
+    <string name="have_account">Already have an account? </string>
+    <string name="login">Log in</string>
+
+    <string name="skip">Skip</string>
+    <string name="continue_btn">Continue</string>
+    <string name="choose_type_btn">Choose your account type</string>
+    <string name="ob1_title">Manage your personal finances</string>
+    <string name="ob1_desc">Track your daily spending and purchases down to the last cent and stay in full control of your budget.</string>
+    <string name="ob1_b1">Grocery purchases and unit price tracking</string>
+    <string name="ob1_b2">Fixed expenses and subscriptions management</string>
+    <string name="ob2_title">Organize purchases, expenses and budgets</string>
+    <string name="ob2_desc">Sort your expenses by category, follow unit price changes and reach your goals.</string>
+    <string name="ob2_b1">Monthly budget envelopes</string>
+    <string name="ob2_b2">Visual alerts for overspending and savings</string>
+    <string name="ob3_title">Manage family finances &amp; your children</string>
+    <string name="ob3_desc">Allocate pocket money, approve requests in real time and teach good financial habits.</string>
+    <string name="ob3_b1">Child accounts with secure access</string>
+    <string name="ob3_b2">Family reserve, pocket money &amp; money requests</string>
+
+    <string name="type_eyebrow">MASROUF · ACCOUNT TYPE</string>
+    <string name="type_title">Choose your account type</string>
+    <string name="type_subtitle">Select the mode that fits your use. You can always upgrade your space later.</string>
+    <string name="personal_title">Personal Account</string>
+    <string name="personal_badge">Individual</string>
+    <string name="personal_desc">Individual finance management, purchases, daily expenses and personal budgets.</string>
+    <string name="personal_f1">Independent individual finance management</string>
+    <string name="personal_f2">Purchases, daily expenses and budget envelopes</string>
+    <string name="personal_f3">Unit price tracking and savings</string>
+    <string name="personal_choose">Choose Personal Account</string>
+    <string name="family_ribbon">★ FULL EXPERIENCE</string>
+    <string name="family_title">Family Account</string>
+    <string name="family_badge">Parent / Guardian</string>
+    <string name="family_desc">Personal Space + Family Space, children management, financial reserve, allowances and money requests.</string>
+    <string name="family_f1">Personal Space + Family Space</string>
+    <string name="family_f2">Child accounts with secure access</string>
+    <string name="family_f3">Family reserve, pocket money &amp; request approval</string>
+    <string name="family_f4">Consolidated family budgets and analytics reports</string>
+    <string name="family_choose">Choose Family Account</string>
+
+    <string name="signup_title">Create an account</string>
+    <string name="section_label">FAMILY BUDGET TRACKER</string>
+    <string name="tab_personal">Personal Account</string>
+    <string name="tab_family">Family Account</string>
+    <string name="info_personal">Personal Account: independent management of your purchases and budgets</string>
+    <string name="info_family">Parent Account: full access to the Personal and Family Spaces</string>
+    <string name="local_note">Your budgets, purchases and expenses stay stored locally on this device.</string>
+    <string name="field_name">Full name</string>
+    <string name="hint_name">Enter your name</string>
+    <string name="field_email">Email address</string>
+    <string name="field_password">Password</string>
+    <string name="field_confirm">Confirm password</string>
+    <string name="hint_confirm">Confirm your password</string>
+    <string name="btn_signup">Create an account</string>
+    <string name="err_name">Please enter your name</string>
+    <string name="err_email">Invalid email address</string>
+    <string name="err_password_len">6 characters minimum</string>
+    <string name="err_password_match">Passwords do not match</string>
+    <string name="err_email_exists">An account with this email already exists</string>
+    <string name="signup_ok">Account created successfully</string>
+
+    <string name="login_welcome">Welcome to Masrouf</string>
+    <string name="login_title">Log in</string>
+    <string name="login_subtitle">Log in to access your accounts and budgets.</string>
+    <string name="login_todo">Login: to be connected to the database</string>
+    <string name="chip_fr">Français</string>
+    <string name="chip_ar">العربية</string>
+    <string name="chip_en">English</string>
+</resources>

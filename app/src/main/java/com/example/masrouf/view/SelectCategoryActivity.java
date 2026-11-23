@@ -24,7 +24,9 @@ import java.util.List;
  *   - Matrice §4 ligne 28 (ListView associée à un ArrayAdapter standard, Ch.6 du cours).
  *   - Matrice §4 ligne 10 (Communication par startActivityForResult / onActivityResult : renvoi du résultat via setResult(RESULT_OK, data) puis finish(), Ch.5 du cours).
  */
-public class SelectCategoryActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class SelectCategoryActivity extends BaseActivity {
 
     public static final String EXTRA_CATEGORY_ID = "EXTRA_SELECTED_CATEGORY_ID";
     public static final String EXTRA_CATEGORY_NAME = "EXTRA_SELECTED_CATEGORY_NAME";

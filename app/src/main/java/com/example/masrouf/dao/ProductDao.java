@@ -151,6 +151,44 @@ public class ProductDao {
         return prod;
     }
 
+    public Product getProductByName(String name) {
+        if (name == null || name.trim().isEmpty()) return null;
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Product prod = null;
+        Cursor cursor = null;
+
+        String sql = "SELECT p." + DatabaseHelper.COLUMN_PROD_ID + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_NAME + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_CAT_ID + ", " +
+                "c." + DatabaseHelper.COLUMN_CAT_NAME_EN + " AS cat_name, " +
+                "p." + DatabaseHelper.COLUMN_PROD_BRAND + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_UNIT + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_LAST_PRICE + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_PREV_PRICE + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_STORE + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_LAST_DATE + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_LAST_PRICE_MILLIMES + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_PREV_PRICE_MILLIMES + ", " +
+                "p." + DatabaseHelper.COLUMN_PROD_PHOTO_URI + " " +
+                "FROM " + DatabaseHelper.TABLE_PRODUCTS + " p " +
+                "LEFT JOIN " + DatabaseHelper.TABLE_CATEGORIES + " c " +
+                "ON p." + DatabaseHelper.COLUMN_PROD_CAT_ID + " = c." + DatabaseHelper.COLUMN_CAT_ID + " " +
+                "WHERE LOWER(p." + DatabaseHelper.COLUMN_PROD_NAME + ") = LOWER(?) LIMIT 1";
+
+        try {
+            cursor = db.rawQuery(sql, new String[]{ name.trim() });
+            if (cursor != null && cursor.moveToFirst()) {
+                prod = cursorToProduct(cursor);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur getProductByName : " + e.getMessage(), e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+
+        return prod;
+    }
+
     public long insertProduct(Product p) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();

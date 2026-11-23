@@ -1,37 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
-  Fichier manifeste complet de l'application Masrouf (AndroidManifest.xml)
-  EXIGENCES DU PROF COUVERTES :
-    - Exigence n°4 & Ch.2 : Déclaration obligatoire de chaque activité et composant.
-    - Matrice §4 ligne 11 & 30 : Permission dangereuse CALL_PHONE demandée à l'exécution pour ACTION_CALL.
-    - Matrice §4 ligne 16 & 35 : Permission POST_NOTIFICATIONS pour l'envoi des alertes budgétaires (Android 13+).
-    - Matrice §4 ligne 17 : Prise en charge native de la langue arabe et de la mise en page de droite à gauche (android:supportsRtl="true").
-    - Matrice §4 ligne 36 : Déclaration du composant SERVICE d'arrière-plan (ReminderService).
-    - Matrice §4 ligne 37 : android:exported="false" sur tous les composants internes privés pour la sécurité.
--->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 1. PERMISSIONS SYSTÈME JUSTIFIÉES (Oral Question 30) -->
-    <!-- Permission dangereuse requise pour passer des appels directs d'assistance via ACTION_CALL -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
-
-    <!-- Permission d'affichage des alertes et notifications système (Android 13+ Tiramisu) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <queries>
+        <intent><action android:name="android.speech.action.RECOGNIZE_SPEECH"/></intent>
+    </queries>
 
     <application
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Masrouf">
+        android:theme="@style/AppTheme">
 
-        <!-- POINT D'ENTRÉE PRINCIPAL DE L'APPLICATION (Welcome / Splash - /welcome) -->
+        <!-- Point d'entrée principal -->
         <activity
-            android:name=".view.OnboardingWelcomeActivity"
+            android:name=".WelcomeActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -40,255 +28,63 @@
             </intent-filter>
         </activity>
 
-        <!-- MODULE AUTHENTIFICATION & SÉCURITÉ COMPTES -->
-        <activity
-            android:name=".view.LoginActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".MainActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".view.RegisterActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+        <!-- Authentification & Onboarding -->
+        <activity android:name=".LoginActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".SignUpActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".OnboardingActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".AccountTypeActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.OnboardingCategoriesActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.OnboardingConfirmActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.ChangePasswordActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".view.OnboardingStep1Activity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+        <!-- Profil Enfant -->
+        <activity android:name=".view.child.ChildMainActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".view.OnboardingCategoriesActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+        <!-- Profil Parent & Foyer -->
+        <activity android:name=".view.family.FamilyDashboardActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.family.FamilyChildrenActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.family.FamilyAnalyticsActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.family.ChildProfileActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.family.FamilyFinancesActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.family.FamilyRequestsActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.family.FamilyHistoryActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.family.FamilyPrivacyActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".view.OnboardingConfirmActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+        <!-- Écrans partagés & Utilisateur Normal -->
+        <activity android:name=".ProductsActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".AnalysesActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".HistoryActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.CalendarActivity" android:exported="false" />
+        <activity android:name=".view.AnalyticsActivity" android:exported="false" />
+        <activity android:name=".view.NotificationsActivity" android:exported="false" />
+        <activity android:name=".view.SettingsActivity" android:exported="false" />
+        <activity android:name=".view.PointsAndAchievementsActivity" android:exported="false" />
+        <activity android:name=".view.CreateBudgetActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.AllocateBudgetActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.ModifyBudgetActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.SelectCategoryActivity" android:exported="false" />
+        <activity android:name=".view.AddPurchaseActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.EditPurchaseActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.PurchaseHistoryActivity" android:exported="false" />
+        <activity android:name=".view.ProductDetailsActivity" android:exported="false" />
+        <activity android:name=".view.ComparePriceActivity" android:exported="false" />
+        <activity android:name=".view.AddExpenseActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.EditExpenseActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.UserManualActivity" android:exported="false" />
 
-        <!-- Changement obligatoire du mot de passe temporaire (Figma 03) -->
-        <activity
-            android:name=".view.ChangePasswordActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+        <!-- Administration -->
+        <activity android:name=".view.admin.AdminDashboardActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.admin.AdminUsersActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.admin.AdminCategoriesActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.admin.AdminPercentagesActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".view.admin.AdminPointsRulesActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
 
-        <!-- ================================================================= -->
-        <!-- TABLEAUX DE BORD PRINCIPAUX                                       -->
-        <!-- ================================================================= -->
-        <!-- Accueil Utilisateur standard (ROLE_USER, Figma 07) -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+        <!-- Service d'arrière-plan -->
+        <service android:name=".service.ReminderService" android:exported="false" />
 
-        <!-- Tableau de bord Administrateur (ROLE_ADMIN, Figma 35 - Vue 100% Java n°1) -->
-        <activity
-            android:name=".view.admin.AdminDashboardActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Gestion des utilisateurs avec SimpleCursorAdapter (Figma 36) -->
-        <activity
-            android:name=".view.admin.AdminUsersActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- ================================================================= -->
-        <!-- MODULE BUDGETS & CATÉGORIES                                       -->
-        <!-- ================================================================= -->
-        <!-- Création et définition de l'enveloppe budgétaire mensuelle (Figma 09) -->
-        <activity
-            android:name=".view.CreateBudgetActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Allocation et répartition des pourcentages par catégorie (Figma 10) -->
-        <activity
-            android:name=".view.AllocateBudgetActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Sélection d'une catégorie via ListView + startActivityForResult (Ch. 5) -->
-        <activity
-            android:name=".view.SelectCategoryActivity"
-            android:exported="false" />
-
-        <!-- ================================================================= -->
-        <!-- MODULE PRODUITS, ACHATS & COMPARATEUR DE PRIX                     -->
-        <!-- ================================================================= -->
-        <!-- Catalogue des produits avec Custom BaseAdapter + ViewHolder (Figma 12) -->
-        <activity
-            android:name=".view.ProductsActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Enregistrement d'un achat ou d'une dépense avec Spinners (Figma 16) -->
-        <activity
-            android:name=".view.AddPurchaseActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Comparateur de prix unitaires au litre/kg (Figma 18) -->
-        <activity
-            android:name=".view.ComparePriceActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Détails d'un produit (Figma 13) -->
-        <activity
-            android:name=".view.ProductDetailsActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Ajout d'un produit (Figma 15) -->
-        <activity
-            android:name=".view.AddProductActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Édition d'un produit (Figma 26) -->
-        <activity
-            android:name=".view.EditProductActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Historique des achats (Figma 14) -->
-        <activity
-            android:name=".view.PurchaseHistoryActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Édition d'un achat (Figma 24) -->
-        <activity
-            android:name=".view.EditPurchaseActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Modification du Budget (Figma 11) -->
-        <activity
-            android:name=".view.ModifyBudgetActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Enregistrement d'une dépense fixe (Figma 17) -->
-        <activity
-            android:name=".view.AddExpenseActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Édition d'une dépense (Figma 25) -->
-        <activity
-            android:name=".view.EditExpenseActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Points et Gamification (Figma 21) -->
-        <activity
-            android:name=".view.PointsAndAchievementsActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Manuel et Guide Utilisateur avec ouverture native PDF -->
-        <activity
-            android:name=".view.UserManualActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Administration : Gestion des catégories (Figma 39, 40) -->
-        <activity
-            android:name=".view.admin.AdminCategoriesActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Administration : Pourcentages par défaut (Figma 41) -->
-        <activity
-            android:name=".view.admin.AdminPercentagesActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Administration : Règles de points (Figma 42) -->
-        <activity
-            android:name=".view.admin.AdminPointsRulesActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- ================================================================= -->
-        <!-- VUES CONSTRUITES 100% EN CODE JAVA PUR SANS XML                   -->
-        <!-- ================================================================= -->
-        <!-- Calendrier budgétaire mensuel et annuel (Figma 19 - Vue Java n°2) -->
-        <activity
-            android:name=".view.CalendarActivity"
-            android:exported="false" />
-
-        <!-- Analyses financières, statistiques et partage (Figma 20 - Vue Java n°3) -->
-        <activity
-            android:name=".view.AnalyticsActivity"
-            android:exported="false" />
-
-        <!-- ================================================================= -->
-        <!-- PARAMÈTRES, INTENTS IMPLICITES & ASSISTANCE                       -->
-        <!-- ================================================================= -->
-        <!-- Paramètres, sélecteur de langue, appels, SMS, partage (Figma 22) -->
-        <activity
-            android:name=".view.SettingsActivity"
-            android:exported="false" />
-
-        <!-- ================================================================= -->
-        <!-- ESPACE FAMILIAL (COMPTE PARENT) & ESPACE ARGENT DE POCHE (ENFANT) -->
-        <!-- ================================================================= -->
-        <activity
-            android:name=".view.family.FamilyDashboardActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".view.family.FamilyChildrenActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".view.family.ChildProfileActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".view.family.FamilyFinancesActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".view.family.FamilyRequestsActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".view.family.FamilyAnalyticsActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".view.family.FamilyHistoryActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".view.family.FamilyPrivacyActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".view.child.ChildMainActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- ================================================================= -->
-        <!-- SERVICE D'ARRIÈRE-PLAN (Started Service, Matrice §4 ligne 36)     -->
-        <!-- ================================================================= -->
-        <service
-            android:name=".service.ReminderService"
-            android:exported="false" />
-
-        <!-- FileProvider pour le partage et l'ouverture native du manuel utilisateur PDF -->
+        <!-- FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.masrouf.fileprovider"
@@ -300,5 +96,4 @@
         </provider>
 
     </application>
-
 </manifest>

@@ -25,7 +25,9 @@ import com.example.masrouf.controller.SessionManager;
  *   - Matrice §4 ligne 27 (Utilisation de RadioGroup / RadioButton pour le type de période).
  *   - Matrice §4 ligne 9 (Transmission des montants et dates à l'écran suivant via Intent extras).
  */
-public class CreateBudgetActivity extends AppCompatActivity {
+import com.example.masrouf.BaseActivity;
+
+public class CreateBudgetActivity extends BaseActivity {
 
     private static final String TAG = "CreateBudgetActivity";
 
